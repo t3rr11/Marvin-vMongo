@@ -1,0 +1,16 @@
+{
+  "name": "marvin-backend",
+  "version": "1.0.0",
+  "description": "Marvin Backend (Mongo DB)",
+  "main": "backend.js",
+  "dependencies": {
+    "mongoose": "^5.10.8",
+    "tunnel-ssh": "^4.1.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
