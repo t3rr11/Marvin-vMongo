@@ -10,15 +10,23 @@ const Guild = require('./models/guild_model');
 const Clan = require('./models/clan_model');
 const User = require('./models/user_model');
 
+//Variables
+let SSHConnected = false;
+let DBConnected = false;
+
+const checkSSHConnection = () => { return SSHConnected }
+const checkDBConnection = () => { return DBConnected }
+
 //SSH and Connect to Mongo
 ssh(SSHConfig.mongoConfig, function (error, server) {
   if(error) { console.log("SSH connection error: " + error); }
   else {
+    SSHConnected = true;
     console.log("Connected to SSH");
     mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
     DB = mongoose.connection;
     DB.on('error', console.error.bind(console, 'DB connection error:'));
-    DB.once('open', () => { console.log("Connected to MongoDB") });
+    DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
   }
 });
 
@@ -67,4 +75,4 @@ const updateUserByID = async (mbmID, data) => {
   console.log(`Updated User: ${ user.name }`);
 }
 
-module.exports = { addGuild, addClan, addUser, findUserByID, updateUserByID } 
+module.exports = { checkSSHConnection, checkDBConnection, addGuild, addClan, addUser, findUserByID, updateUserByID } 

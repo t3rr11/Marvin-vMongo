@@ -1,10 +1,13 @@
 //Required Libraries and Files
-var Log = require("./log.js");
+const fs = require("fs");
+const Log = require("./log.js");
+const APIRequest = require('./requestHandler');
+const { ErrorHandler } = require('./errorHandler');
 
 module.exports = { CheckMaintenance, UpdateScanSpeed }
 
 async function CheckMaintenance(APIDisabled, callback) {
-  await ClanData.GetClanDetails("3917089").then(function(response) {
+  await APIRequest.GetClanById(3917089).then(function(response) {
     //Check if response is the maintenance error code.
     if(response.error && response.reason.ErrorCode === 5) {
       if(APIDisabled === false) {
@@ -21,9 +24,15 @@ async function CheckMaintenance(APIDisabled, callback) {
   });
 }
 
-function UpdateScanSpeed(currSpeed, callback) {
-  var NConfig = JSON.parse(fs.readFileSync('../Configs/Config.json').toString());
-  if(NConfig) { callback(NConfig.scan_speed); }
-  else { callback(currSpeed); }
+async function UpdateScanSpeed(currSpeed, callback) {
+  //Since fs does not await. I had to contain it in a promise.
+  await new Promise((resolve) => {
+    fs.readFile('../Configs/Config.json', (err, data) => {
+      var NConfig = JSON.parse(data);
+      if(NConfig) { callback(NConfig.scan_speed); }
+      else { callback(currSpeed); }
+      resolve(true);
+    });
+  });
 }
 

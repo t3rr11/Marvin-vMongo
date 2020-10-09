@@ -1,11 +1,8 @@
 //Required Libraries and Files
 let Config = require('../Configs/Config.json');
-const { ErrorHandler } = require('./scripts/errorHandler');
-const SSHConfig = require(`../Configs/${ Config.isLocal ? 'Local' : 'Live' }/SSHConfig.js`).Config;
-const DiscordConfig = require(`../Configs/${ Config.isLocal ? 'Local' : 'Live' }/DiscordConfig.json`);
 const Checks = require('./scripts/checks');
 const database = require('./scripts/database');
-const name = require('./scripts/name');
+const Test = require('./scripts/testing');
 
 //Global variables
 let InitializationTime = new Date().getTime();
@@ -47,56 +44,17 @@ async function doChecks() {
   await Checks.UpdateScanSpeed(ScanSpeed, (Speed) => { ScanSpeed = Speed });
 }
 
-function addUsers() {
-  let i;
-  for(i = 0; i < 10; i++) {
-    database.addUser({ name: name.generateName(), sr: Math.floor(Math.random() * 2000), valor: Math.floor(Math.random() * 2000), glory: Math.floor(Math.random() * 5500) });
+//Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
+let startupCheck = setInterval(async () => {
+  if(database.checkSSHConnection && database.checkDBConnection) {
+    clearInterval(startupCheck);
+    //Initialize the backend and start running!
+    //init();
+
+    //Testing Below
+    //addUser();
+    //findUser("4611686018471334813");
+    await doChecks();
+    Test.getClanInfo();
   }
-}
-
-function findUser(membershipID) {
-  database.findUserByID(membershipID, (isError, isFound, data) => {
-    if(!isError) {
-      if(isFound) {
-        console.log(data);
-      } else { ErrorHandler("Low", `Failed to find user: ${ membershipID }`); }
-    } else { ErrorHandler("High", data); }
-  });
-}
-
-function addUser() {
-  database.addUser({
-    clanID: 3917089,
-    displayName: "Terrii",
-    membershipID: "4611686018471334813",
-    currentClass: "Titan",
-    joinDate: new Date("2019-10-08T01:40:21Z"),
-    lastPlayed: new Date(1600514192000)
-  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
-}
-
-function addGuild() {
-  database.addGuild({
-    guildID: "305561313675968513",
-    guildName: "Test Server",
-    ownerID: "194972321168097280",
-    ownerAvatar: "5d26991834b1477572ba55aa47689d02",
-    clans: [3917089],
-    region: "sydney",
-  });
-}
-
-function addClan() {
-  database.addClan({
-    clanID: 3917089,
-    clanName: "Marvins Minions",
-    clanCallsign: "MM",
-  });
-}
-
-//Initialize the backend and start running!
-//init();
-
-//Testing
-addUser();
-//findUser("4611686018471334813");
+}, 1000);
