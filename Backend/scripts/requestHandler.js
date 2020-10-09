@@ -23,9 +23,13 @@ const GetMembershipsForCurrentUser = async () => BungieReq(`/Platform/User/GetMe
 const GetMembershipsById = async (membershipId) => BungieReq(`/Platform/User/GetMembershipsById/${membershipId}/1/`);
 const GetTWABs = async () => BungieReq(`/Platform/Trending/Categories/`);
 const GetClan = async (membershipType, membershipId) => BungieReq(`/Platform/GroupV2/User/${membershipType}/${membershipId}/0/1/`);
-const GetClanById = async (clan_id) => BungieReq(`/Platform/GroupV2/${clan_id}/`);
+const GetClanById = async (clanID) => BungieReq(`/Platform/GroupV2/${clanID}/`);
+const GetClanMembersById = async (clan, callback) => {
+  const { isError, Data } = await BungieReq(`/Platform/GroupV2/${clan.clanID}/Members`);
+  callback(isError, true, Data, clan);
+};
 
 module.exports = {
   GetProfile, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, SearchDestinyPlayer, GetMembershipId,
-  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClan, GetClanById
+  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClan, GetClanById, GetClanMembersById
 }

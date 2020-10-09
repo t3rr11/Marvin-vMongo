@@ -30,18 +30,7 @@ ssh(SSHConfig.mongoConfig, function (error, server) {
   }
 });
 
-const addGuild = async (guildData) => {
-  await new Guild(guildData).save((err, guild) => {
-    if(err) { return console.error(err); } else { console.log(guild.guildName + " added to collection."); }
-  });
-}
-
-const addClan = async (clanData) => {
-  await new Clan(clanData).save((err, clan) => {
-    if(err) { return console.error(err); } else { console.log(clan.clanName + " added to collection."); }
-  });
-}
-
+//Adds
 const addUser = async (userData, callback) => {
   //Callback fields { isError, severity, err }
   await findUserByID(userData.membershipID, async (isError, isFound, data) => {
@@ -58,7 +47,40 @@ const addUser = async (userData, callback) => {
     } else { callback(true, "High", data) }
   });
 }
+const addGuild = async (guildData, callback) => {
+  //Callback fields { isError, severity, err }
+  await findGuildByID(guildData.guildID, async (isError, isFound, data) => {
+    if(!isError) {
+      if(!isFound) {
+        await new Guild(guildData).save((err, guild) => {
+          if(err) { callback(true, "High", err) }
+          else {
+            console.log(guild.guildName + " added to collection.");
+            callback(false);
+          }
+        });
+      } else { callback(true, "Low", `Tried to add duplicate guild: ${ guildData.guildName }`) }
+    } else { callback(true, "High", data) }
+  });
+}
+const addClan = async (clanData, callback) => {
+  //Callback fields { isError, severity, err }
+  await findClanByID(clanData.clanID, async (isError, isFound, data) => {
+    if(!isError) {
+      if(!isFound) {
+        await new Clan(clanData).save((err, clan) => {
+          if(err) { callback(true, "High", err) }
+          else {
+            console.log(clan.clanName + " added to collection.");
+            callback(false);
+          }
+        });
+      } else { callback(true, "Low", `Tried to add duplicate clan: ${ clanData.clanName }`) }
+    } else { callback(true, "High", data) }
+  });
+}
 
+//Finds
 const findUserByID = async (membershipID, callback) => {
   //Callback fields { isError, isFound, data }
   await User.find({ membershipID }, (err, array) => {
@@ -69,10 +91,109 @@ const findUserByID = async (membershipID, callback) => {
     }
   });
 }
+const findGuildByID = async (guildID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Guild.find({ guildID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array[0]); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const findClanByID = async (clanID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Clan.find({ clanID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array[0]); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
+//Gets
+const getAllGuilds = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Guild.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getAllClans = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Clan.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getAllUsers = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await User.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getTrackedGuilds = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Guild.find({ isTracking: true }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getTrackedClans = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Clan.find({ isTracking: true }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getTrackedUsers = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await User.find({ isTracking: true }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+
+//Updates
 const updateUserByID = async (mbmID, data) => {
   let user = await User.findOneAndUpdate({ mbmID }, { data }, { new: true });
   console.log(`Updated User: ${ user.name }`);
 }
 
-module.exports = { checkSSHConnection, checkDBConnection, addGuild, addClan, addUser, findUserByID, updateUserByID } 
+module.exports = {
+  checkSSHConnection,
+  checkDBConnection,
+  addUser,
+  addGuild,
+  addClan,
+  findUserByID,
+  findGuildByID,
+  findClanByID,
+  getAllGuilds,
+  getAllClans,
+  getAllUsers,
+  getTrackedGuilds,
+  getTrackedClans,
+  getTrackedUsers,
+  updateUserByID
+} 

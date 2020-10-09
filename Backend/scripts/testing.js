@@ -2,13 +2,6 @@ const database = require('./database');
 const APIRequest = require('./requestHandler');
 const { ErrorHandler } = require('./errorHandler');
 
-function addUsers() {
-  let i;
-  for(i = 0; i < 10; i++) {
-    database.addUser({ name: name.generateName(), sr: Math.floor(Math.random() * 2000), valor: Math.floor(Math.random() * 2000), glory: Math.floor(Math.random() * 5500) });
-  }
-}
-
 function findUser(membershipID) {
   database.findUserByID(membershipID, (isError, isFound, data) => {
     if(!isError) {
@@ -29,7 +22,6 @@ function addUser() {
     lastPlayed: new Date(1600514192000)
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
-
 function addGuild() {
   database.addGuild({
     guildID: "305561313675968513",
@@ -38,26 +30,23 @@ function addGuild() {
     ownerAvatar: "5d26991834b1477572ba55aa47689d02",
     clans: [3917089],
     region: "sydney",
-  });
+  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
-
 function addClan() {
   database.addClan({
     clanID: 3917089,
     clanName: "Marvins Minions",
     clanCallsign: "MM",
-  });
+  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 
 async function getUserInfo() {
   console.log(await APIRequest.GetProfile("3", "4611686018471334813", "100"));
 }
-
 async function getManifest() {
   const url = (await APIRequest.GetManifestVersion()).Data.Response.jsonWorldComponentContentPaths['en'].DestinyInventoryItemLiteDefinition;
   const inventoryItemManifest = await APIRequest.GetManifest(url);
 }
-
 async function getClanInfo() {
   let start = Date.now();
   let clanData = await APIRequest.GetClanById(3917089);
@@ -66,4 +55,4 @@ async function getClanInfo() {
   console.log(`${ end - start }ms`);
 }
 
-module.exports = { addUsers, findUser, addUser, addGuild, addClan, getUserInfo, getManifest, getClanInfo }
+module.exports = { findUser, addUser, addGuild, addClan, getUserInfo, getManifest, getClanInfo }

@@ -2,6 +2,7 @@
 
 # dependencies
 /Backend/node_modules
+/Backend/data
 /Frontend/node_modules
 
 #configs

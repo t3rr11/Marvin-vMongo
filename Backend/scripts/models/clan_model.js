@@ -5,7 +5,7 @@ var clanSchema = new Schema({
   clanID: Number,
   clanName: String,
   clanCallsign: String,
-  clanLevel: { type: Number, default: 0 },
+  clanLevel: { type: Number, default: 1 },
   memberCount: { type: Number, default: 0 },
   onlineMembers: { type: Number, default: 0 },
   firstScan: { type: Boolean, default: true },
