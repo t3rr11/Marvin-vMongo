@@ -6,6 +6,7 @@ const Database = require('./scripts/database');
 const Merge = require('./scripts/sqlMerge');
 const Test = require('./scripts/testing');
 const { ErrorHandler } = require('./scripts/errorHandler');
+const DefinitionHandler = require('./scripts/definitionHandler');
 const Tracking = require('./scripts/tracking');
 
 //Global variables
@@ -18,7 +19,7 @@ let ScanLength = 0;
 
 async function init() {
   //Clear console if in debug mode
-  if(Config.enableDebug){ console.clear(); }
+  //if(Config.enableDebug){ console.clear(); }
   
   //Do initialization checks
   await doChecks();
@@ -35,6 +36,7 @@ async function init() {
   //Loops
 	setInterval(() => { Log.SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, processing); }, 1000 * 10); //10 Second Interval
   setInterval(() => { doChecks(); }, 1000 * 60 * 1); //1 Minute Interval
+  setInterval(() => { DefinitionHandler.updateDefinitions(); }, 1000 * 60 * 1); //1 Minute Interval
 
   //Console Log
   Log.SaveLog("Info", `Backend server has started.`);
@@ -50,7 +52,7 @@ async function init() {
     //Start data grabbing.
     if(index < clans.length-1) {
       //Add clan to processing queue.
-      processing.push({ "clan_id": clans[index].clanID, "added": new Date().getTime() });
+      processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
 
       //Get clan members
       Tracking.UpdateClan(clans[index], (clan, isError, severity, err) => {
@@ -102,13 +104,14 @@ async function init() {
 };
 
 async function doChecks() {
+  await DefinitionHandler.updateDefinitions();
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
   await Checks.UpdateScanSpeed(ScanSpeed, (Speed) => { ScanSpeed = Speed });
 }
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async () => {
-  if(Database.checkSSHConnection && Database.checkDBConnection) {
+  if(Database.checkSSHConnection() && Database.checkDBConnection() && DefinitionHandler.checkDefinitions()) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);
     init();

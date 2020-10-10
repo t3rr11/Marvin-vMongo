@@ -2,6 +2,7 @@ const Database = require('./database');
 const { ErrorHandler } = require('./errorHandler');
 const Guilds = require('../data/guilds.json').guilds;
 const Clans = require('../data/clans.json').clans;
+const Definitions = require('../data/definitions.json').definitions;
 
 async function addNewGuilds() {
   for(let i in Guilds) {
@@ -51,4 +52,22 @@ async function addNewClans() {
   }
 }
 
-module.exports = { addNewGuilds, addNewClans }
+async function addNewDefintions() {
+  for(let i in Definitions) {
+    let definition = Definitions[i];
+    Database.addDefinition({
+      name: definition.name,
+      fname: definition.fname,
+      type: definition.type,
+      advancedType: definition.advanced_type,
+      season: definition.season,
+      description: definition.description,
+      imageUrl: definition.imageUrl,
+      hash: definition.hash,
+      trackingEnabled: definition.tracking_enabled,
+      broadcastEnabled: definition.broadcast_enabled
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
+
+module.exports = { addNewGuilds, addNewClans, addNewDefintions }

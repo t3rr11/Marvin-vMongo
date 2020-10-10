@@ -9,6 +9,7 @@ const { ErrorHandler } = require('./errorHandler');
 const Guild = require('./models/guild_model');
 const Clan = require('./models/clan_model');
 const User = require('./models/user_model');
+const Definition = require('./models/definition_model');
 
 //Variables
 let SSHConnected = false;
@@ -77,6 +78,12 @@ const addClan = async (clanData, callback) => {
         });
       } else { callback(true, "Low", `Tried to add duplicate clan: ${ clanData.clanName }`) }
     } else { callback(true, "High", data) }
+  });
+}
+const addDefinition = async (definitionData, callback) => {
+  await new Definition(definitionData).save((err, def) => {
+    if(err) { callback(true, "High", err) }
+    else { console.log(def.name + " added to collection."); callback(false); }
   });
 }
 
@@ -173,11 +180,35 @@ const getTrackedUsers = async (callback) => {
     }
   });
 }
+const getAllDefinitions = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Definition.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 //Updates
-const updateUserByID = async (mbmID, data) => {
-  let user = await User.findOneAndUpdate({ mbmID }, { data }, { new: true });
-  console.log(`Updated User: ${ user.name }`);
+const updateUserByID = async (membershipID, data, callback) => {
+  let user = await User.findOneAndUpdate({ membershipID }, data, { new: true });
+  if(user !== null) {
+    callback(false);
+    console.log(`Updated User: ${ user.displayName }`);
+  }
+  else {
+    await new User(data).save((err, newUser) => {
+      if(err) { callback(true, "High", err) }
+      else { console.log(newUser.displayName + " added to collection."); callback(false); }
+    });
+  }
+}
+const updatePrivacyByID = async (membershipID, data, callback) => {
+  let user = await User.findOneAndUpdate({ membershipID }, data, { new: true });
+  if(user !== null) { callback(false); console.log(`Updated Privacy Settings For User: ${ user.displayName }`); }
+  else { callback(true, "Low", `NoUser`); console.log(`User: ${ membershipID }, does not exist yet. Need to make?`); }
 }
 
 module.exports = {
@@ -186,14 +217,17 @@ module.exports = {
   addUser,
   addGuild,
   addClan,
+  addDefinition,
   findUserByID,
   findGuildByID,
   findClanByID,
   getAllGuilds,
   getAllClans,
   getAllUsers,
+  getAllDefinitions,
   getTrackedGuilds,
   getTrackedClans,
   getTrackedUsers,
-  updateUserByID
-} 
+  updateUserByID,
+  updatePrivacyByID
+}
