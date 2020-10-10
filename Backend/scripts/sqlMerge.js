@@ -1,4 +1,4 @@
-const database = require('./database');
+const Database = require('./database');
 const { ErrorHandler } = require('./errorHandler');
 const Guilds = require('../data/guilds.json').guilds;
 const Clans = require('../data/clans.json').clans;
@@ -6,7 +6,7 @@ const Clans = require('../data/clans.json').clans;
 async function addNewGuilds() {
   for(let i in Guilds) {
     let guild = Guilds[i];
-    database.addGuild({
+    Database.addGuild({
       guildID: guild.guild_id,
       guildName: guild.guild_name,
       ownerID: guild.owner_id,
@@ -35,19 +35,19 @@ async function addNewGuilds() {
 async function addNewClans() {
   for(let i in Clans) {
     let clan = Clans[i];
-      database.addClan({
-        clanID: clan.clan_id,
-        clanName: clan.clan_name,
-        clanCallsign: clan.clan_callsign,
-        clanLevel: clan.clan_level,
-        memberCount: clan.member_count,
-        onlineMembers: clan.online_players,
-        firstScan: clan.firstScan,
-        forcedScan: clan.forcedScan,
-        isTracking: clan.isTracking,
-        joinedOn: new Date(JSON.parse(clan.joinedOn)),
-        lastScan: new Date(JSON.parse(clan.lastScan))
-      }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+    Database.addClan({
+      clanID: clan.clan_id,
+      clanName: clan.clan_name,
+      clanCallsign: clan.clan_callsign,
+      clanLevel: clan.clan_level,
+      memberCount: clan.member_count,
+      onlineMembers: clan.online_players,
+      firstScan: clan.firstScan,
+      forcedScan: clan.forcedScan,
+      isTracking: clan.isTracking,
+      joinedOn: new Date(JSON.parse(clan.joinedOn)),
+      lastScan: new Date(JSON.parse(clan.lastScan))
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
   }
 }
 

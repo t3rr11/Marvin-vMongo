@@ -7,9 +7,9 @@ const { ErrorHandler } = require('./errorHandler');
 module.exports = { CheckMaintenance, UpdateScanSpeed }
 
 async function CheckMaintenance(APIDisabled, callback) {
-  await APIRequest.GetClanById(3917089).then(function(response) {
+  await APIRequest.GetClan({ clanID: 3917089 }, (clan, isError, data) => {
     //Check if response is the maintenance error code.
-    if(response.error && response.reason.ErrorCode === 5) {
+    if(data.isError && data.ErrorCode === 5) {
       if(APIDisabled === false) {
         Log.SaveError("The Bungie API is temporarily disabled for maintenance.");
         callback(true);

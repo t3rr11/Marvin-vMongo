@@ -1,9 +1,9 @@
-const database = require('./database');
+const Database = require('./database');
 const APIRequest = require('./requestHandler');
 const { ErrorHandler } = require('./errorHandler');
 
 function findUser(membershipID) {
-  database.findUserByID(membershipID, (isError, isFound, data) => {
+  Database.findUserByID(membershipID, (isError, isFound, data) => {
     if(!isError) {
       if(isFound) {
         console.log(data);
@@ -13,7 +13,7 @@ function findUser(membershipID) {
 }
 
 function addUser() {
-  database.addUser({
+  Database.addUser({
     clanID: 3917089,
     displayName: "Terrii",
     membershipID: "4611686018471334813",
@@ -23,7 +23,7 @@ function addUser() {
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 function addGuild() {
-  database.addGuild({
+  Database.addGuild({
     guildID: "305561313675968513",
     guildName: "Test Server",
     ownerID: "194972321168097280",
@@ -33,7 +33,7 @@ function addGuild() {
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 function addClan() {
-  database.addClan({
+  Database.addClan({
     clanID: 3917089,
     clanName: "Marvins Minions",
     clanCallsign: "MM",

@@ -22,14 +22,17 @@ const GetMembershipId = async (platformName) => BungieReq(`/Platform/Destiny2/Se
 const GetMembershipsForCurrentUser = async () => BungieReq(`/Platform/User/GetMembershipsForCurrentUser/`);
 const GetMembershipsById = async (membershipId) => BungieReq(`/Platform/User/GetMembershipsById/${membershipId}/1/`);
 const GetTWABs = async () => BungieReq(`/Platform/Trending/Categories/`);
-const GetClan = async (membershipType, membershipId) => BungieReq(`/Platform/GroupV2/User/${membershipType}/${membershipId}/0/1/`);
-const GetClanById = async (clanID) => BungieReq(`/Platform/GroupV2/${clanID}/`);
-const GetClanMembersById = async (clan, callback) => {
+const GetClanFromMbmID = async (membershipType, membershipId) => BungieReq(`/Platform/GroupV2/User/${membershipType}/${membershipId}/0/1/`);
+const GetClan = async (clan, callback) => {
+  const { isError, Data } = await BungieReq(`/Platform/GroupV2/${clan.clanID}`);
+  callback(clan, isError, Data);
+};
+const GetClanMembers = async (clan, callback) => {
   const { isError, Data } = await BungieReq(`/Platform/GroupV2/${clan.clanID}/Members`);
-  callback(isError, true, Data, clan);
+  callback(clan, isError, Data);
 };
 
 module.exports = {
   GetProfile, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, SearchDestinyPlayer, GetMembershipId,
-  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClan, GetClanById, GetClanMembersById
+  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers
 }

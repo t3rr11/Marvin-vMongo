@@ -2,11 +2,11 @@
 let Config = require('../Configs/Config.json');
 const Log = require('./scripts/log');
 const Checks = require('./scripts/checks');
-const database = require('./scripts/database');
+const Database = require('./scripts/database');
 const Merge = require('./scripts/sqlMerge');
 const Test = require('./scripts/testing');
-const APIRequest = require('./scripts/requestHandler');
 const { ErrorHandler } = require('./scripts/errorHandler');
+const Tracking = require('./scripts/tracking');
 
 //Global variables
 let InitializationTime = new Date().getTime();
@@ -30,7 +30,7 @@ async function init() {
   var processing = [];
   var index = 0;
 
-  await Promise.all([ database.getTrackedClans((isError, isFound, data) => { if(!isError) { allClans, clans = data } }) ]);
+  await Promise.all([ Database.getTrackedClans((isError, isFound, data) => { if(!isError) { allClans, clans = data } }) ]);
 
   //Loops
 	setInterval(() => { Log.SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, processing); }, 1000 * 10); //10 Second Interval
@@ -40,9 +40,36 @@ async function init() {
   Log.SaveLog("Info", `Backend server has started.`);
   Log.SaveLog("Info", `Tracking ${ Config.enableTracking ? "Enabled." : "Disabled." }`);
 
+  //Clan scanner function, this is the main heart of the backend. It will scan for clan members, then update them or add them accordingly.
+  clanScanner = async ()  => {
+    //Alorigthm to check how many clans are being processed, for optimal time we want this to be between 20-30 at all times possible. But never over 30.
+    if(processing.length >= Math.round(ScanSpeed * 0.8)) { setTimeout(clanScanner, 1000 * 5); }
+    else if(processing.length >= ScanSpeed) { setTimeout(clanScanner, 1000 * 120); }
+    else { setTimeout(clanScanner, 100); }
+
+    //Start data grabbing.
+    if(index < clans.length-1) {
+      //Add clan to processing queue.
+      processing.push({ "clan_id": clans[index].clanID, "added": new Date().getTime() });
+
+      //Get clan members
+      Tracking.UpdateClan(clans[index], (clan, isError, severity, err) => {
+        if(isError) { ErrorHandler(severity, err); }
+        //Remove it from queue as clan update has finished.
+        processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
+      });
+    }
+    else {
+      //Restart when processing length is lower than scanspeed. Allow 10 seconds for restart.
+      if(!APIDisabled) { if(processing.length <= Math.round(ScanSpeed * 0.6)) { if((new Date().getTime() - new Date(LastScanTime).getTime()) > 10000) { restartTracking(); } } }
+    }
+
+    index++;
+  };
+
   //Reset function, this will restart the scanning process if marvin has scanned mostly all clans. Again trying to keep above 20 so it will rescan before it is finished the previous scan.
   restartTracking = async () => {
-    database.getTrackedClans((isError, isFound, data) => {
+    Database.getTrackedClans((isError, isFound, data) => {
       if(!isError) {
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
@@ -61,38 +88,6 @@ async function init() {
       }
     })
   }
-
-  //Clan scanner function, this is the main heart of the backend. It will scan for clan members, then update them or add them accordingly.
-  clanScanner = async ()  => {
-    //Alorigthm to check how many clans are being processed, for optimal time we want this to be between 20-30 at all times possible. But never over 30.
-    if(processing.length >= Math.round(ScanSpeed * 0.8)) { setTimeout(clanScanner, 1000 * 5); }
-    else if(processing.length >= ScanSpeed) { setTimeout(clanScanner, 1000 * 120); }
-    else { setTimeout(clanScanner, 100); }
-
-    //Start data grabbing.
-    if(index < clans.length-1) {
-      //Add clan to processing queue.
-      processing.push({ "clan_id": clans[index].clanID, "added": new Date().getTime() });
-
-      //Get clan members
-      APIRequest.GetClanMembersById(clans[index], (isError, isFound, data, clan) => {
-        let members = data.Response.results;
-
-        if(clan.clanName === "Marvins Minions") {
-          console.log(`${ new Date().toLocaleString() } - Clan: ${ clan.clanName }(${ clan.clanID }), Total Members: ${ members.length }`);
-        }
-
-        //Remove it from queue as clan update has finished.
-        processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
-      });
-    }
-    else {
-      //Restart when processing length is lower than scanspeed. Allow 10 seconds for restart.
-      if(!APIDisabled) { if(processing.length <= Math.round(ScanSpeed * 0.6)) { if((new Date().getTime() - new Date(LastScanTime).getTime()) > 10000) { restartTracking(); } } }
-    }
-
-    index++;
-  };
 
   //If config allows, start scanning clans...
   if(Config.enableTracking) {
@@ -113,7 +108,7 @@ async function doChecks() {
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async () => {
-  if(database.checkSSHConnection && database.checkDBConnection) {
+  if(Database.checkSSHConnection && Database.checkDBConnection) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);
     init();
@@ -127,6 +122,6 @@ let startupCheck = setInterval(async () => {
     //Merge.addNewGuilds();
     //Merge.addNewClans();
     //Test.addClan();
-    //database.getAllUsers((isError, isFound, data) => console.log(data));
+    //Database.getAllUsers((isError, isFound, data) => console.log(data));
   }
 }, 1000);
