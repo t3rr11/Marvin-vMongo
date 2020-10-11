@@ -9,6 +9,8 @@ const { ErrorHandler } = require('./errorHandler');
 const Guild = require('./models/guild_model');
 const Clan = require('./models/clan_model');
 const User = require('./models/user_model');
+const UserItems = require('./models/userItems_model');
+const UserTitles = require('./models/userTitles_model');
 const Definition = require('./models/definition_model');
 
 //Variables
@@ -193,22 +195,37 @@ const getAllDefinitions = async (callback) => {
 
 //Updates
 const updateUserByID = async (membershipID, data, callback) => {
-  let user = await User.findOneAndUpdate({ membershipID }, data, { new: true });
+  let user = await User.findOne({ membershipID });
   if(user !== null) {
-    callback(false);
-    console.log(`Updated User: ${ user.displayName }`);
+    let successCheck = [];
+    await new Promise(resolve => { User.update({ membershipID }, user.data, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } }); resolve(true); })
+    await new Promise(resolve => { UserItems.update({ membershipID }, user.items, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+    await new Promise(resolve => { UserTitles.update({ membershipID }, user.titles, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+    if(successCheck.every(e => e === true)) {
+      callback(false);
+      //console.log(`Updated User: ${ data.user.displayName }`);
+    }
+    else { callback(true, "High", successCheck) }
   }
   else {
-    await new User(data).save((err, newUser) => {
-      if(err) { callback(true, "High", err) }
-      else { console.log(newUser.displayName + " added to collection."); callback(false); }
-    });
+    let successCheck = [];
+    await new Promise(resolve => { new User(data.user).save((err, doc) => { if(err) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
+    await new Promise(resolve => { new UserItems(data.items).save((err, doc) => { if(err) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
+    await new Promise(resolve => { new UserTitles(data.titles).save((err, doc) => { if(err) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
+    if(successCheck.every(e => e === true)) {
+      callback(false);
+      //console.log(`Added User: ${ data.user.displayName }`);
+    }
+    else { callback(true, "High", successCheck) }
   }
 }
 const updatePrivacyByID = async (membershipID, data, callback) => {
   let user = await User.findOneAndUpdate({ membershipID }, data, { new: true });
   if(user !== null) { callback(false); console.log(`Updated Privacy Settings For User: ${ user.displayName }`); }
-  else { callback(true, "Low", `NoUser`); console.log(`User: ${ membershipID }, does not exist yet. Need to make?`); }
+  else {
+    callback(true, "Low", `NoUser`);
+    //console.log(`User: ${ membershipID }, does not exist yet. Need to make?`);
+  }
 }
 
 module.exports = {

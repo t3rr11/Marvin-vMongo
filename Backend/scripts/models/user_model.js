@@ -16,8 +16,6 @@ var userSchema = new Schema({
   triumphScore: DefaultNumber,
   seasonRank: DefaultNumber,
   powerBonus: DefaultNumber,
-  items: { type: Array, default: [] },
-  titles: { type: Array, default: [] },
   lightLevels: { type: Array, default: [] },
   ironBanner: {
     kills: DefaultNumber,

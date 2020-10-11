@@ -73,6 +73,9 @@ async function init() {
   restartTracking = async () => {
     Database.getTrackedClans((isError, isFound, data) => {
       if(!isError) {
+        var onlineMembers = 0;
+        for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
+        console.log(`Scan took: ${ Math.round((new Date().getTime() - startTime) / 1000) }s to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players.`);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
         allClans = data; //Set all clans in array.
@@ -97,7 +100,7 @@ async function init() {
       if(clans.length !== 0) {
         //Initialize the clan scanner.
         clearInterval(clansEmptyCheck);
-        //clanScanner();
+        clanScanner();
       }
     }, 1000);
   }

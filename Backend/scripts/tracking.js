@@ -47,10 +47,6 @@ async function UpdateClan(clan, callback) {
               });
             }
 
-            if(clan.clanName === "Marvins Minions") {
-              console.log(`${ new Date().toLocaleString() } - Clan: ${ clanDetails.name }(${ clanDetails.groupId }), Members Online: ${ membersToScan.length }/${ members.length }`);
-            }
-
             //Finally all users in clan have been scanned and processed, resolve promise.
             resolve(true);
           }
@@ -65,17 +61,20 @@ async function UpdateClan(clan, callback) {
 }
 
 async function ProcessPlayer(clan, memberData, playerData) {
-  Database.findUserByID(memberData.destinyUserInfo.membershipId, (isError, isFound, data) => {
+  Database.findUserByID(memberData.destinyUserInfo.membershipId, async (isError, isFound, oldPlayerData) => {
     if(!isError) {
       if(isFound) {
-        console.log(`Processing: ${ memberData.destinyUserInfo.displayName }(${ memberData.destinyUserInfo.membershipId })`);
-        const oldPlayerData = data;
+        //This will be where you look for broadcasts, you will compare previous data (oldPlayerData) with new data (playerData).
+
+        //Finally update player and save new data.
+        UpdatePlayer(clan, memberData, playerData);
       }
       else {
-        //User does not exist
+        //User did not exist before most likely just joined a tracked clan.
+        UpdatePlayer(clan, memberData, playerData);
       }
     }
-    else { ErrorHandler("Low", `User: ${ memberData.destinyUserInfo.membershipId }, Reason: ${ data }`); }
+    else { ErrorHandler("Low", `User: ${ memberData.destinyUserInfo.membershipId }, Reason: ${ oldPlayerData }`); }
   });
 }
 
@@ -90,32 +89,40 @@ async function UpdatePlayer(clan, memberData, playerData) {
   const Others = GetOthers(clan, memberData, playerData);
 
   Database.updateUserByID(memberData.destinyUserInfo.membershipId, {
-    clanID: clan.clanID,
-    displayName: memberData.destinyUserInfo.displayName,
-    membershipID: memberData.destinyUserInfo.membershipId,
-    currentClass: AccountInfo.currentClass,
-    highestPower: AccountInfo.highestPower,
-    timePlayed: AccountInfo.timePlayed,
-    infamy: { current: Rankings.infamy, resets: Math.floor(Rankings.infamy / 15000) },
-    valor: { current: Rankings.valor, resets: Math.floor(Rankings.valor / 2000) },
-    glory: Rankings.glory,
-    triumphScore: Others.triumphScore,
-    seasonRank: Seasonal.seasonRank,
-    powerBonus: Seasonal.powerBonus,
-    items: Items,
-    titles: Titles,
-    lightLevels: AccountInfo.lightLevels,
-    ironBanner: Rankings.ironBanner,
-    raids: Raids.raids,
-    totalRaids: Raids.totalRaids,
-    xp: Seasonal.xp,
-    dungeons: Others.dungeons,
-    trials: Rankings.trials,
-    joinDate: memberData.joinDate,
-    lastPlayed: AccountInfo.lastPlayed,
-    lastUpdated: new Date(),
-    isPrivate: false,
-    firstLoad: false
+    user: {
+      clanID: clan.clanID,
+      displayName: memberData.destinyUserInfo.displayName,
+      membershipID: memberData.destinyUserInfo.membershipId,
+      currentClass: AccountInfo.currentClass,
+      highestPower: AccountInfo.highestPower,
+      timePlayed: AccountInfo.timePlayed,
+      infamy: { current: Rankings.infamy, resets: Math.floor(Rankings.infamy / 15000) },
+      valor: { current: Rankings.valor, resets: Math.floor(Rankings.valor / 2000) },
+      glory: Rankings.glory,
+      triumphScore: Others.triumphScore,
+      seasonRank: Seasonal.seasonRank,
+      powerBonus: Seasonal.powerBonus,
+      lightLevels: AccountInfo.lightLevels,
+      ironBanner: Rankings.ironBanner,
+      raids: Raids.raids,
+      totalRaids: Raids.totalRaids,
+      xp: Seasonal.xp,
+      dungeons: Others.dungeons,
+      trials: Rankings.trials,
+      joinDate: memberData.joinDate,
+      lastPlayed: AccountInfo.lastPlayed,
+      lastUpdated: new Date(),
+      isPrivate: false,
+      firstLoad: false
+    },
+    items: {
+      membershipID: memberData.destinyUserInfo.membershipId,
+      items: Items
+    },
+    titles: {
+      membershipID: memberData.destinyUserInfo.membershipId,
+      titles: Titles
+    }
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 
