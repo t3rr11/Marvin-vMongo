@@ -21,31 +21,33 @@ async function UpdateClan(clan, callback) {
             //Store variables
             let clanDetails = clanData.Response.detail;
             let members = memberData.Response.results;
-            let membersToScan = clan.forcedScan || clan.firstScan ? members : members.filter(e => e.isOnline || (new Date() - new Date(e.lastOnlineStatusChange * 1000)) < (1000 * 60 * 15));
+            let onlineMembers = clan.forcedScan || clan.firstScan ? members : members.filter(e => e.isOnline || (new Date() - new Date(e.lastOnlineStatusChange * 1000)) < (1000 * 60 * 15));
 
             //Get each players data
-            for(var i in membersToScan) {
-              await APIRequest.GetProfile(membersToScan[i], "100,200,202,800,900,1100", async (member, isError, playerData) => {
+            for(var i in onlineMembers) {
+              await APIRequest.GetProfile(onlineMembers[i], "100,200,202,800,900,1100", async (member, isError, playerData) => {
                 if(!isError) {
                   //Check if user is private by checking for if the data object exists.
                   if(playerData.Response.profileRecords.data) {
                     //Check to see if scan was forced or first scan.
-                    if(clan.forcedScan || clan.firstScan) { await UpdatePlayer(clan, membersToScan[i], playerData.Response); }
-                    else { await ProcessPlayer(clan, membersToScan[i], playerData.Response); }
+                    if(clan.forcedScan || clan.firstScan) { await UpdatePlayer(clan, onlineMembers[i], playerData.Response); }
+                    else { await ProcessPlayer(clan, onlineMembers[i], playerData.Response); }
                   }
                   else {
                     //Update privacy settings if user is private.
-                    Database.updatePrivacyByID(membersToScan[i].destinyUserInfo.membershipId, { isPrivate: true }, (isError, severity, reason) => {
-                      if(isError && reason !== "NoUser") { ErrorHandler("Med", `User: ${ membersToScan[i].destinyUserInfo.membershipId }, Reason: ${ reason }`); }
+                    Database.updatePrivacyByID(onlineMembers[i].destinyUserInfo.membershipId, { isPrivate: true }, (isError, severity, reason) => {
+                      if(isError && reason !== "NoUser") { ErrorHandler("Med", `User: ${ onlineMembers[i].destinyUserInfo.membershipId }, Reason: ${ reason }`); }
                     });
                   }
                 }
                 else {
-                  if(playerData.ErrorCode === 1601) { ErrorHandler("Low", `Player ${ membersToScan[i].destinyUserInfo.membershipId } not found.`); }
+                  if(playerData.ErrorCode === 1601) { ErrorHandler("Low", `Player ${ onlineMembers[i].destinyUserInfo.membershipId } not found.`); }
                   else { if(playerData.ErrorStatus) { ErrorHandler("Med", `Error: ${ playerData.ErrorStatus }`); } else { ErrorHandler("Med", playerData); } }
                 }
               });
             }
+            //Now that all users in the clan have been scanned, process clan data and look for changes then save the data.
+            await ProcessClanData(clan, clanData, onlineMembers);
 
             //Finally all users in clan have been scanned and processed, resolve promise.
             resolve(true);
@@ -60,11 +62,40 @@ async function UpdateClan(clan, callback) {
   if(ifSucessful) { callback(clan, false); }
 }
 
+async function ProcessClanData(clan, clanData, onlineMembers) {
+  let clanDetails = clanData.Response.detail;
+  let currentClanLevel = clanDetails.clanInfo.d2ClanProgressions["584850370"].level;
+  //Process clan data, look for changes
+  // TODO
+  if(clan.clanName !== clanDetails.name) { console.log(`Clan (${ clan.clanID }) has changed it's name from: ${ clan.clanName } to ${ clanDetails.name }`); }
+  if(clan.clanCallsign !== clanDetails.clanInfo.clanCallsign) { console.log(`Clan (${ clan.clanID }) has changed it's callsign from: ${ clan.clanCallsign } to ${ clanDetails.clanInfo.clanCallsign }`); }
+  if(clan.clanLevel !== currentClanLevel && clan.clanLevel < currentClanLevel) {
+    if(currentClanLevel === parseInt(clan.clanLevel)+1) {
+      console.log(`Clan (${ clan.clanID }) has leveled up from: ${ clan.clanLevel } to ${ currentClanLevel }`);
+    }
+  }
+
+  //Finally save clan details.
+  Database.updateClanByID(clan.clanID, {
+    clanName: clanDetails.name,
+    clanCallsign: clanDetails.clanInfo.clanCallsign,
+    clanLevel: currentClanLevel,
+    memberCount: clanDetails.memberCount,
+    onlineMembers: onlineMembers.length,
+    firstScan: false,
+    forcedScan: false,
+    lastScan: new Date()
+  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+}
+
 async function ProcessPlayer(clan, memberData, playerData) {
   Database.findUserByID(memberData.destinyUserInfo.membershipId, async (isError, isFound, oldPlayerData) => {
     if(!isError) {
       if(isFound) {
         //This will be where you look for broadcasts, you will compare previous data (oldPlayerData) with new data (playerData).
+        //console.log(`${ oldPlayerData.User.displayName } had ${ oldPlayerData.Items } items and ${ oldPlayerData.Titles } titles.`);
+        await CheckItems(clan, memberData, playerData, oldPlayerData);
+        //console.log("Checked");
 
         //Finally update player and save new data.
         UpdatePlayer(clan, memberData, playerData);
@@ -78,15 +109,22 @@ async function ProcessPlayer(clan, memberData, playerData) {
   });
 }
 
+async function CheckItems(clan, memberData, playerData, oldPlayerData) {
+  var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
+  var previousRecentItems = oldPlayerData.Items.recentItems;
+  var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
+
+  differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
+}
+
 async function UpdatePlayer(clan, memberData, playerData) {
-  const AccountInfo = GetAccountInfo(clan, memberData, playerData);
-  const Rankings = GetRankings(clan, memberData, playerData);
-  const Raids = GetRaids(clan, memberData, playerData);
-  const Items = GetItems(clan, memberData, playerData);
-  const Titles = GetTitles(clan, memberData, playerData);
-  const Seasonal = GetSeasonal(clan, memberData, playerData);
-  const Triumphs = GetTriumphs(clan, memberData, playerData);
-  const Others = GetOthers(clan, memberData, playerData);
+  const AccountInfo = FormatAccountInfo(clan, memberData, playerData);
+  const Rankings = FormatRankings(clan, memberData, playerData);
+  const Raids = FormatRaids(clan, memberData, playerData);
+  const Titles = FormatTitles(clan, memberData, playerData);
+  const Seasonal = FormatSeasonal(clan, memberData, playerData);
+  const Triumphs = FormatTriumphs(clan, memberData, playerData);
+  const Others = FormatOthers(clan, memberData, playerData);
 
   Database.updateUserByID(memberData.destinyUserInfo.membershipId, {
     user: {
@@ -116,17 +154,20 @@ async function UpdatePlayer(clan, memberData, playerData) {
       firstLoad: false
     },
     items: {
+      clanID: clan.clanID,
       membershipID: memberData.destinyUserInfo.membershipId,
-      items: Items
+      recentItems: playerData.profileCollectibles.data.recentCollectibleHashes,
+      items: Object.keys(playerData.profileCollectibles.data.collectibles).map((e, index) => { return { "hash": e, "state": playerData.profileCollectibles.data.collectibles[e].state } })
     },
     titles: {
+      clanID: clan.clanID,
       membershipID: memberData.destinyUserInfo.membershipId,
       titles: Titles
     }
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 
-function GetAccountInfo(clan, memberData, playerData) {
+function FormatAccountInfo(clan, memberData, playerData) {
   let characterIds = playerData.profile.data.characterIds;
   let characters = playerData.characters.data;
   let lastPlayedCharacter = characters[characterIds[0]];
@@ -168,7 +209,7 @@ function GetAccountInfo(clan, memberData, playerData) {
     "dlcOwned": dlcOwned
   }
 }
-function GetRankings(clan, memberData, playerData) {
+function FormatRankings(clan, memberData, playerData) {
   var characterIds = playerData.profile.data.characterIds;
   var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
   var valor = 0; try { valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress; } catch (err) { }
@@ -234,7 +275,7 @@ function GetRankings(clan, memberData, playerData) {
     }
   }
 }
-function GetRaids(clan, memberData, playerData) {
+function FormatRaids(clan, memberData, playerData) {
   var leviCompletions = playerData.profileRecords.data.records["3420353827"].objectives[0].progress;
   var eowCompletions = playerData.profileRecords.data.records["2602370549"].objectives[0].progress;
   var sosCompletions = playerData.profileRecords.data.records["1742345588"].objectives[0].progress;
@@ -270,19 +311,7 @@ function GetRaids(clan, memberData, playerData) {
     "totalRaids": totalRaids
   }
 }
-function GetItems(clan, memberData, playerData) {
-  var itemList = DefinitionHandler.getDefinitions().filter(e => e.type === "item");
-  var items = [];
-  for(var i in itemList) {
-    if(playerData.profileCollectibles.data.collectibles[itemList[i].hash]) {
-      if(GetItemState(playerData.profileCollectibles.data.collectibles[itemList[i].hash].state).notAcquired === false) {
-        items.push(itemList[i].hash);
-      }
-    }
-  }
-  return items;
-}
-function GetTitles(clan, memberData, playerData) {
+function FormatTitles(clan, memberData, playerData) {
   var titleList = DefinitionHandler.getDefinitions().filter(e => e.type === "title");
   var titles = [];
   for(var i in titleList) {
@@ -294,7 +323,7 @@ function GetTitles(clan, memberData, playerData) {
   }
   return titles;
 }
-function GetSeasonal(clan, memberData, playerData) {
+function FormatSeasonal(clan, memberData, playerData) {
   //Season Ranks
   var characterIds = playerData.profile.data.characterIds;
   var season8Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["1628407317"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["3184735011"].level; season8Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
@@ -316,7 +345,12 @@ function GetSeasonal(clan, memberData, playerData) {
     "sundial": sundialCompletions
   }
 }
-function GetOthers(clan, memberData, playerData) {
+function FormatTriumphs(clan, memberData, playerData) {
+  return {
+
+  }
+}
+function FormatOthers(clan, memberData, playerData) {
   var characterIds = playerData.profile.data.characterIds;
   var menageire = 0; try { menageire = playerData.profileRecords.data.records["1363982253"].objectives[0].progress; } catch (err) { }
   var runes = 0; try { runes = playerData.profileRecords.data.records["2422246600"].objectives[0].progress; } catch (err) { }
@@ -361,11 +395,6 @@ function GetOthers(clan, memberData, playerData) {
     },
     "guardianGames": { "laurels": GG_Laurels, "medals": GG_Medals, "rumble_super_kills": GG_RumbleSupers, "triumphs": GG_Triumphs },
     "lieCommQuest": { "EDZ": lieCommQuest.EDZ, "MOON": lieCommQuest.MOON, "IO": lieCommQuest.IO }
-  }
-}
-function GetTriumphs(clan, memberData, playerData) {
-  return {
-
   }
 }
 

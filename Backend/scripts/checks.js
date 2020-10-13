@@ -29,7 +29,7 @@ async function UpdateScanSpeed(currSpeed, callback) {
   await new Promise((resolve) => {
     fs.readFile('../Configs/Config.json', (err, data) => {
       var NConfig = JSON.parse(data);
-      if(NConfig) { callback(NConfig.scan_speed); }
+      if(NConfig) { callback(NConfig.scanSpeed); }
       else { callback(currSpeed); }
       resolve(true);
     });

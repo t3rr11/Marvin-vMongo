@@ -12,7 +12,8 @@ var clanSchema = new Schema({
   forcedScan: { type: Boolean, default: false },
   isTracking: { type: Boolean, default: true },
   joinedOn: { type: Date, default: Date.now },
-  lastScan: { type: Date, default: 0 }
+  lastScan: { type: Date, default: 0 },
+  realtime: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('clans', clanSchema); 

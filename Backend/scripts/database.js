@@ -92,11 +92,18 @@ const addDefinition = async (definitionData, callback) => {
 //Finds
 const findUserByID = async (membershipID, callback) => {
   //Callback fields { isError, isFound, data }
-  await User.find({ membershipID }, (err, array) => {
+  await User.find({ membershipID }, async (err, array) => {
     if(err) { callback(true, false, err); }
     else {
-      if(array.length > 0) { callback(false, true, array[0]); }
-      else { callback(false, false, null); }
+      if(array.length > 0) {
+        await Promise.all([await getUserItems(membershipID), await getUserTitles(membershipID)]).then((data) => {
+          var Items = data[0];
+          var Titles = data[1];
+          if(Items !== null && Titles !== null) { callback(false, true, { User: array[0], "Items": Items[0], "Titles": Titles[0] }); }
+          else { callback(false, false); }
+        });
+      }
+      else { callback(false, false); }
     }
   });
 }
@@ -192,15 +199,31 @@ const getAllDefinitions = async (callback) => {
     }
   });
 }
+const getUserItems = async (membershipID) => {
+  return await UserItems.find({ membershipID });
+}
+const getUserTitles = async (membershipID) => {
+  return await UserTitles.find({ membershipID });
+}
+
+const test = async (callback) => {
+  await UserItems.find({ membershipID: "4611686018471334813" }, (err, data) => {
+    if(err) { callback(true, false, err) }
+    else {
+      if(data.length > 0) { callback(false, true, data) } 
+      else { callback(false, false) }
+    }
+  });
+}
 
 //Updates
 const updateUserByID = async (membershipID, data, callback) => {
   let user = await User.findOne({ membershipID });
   if(user !== null) {
     let successCheck = [];
-    await new Promise(resolve => { User.update({ membershipID }, user.data, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } }); resolve(true); })
-    await new Promise(resolve => { UserItems.update({ membershipID }, user.items, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
-    await new Promise(resolve => { UserTitles.update({ membershipID }, user.titles, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+    await new Promise(resolve => { User.updateOne({ membershipID }, data.user, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } }); resolve(true); })
+    await new Promise(resolve => { UserItems.updateOne({ membershipID }, data.items, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+    await new Promise(resolve => { UserTitles.updateOne({ membershipID }, data.titles, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
     if(successCheck.every(e => e === true)) {
       callback(false);
       //console.log(`Updated User: ${ data.user.displayName }`);
@@ -227,6 +250,16 @@ const updatePrivacyByID = async (membershipID, data, callback) => {
     //console.log(`User: ${ membershipID }, does not exist yet. Need to make?`);
   }
 }
+const updateClanByID = async (clanID, data, callback) => {
+  Clan.updateOne({ clanID }, data, { }, (err, numAffected) => {
+    if(err || numAffected < 1) { callback(true, "Med", err); }
+    else { callback(false); }
+  });
+}
+
+//Extras
+const flagEnum = (state, value) => !!(state & value);
+function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
 
 module.exports = {
   checkSSHConnection,
@@ -245,6 +278,10 @@ module.exports = {
   getTrackedGuilds,
   getTrackedClans,
   getTrackedUsers,
+  getUserItems,
+  getUserTitles,
   updateUserByID,
-  updatePrivacyByID
+  updatePrivacyByID,
+  updateClanByID,
+  test
 }

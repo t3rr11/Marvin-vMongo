@@ -31,7 +31,12 @@ async function init() {
   var processing = [];
   var index = 0;
 
-  await Promise.all([ Database.getTrackedClans((isError, isFound, data) => { if(!isError) { allClans, clans = data } }) ]);
+  await Database.getTrackedClans((isError, isFound, data) => {
+    if(!isError) {
+      if(Config.isLocal) { allClans, clans = data.filter(e => !e.realtime); }
+      else { allClans, clans = data.filter(e => e.realtime); }
+    }
+  });
 
   //Loops
 	setInterval(() => { Log.SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, processing); }, 1000 * 10); //10 Second Interval
@@ -63,7 +68,15 @@ async function init() {
     }
     else {
       //Restart when processing length is lower than scanspeed. Allow 10 seconds for restart.
-      if(!APIDisabled) { if(processing.length <= Math.round(ScanSpeed * 0.6)) { if((new Date().getTime() - new Date(LastScanTime).getTime()) > 10000) { restartTracking(); } } }
+      if(!APIDisabled) {
+        //If there are only a few clans left, restart the scanning.
+        if(processing.length <= Math.round(ScanSpeed * 0.6)) {
+          //Allow 15 seconds to avoid restarting multiple times.
+          if((new Date().getTime() - new Date(LastScanTime).getTime()) > 15000) {
+            restartTracking();
+          }
+        } 
+      }
     }
 
     index++;
@@ -75,17 +88,18 @@ async function init() {
       if(!isError) {
         var onlineMembers = 0;
         for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
-        console.log(`Scan took: ${ Math.round((new Date().getTime() - startTime) / 1000) }s to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players.`);
+        console.log(`Scan took: ${ Math.round((new Date().getTime() - startTime) / 1000) }s to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ Config.scanSpeed }`);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
-        allClans = data; //Set all clans in array.
+        if(Config.isLocal) { allClans = data.filter(e => !e.realtime); }
+        else { allClans = data.filter(e => e.realtime); }
         clans = []; //Reset clans array to be empty.
     
         //Check processing clans, If any are taking longer than 15 minutes, remove from processing queue and re-add.
         for(var i in processing) { if((new Date().getTime() - processing[i].added) > (1000 * 60 * 15)) { processing.splice(processing.indexOf(processing.find(e => e.clanID === processing[i].clanID)), 1); } }
     
         //Create a new array with clans to scan that are not already being scanned.
-        clans = data.filter(e => !processing.find(f => f.clanID === e.clanID));
+        clans = allClans.filter(e => !processing.find(f => f.clanID === e.clanID));
     
         //Reset start time and index.
         startTime = new Date().getTime();
@@ -120,14 +134,8 @@ let startupCheck = setInterval(async () => {
     init();
 
     //Testing Below
-    //await doChecks();
-    //addUser();
-    //findUser("4611686018471334813");
     //Test.getClanInfo();
-    //Test.addGuild();
     //Merge.addNewGuilds();
     //Merge.addNewClans();
-    //Test.addClan();
-    //Database.getAllUsers((isError, isFound, data) => console.log(data));
   }
 }, 1000);
