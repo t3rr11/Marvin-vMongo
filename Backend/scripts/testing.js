@@ -37,6 +37,15 @@ function addClan() {
     clanID: 3917089,
     clanName: "Marvins Minions",
     clanCallsign: "MM",
+    clanLevel : 6,
+		memberCount : 52,
+		onlineMembers : 3,
+		firstScan : true,
+		forcedScan : false,
+		isTracking : true,
+		joinedOn : new Date(1578516437149),
+    lastScan : new Date(1602241336579),
+    realtime: false
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
 

@@ -60,7 +60,7 @@ async function init() {
       processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
 
       //Get clan members
-      Tracking.UpdateClan(clans[index], (clan, isError, severity, err) => {
+      Tracking.UpdateClan(clans[index], function UpdateClan(clan, isError, severity, err) {
         if(isError) { ErrorHandler(severity, err); }
         //Remove it from queue as clan update has finished.
         processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
@@ -110,7 +110,7 @@ async function init() {
 
   //If config allows, start scanning clans...
   if(Config.enableTracking) {
-    let clansEmptyCheck = setInterval(async () => {
+    let clansEmptyCheck = setInterval(async function ClanEmptyCheck() {
       if(clans.length !== 0) {
         //Initialize the clan scanner.
         clearInterval(clansEmptyCheck);
@@ -127,7 +127,7 @@ async function doChecks() {
 }
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
-let startupCheck = setInterval(async () => {
+let startupCheck = setInterval(async function Startup() {
   if(Database.checkSSHConnection() && Database.checkDBConnection() && DefinitionHandler.checkDefinitions()) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);

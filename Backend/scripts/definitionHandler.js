@@ -10,7 +10,7 @@ function checkDefinitions() {
 
 getDefinitions = () => { return Definitions; }
 
-updateDefinitions = async () => {
+updateDefinitions = async function UpdateDefinitions() {
   await Database.getAllDefinitions((isError, isFound, data) => {
     if(!isError && isFound) { Definitions = data }
     else { ErrorHandler("Med", `Failed to update definitions`) }

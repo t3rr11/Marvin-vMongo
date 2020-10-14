@@ -25,7 +25,7 @@ async function UpdateClan(clan, callback) {
 
             //Get each players data
             for(var i in onlineMembers) {
-              await APIRequest.GetProfile(onlineMembers[i], "100,200,202,800,900,1100", async (member, isError, playerData) => {
+              await APIRequest.GetProfile(onlineMembers[i], "100,200,202,800,900,1100", async function GetProfile(member, isError, playerData) {
                 if(!isError) {
                   //Check if user is private by checking for if the data object exists.
                   if(playerData.Response.profileRecords.data) {
@@ -35,8 +35,32 @@ async function UpdateClan(clan, callback) {
                   }
                   else {
                     //Update privacy settings if user is private.
-                    Database.updatePrivacyByID(onlineMembers[i].destinyUserInfo.membershipId, { isPrivate: true }, (isError, severity, reason) => {
-                      if(isError && reason !== "NoUser") { ErrorHandler("Med", `User: ${ onlineMembers[i].destinyUserInfo.membershipId }, Reason: ${ reason }`); }
+                    Database.updatePrivacyByID(onlineMembers[i].destinyUserInfo.membershipId, { isPrivate: true }, function UpdatePrivacy(isError, severity, reason) {
+                      if(isError && reason === "NoUser") {
+                        Database.updateUserByID(onlineMembers[i].destinyUserInfo.membershipId, {
+                          user: {
+                            clanID: clan.clanID,
+                            displayName: onlineMembers[i].destinyUserInfo.displayName,
+                            membershipID: onlineMembers[i].destinyUserInfo.membershipId,
+                            joinDate: onlineMembers[i].joinDate,
+                            lastUpdated: new Date(),
+                            isPrivate: true,
+                            firstLoad: true
+                          },
+                          items: {
+                            clanID: clan.clanID,
+                            membershipID: onlineMembers[i].destinyUserInfo.membershipId,
+                            recentItems: [],
+                            items: []
+                          },
+                          titles: {
+                            clanID: clan.clanID,
+                            membershipID: onlineMembers[i].destinyUserInfo.membershipId,
+                            titles: []
+                          }
+                        }, function UpdateUserByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+                      }
+                      else { if(isError) { ErrorHandler("Med", `User: ${ onlineMembers[i].destinyUserInfo.membershipId }, Reason: ${ reason }`); } }
                     });
                   }
                 }
@@ -85,17 +109,17 @@ async function ProcessClanData(clan, clanData, onlineMembers) {
     firstScan: false,
     forcedScan: false,
     lastScan: new Date()
-  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
 async function ProcessPlayer(clan, memberData, playerData) {
-  Database.findUserByID(memberData.destinyUserInfo.membershipId, async (isError, isFound, oldPlayerData) => {
+  Database.findUserByID(memberData.destinyUserInfo.membershipId, async function FindUserByID(isError, isFound, oldPlayerData) {
     if(!isError) {
       if(isFound) {
-        //This will be where you look for broadcasts, you will compare previous data (oldPlayerData) with new data (playerData).
-        //console.log(`${ oldPlayerData.User.displayName } had ${ oldPlayerData.Items } items and ${ oldPlayerData.Titles } titles.`);
-        await CheckItems(clan, memberData, playerData, oldPlayerData);
-        //console.log("Checked");
+        //Look for broadcasts provided this user is not on their first load.
+        if(!oldPlayerData.User.firstLoad) {
+          await CheckItems(clan, memberData, playerData, oldPlayerData);
+        }
 
         //Finally update player and save new data.
         UpdatePlayer(clan, memberData, playerData);
@@ -114,7 +138,8 @@ async function CheckItems(clan, memberData, playerData, oldPlayerData) {
   var previousRecentItems = oldPlayerData.Items.recentItems;
   var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
 
-  differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
+  //Log found items
+  //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
 }
 
 async function UpdatePlayer(clan, memberData, playerData) {
@@ -164,7 +189,7 @@ async function UpdatePlayer(clan, memberData, playerData) {
       membershipID: memberData.destinyUserInfo.membershipId,
       titles: Titles
     }
-  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }, function UpdateUserByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
 function FormatAccountInfo(clan, memberData, playerData) {

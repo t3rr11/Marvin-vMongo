@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const ssh = require('tunnel-ssh');
 const Config = require('../../Configs/Config.json');
 const SSHConfig = require(`../../Configs/${ Config.isLocal ? 'Local' : 'Live' }/SSHConfig.js`).Config;
-const { ErrorHandler } = require('./errorHandler');
 
 //Schemas
 const Guild = require('./models/guild_model');
@@ -243,8 +242,13 @@ const updateUserByID = async (membershipID, data, callback) => {
   }
 }
 const updatePrivacyByID = async (membershipID, data, callback) => {
-  let user = await User.findOneAndUpdate({ membershipID }, data, { new: true });
-  if(user !== null) { callback(false); console.log(`Updated Privacy Settings For User: ${ user.displayName }`); }
+  let user = await User.findOneAndUpdate({ membershipID }, data);
+  if(user !== null) {
+    callback(false);
+    if(user.isPrivate !== data.isPrivate) {
+      console.log(`Updated Privacy Settings For User: ${ user.displayName }, isPrivate: ${ data.isPrivate }`);
+    }
+  }
   else {
     callback(true, "Low", `NoUser`);
     //console.log(`User: ${ membershipID }, does not exist yet. Need to make?`);
