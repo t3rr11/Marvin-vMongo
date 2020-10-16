@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var definitionSchema = new Schema({
+var defaultItemSchema = new Schema({
   name: String,
   fname: String,
   type: String,
@@ -14,4 +14,4 @@ var definitionSchema = new Schema({
   broadcastEnabled: Boolean
 });
 
-module.exports = mongoose.model('definitions', definitionSchema); 
+module.exports = mongoose.model('global_items', defaultItemSchema); 

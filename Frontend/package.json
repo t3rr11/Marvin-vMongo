@@ -1,0 +1,18 @@
+{
+  "name": "marvin-frontend",
+  "version": "1.0.0",
+  "description": "Marvin Frontend (Discord)",
+  "main": "frontend.js",
+  "dependencies": {
+    "discord.js": "^12.3.1",
+    "mongoose": "^5.10.8",
+    "node-fetch": "^2.6.1",
+    "tunnel-ssh": "^4.1.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -74,13 +74,13 @@ function formatTime(TimeinSeconds) {
   var minutes  = Math.floor(seconds / (60));
   var seconds  = seconds - Math.floor(minutes * (60));
 
-  var YDisplay = years > 0 ? years + (years == 1 ? ' year ' : ' years ') : '';
-  var MDisplay = months > 0 ? months + (months == 1 ? ' month ' : ' months ') : '';
-  var wDisplay = weeks > 0 ? weeks + (weeks == 1 ? ' week ' : ' weeks ') : '';
-  var dDisplay = days > 0 ? days + (days == 1 ? ' day ' : ' days ') : '';
-  var hDisplay = hours > 0 ? hours + (hours == 1 ? ' hour ' : ' hours ') : '';
-  var mDisplay = minutes > 0 ? minutes + (minutes == 1 ? ' minute ' : ' minutes ') : '';
-  var sDisplay = seconds > 0 ? seconds + (seconds == 1 ? ' second ' : ' seconds ') : '';
+  var YDisplay = years > 0 ? years + (years == 1 ? 'Y ' : 'Y ') : '';
+  var MDisplay = months > 0 ? months + (months == 1 ? 'M ' : 'M ') : '';
+  var wDisplay = weeks > 0 ? weeks + (weeks == 1 ? 'w ' : 'w ') : '';
+  var dDisplay = days > 0 ? days + (days == 1 ? 'd ' : 'd ') : '';
+  var hDisplay = hours > 0 ? hours + (hours == 1 ? 'h ' : 'h ') : '';
+  var mDisplay = minutes > 0 ? minutes + (minutes == 1 ? 'm ' : 'm ') : '';
+  var sDisplay = seconds > 0 ? seconds + (seconds == 1 ? 's ' : 's ') : '';
 
   if (TimeinSeconds < 60) { return sDisplay; }
   if (TimeinSeconds >= 60 && TimeinSeconds < 3600) { return mDisplay + sDisplay; }

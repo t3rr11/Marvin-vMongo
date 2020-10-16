@@ -1,12 +1,12 @@
 //Required Libraraies
 const fetch = require("node-fetch");
-const Log = require("./log.js");
-const Misc = require("./misc.js");
-const Database = require('./database');
-const APIRequest = require('./requestHandler');
-const { ErrorHandler } = require('./errorHandler');
-const DefinitionHandler = require('./definitionHandler');
-const Config = require('../../Configs/Config.json');
+const Database = require('../../Shared/database.js');
+const Log = require("../../Shared/log.js");
+const Misc = require("../../Shared/misc.js");
+const APIRequest = require('../../Shared/handlers/requestHandler');
+const { ErrorHandler } = require('../../Shared/handlers/errorHandler');
+const GlobalItemsHandler = require('../../Shared/handlers/globalItemsHandler');
+const Config = require('../../Shared/configs/Config.json');
 
 const flagEnum = (state, value) => !!(state & value);
 function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
@@ -337,7 +337,7 @@ function FormatRaids(clan, memberData, playerData) {
   }
 }
 function FormatTitles(clan, memberData, playerData) {
-  var titleList = DefinitionHandler.getDefinitions().filter(e => e.type === "title");
+  var titleList = GlobalItemsHandler.getGlobalItems().filter(e => e.type === "title");
   var titles = [];
   for(var i in titleList) {
     if(playerData.profileRecords.data.records[titleList[i].hash]) {

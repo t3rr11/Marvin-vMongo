@@ -1,6 +1,6 @@
-const Database = require('./database');
-const APIRequest = require('./requestHandler');
-const { ErrorHandler } = require('./errorHandler');
+const Database = require('../../Shared/database');
+const APIRequest = require('../../Shared/handlers/requestHandler');
+const { ErrorHandler } = require('../../Shared/handlers/errorHandler');
 
 function findUser(membershipID) {
   Database.findUserByID(membershipID, (isError, isFound, data) => {
@@ -48,6 +48,12 @@ function addClan() {
     realtime: false
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
 }
+function addBannedUser() {
+  Database.addBannedUser({
+    discordID: "1",
+    reason: "Test"
+  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+}
 
 async function getUserInfo() {
   console.log(await APIRequest.GetProfile("3", "4611686018471334813", "100"));
@@ -64,4 +70,4 @@ async function getClanInfo() {
   console.log(`${ end - start }ms`);
 }
 
-module.exports = { findUser, addUser, addGuild, addClan, getUserInfo, getManifest, getClanInfo }
+module.exports = { findUser, addUser, addGuild, addClan, addBannedUser, getUserInfo, getManifest, getClanInfo }

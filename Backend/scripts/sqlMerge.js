@@ -1,5 +1,5 @@
-const Database = require('./database');
-const { ErrorHandler } = require('./errorHandler');
+const Database = require('../../Shared/database');
+const { ErrorHandler } = require('../../Shared/handlers/errorHandler');
 const Guilds = require('../data/guilds.json').guilds;
 const Clans = require('../data/clans.json').clans;
 const Definitions = require('../data/definitions.json').definitions;
@@ -12,15 +12,13 @@ async function addNewGuilds() {
       guildName: guild.guild_name,
       ownerID: guild.owner_id,
       ownerAvatar: guild.owner_avatar,
-      broadcastsChannel: guild.broadcasts_channel !== "null" ? guild.broadcasts_channel : "0",
-      enableWhitelist: guild.enable_whitelist,
-      whitelist: guild.whitelist.split(',').filter(e => e !== ''),
-      blacklist: guild.whitelist.split(',').filter(e => e !== ''),
       clans: guild.clans.split(',').filter(e => e !== ''),
       isTracking: guild.isTracking,
       joinedOn: new Date(JSON.parse(guild.joinedOn)),
       region: guild.region,
       broadcasts: {
+        channel: guild.broadcasts_channel !== "null" ? guild.broadcasts_channel : "0",
+        extraItems: guild.whitelist.split(',').filter(e => e !== ''),
         items: guild.enable_broadcasts_items,
         titles: guild.enable_broadcasts_titles,
         clans: guild.enable_broadcasts_clans,
