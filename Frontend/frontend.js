@@ -5,6 +5,7 @@ const Database = require('../Shared/database');
 const Checks = require('../Shared/checks');
 const Log = require('../Shared/log');
 const Misc = require('../Shared/misc');
+const Test = require('./scripts/testing');
 const { MessageHandler } = require('./scripts/handlers/messageHandler');
 const BroadcastHandler = require('./scripts/handlers/broadcastsHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
@@ -45,26 +46,11 @@ async function init() {
 
   //DiscordCommands.GuildCheck(client);
   //DiscordCommands.ClanCheck(client);
+
   BroadcastHandler.checkForBroadcasts();
-  // Database.addAwaitingBroadcast({
-  //   clanID: 3917089,
-  //   displayName: "Terrii",
-  //   membershipID: "4611686018471334813",
-  //   season: 11,
-  //   type: "item",
-  //   broadcast: "FakeItem",
-  //   hash: "123456",
-  //   count: 0
-  // }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
-  // BroadcastHandler.processBroadcast(client, {
-  //   clanID: 3917089,
-  //   displayName: "Terrii",
-  //   membershipID: "4611686018471334813",
-  //   season: 11,
-  //   type: "item",
-  //   broadcast: "Allegro-34",
-  //   hash: "120446964"
-  // });
+
+  //Test.testBroadcast(client);
+  //Test.testFirstscan(client);
 }
 
 async function update() {
