@@ -17,15 +17,23 @@ function MessageHandler(client, message, guilds, users) {
     const args = message.content.slice(prefix.length).trim().split(' ');
     const command = args.shift().toString().toLowerCase();
 
-    console.log(command);
-    if(["valor", "glory", "infamy"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["levi", "leviathan"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["eow", "eater of worlds"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["sos", "spire of stars"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["lw", "last wish"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["scourge", "scourge of the past"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["sorrows", "crown of sorrows"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
-    else if(["garden", "garden of salvation"].includes(command)) { try { GetLeaderboard(message, command, users); } catch (err) { ErrorHandler("High", err); } }
+    try {
+      switch(command) {
+        case "valor": case "glory": case "infamy": { GetLeaderboard(message, command, users); break; }
+        case "levi": case "leviathan": { GetLeaderboard(message, command, users); break; }
+        case "eow": case "eater of worlds": { GetLeaderboard(message, command, users); break; }
+        case "sos": case "spire of stars": { GetLeaderboard(message, command, users); break; }
+        case "lw": case "last wish": { GetLeaderboard(message, command, users); break; }
+        case "scourge": case "scourge of the past": { GetLeaderboard(message, command, users); break; }
+        case "sorrows": case "crown of sorrows": { GetLeaderboard(message, command, users); break; }
+        case "garden": case "garden of salvation": { GetLeaderboard(message, command, users); break; }
+        default: {
+          message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch();
+          break;
+        }
+      }
+    }
+    catch (err) { ErrorHandler("High", err); }
   }
 }
 
@@ -109,7 +117,7 @@ function SendLeaderboard(message, type, players, privatePlayers, registeredUser,
       embed.addField("Glory", leaderboard.first, true);
       break;
     }
-    
+
     //Raids
     case "levi": case "leviathan": {
       let top = players.sort((a, b) => { return (b.raids.levi+b.raids.prestige_levi) - (a.raids.levi+a.raids.prestige_levi) }).slice(0, 10);
