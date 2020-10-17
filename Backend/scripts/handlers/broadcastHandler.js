@@ -57,4 +57,18 @@ function sendItemBroadcast(clan, guild, itemHash, playerData) {
   }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
-module.exports = { sendClanBroadcast, sendItemBroadcast }
+function sendTitleBroadcast(clan, guild, titleHash, playerData) {
+  let titleDef = ManifestHandler.getManifest().DestinyRecordDefinition[titleHash];
+  Database.addAwaitingBroadcast({
+    clanID: clan.clanID,
+    guildID: guild.guildID,
+    displayName: playerData.User.displayName,
+    membershipID: playerData.User.membershipID,
+    season: Config.season,
+    type: "title",
+    broadcast: titleDef.titleInfo.titlesByGender.Male,
+    hash: titleHash,
+  }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+}
+
+module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast }

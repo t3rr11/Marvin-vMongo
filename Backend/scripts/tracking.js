@@ -6,9 +6,9 @@ const Misc = require("../../Shared/misc.js");
 const APIRequest = require('../../Shared/handlers/requestHandler');
 const { ErrorHandler } = require('../../Shared/handlers/errorHandler');
 const GlobalItemsHandler = require('../../Shared/handlers/globalItemsHandler');
+const ManifestHandler = require("../../Shared/handlers/manifestHandler.js");
 const BroadcastHandler = require('./handlers/broadcastHandler');
 const Config = require('../../Shared/configs/Config.json');
-const broadcastHandler = require("./handlers/broadcastHandler");
 
 const flagEnum = (state, value) => !!(state & value);
 function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
@@ -132,6 +132,7 @@ async function ProcessPlayer(clan, memberData, playerData, guilds) {
         //Look for broadcasts provided this user is not on their first load.
         if(!oldPlayerData.User.firstLoad) {
           await CheckItems(clan, memberData, playerData, oldPlayerData, guilds);
+          await CheckTitles(clan, memberData, playerData, oldPlayerData, guilds);
         }
 
         //Finally update player and save new data.
@@ -173,7 +174,7 @@ async function CheckItems(clan, memberData, playerData, oldPlayerData, guilds) {
       //Find items that match in differences and send broadcast
       for(let j in differences) {
         if(itemsToLookFor.find(e => e == differences[j])) {
-          broadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData);
+          BroadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData);
         }
       }
     }
@@ -181,6 +182,37 @@ async function CheckItems(clan, memberData, playerData, oldPlayerData, guilds) {
 
   //Log found items
   //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
+}
+async function CheckTitles(clan, memberData, playerData, oldPlayerData, guilds) {
+  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1652422747];
+  const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
+  const seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+
+  let previousTitles = oldPlayerData.Titles.titles;
+  let newTitles = seals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
+  var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
+
+  if(differences.length > 0) {
+    for(let i in guilds) {
+      //Get mode, global items and extra items.
+      let broadcastMode = guilds[i].broadcasts.mode;
+      let globalItems = (GlobalItemsHandler.getGlobalItems()).map(e => { return e.hash });
+      let extraItems = guilds[i].broadcasts.extraItems.map(e => { if(e.enabled) return e.hash });
+      let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
+      let itemsToLookFor = [];
+
+      if(broadcastMode === "Auto") { itemsToLookFor = globalItems; }
+      else if(broadcastMode === "Semi-Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
+      else if(broadcastMode === "Manual") { itemsToLookFor = extraItems; }
+
+      //Find items that match in differences and send broadcast
+      for(let j in differences) {
+        if(itemsToLookFor.find(e => e == differences[j])) {
+          BroadcastHandler.sendTitleBroadcast(clan, guilds[i], differences[j], oldPlayerData);
+        }
+      }
+    }
+  }
 }
 
 async function UpdatePlayer(clan, memberData, playerData) {
