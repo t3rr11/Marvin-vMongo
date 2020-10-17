@@ -1,6 +1,7 @@
 //Required Libraries and Files
 const mongoose = require('mongoose');
 const ssh = require('tunnel-ssh');
+const Log = require('./log');
 const Config = require('./configs/Config.json');
 const SSHConfig = require(`./configs/${ Config.isLocal ? 'local' : 'live' }/SSHConfig.js`).Config;
 
@@ -40,11 +41,18 @@ async function TryConnect() {
 
   server.on('error', (err) => {
     if(err.code === "EADDRINUSE") { TryAnotherPort(err.port); }
+    else if(err.code === "ECONNRESET") { TryConnect(); }
+    else { console.log("SSH Error:", err); }
   });
 }
 function TryAnotherPort(failedPort) {
   console.log(`Port ${ failedPort } was in use. Trying another port`);
-  var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; mongoConfig.localPort = mongoConfig.dstPorts[1];
+  var mongoConfig = SSHConfig.mongoConfig;
+  var availPorts = mongoConfig.dstPorts.filter(e => e !== failedPort);
+  var port = availPorts[Math.floor(Math.random() * availPorts.length)];
+  mongoConfig.dstPort = port;
+  mongoConfig.localPort = port;
+
   var server = ssh(mongoConfig, function (error, server) {
     if(error) { console.log("SSH connection error: " + error); }
     else {
@@ -57,7 +65,15 @@ function TryAnotherPort(failedPort) {
     }
   });
 
-  server.on('error', (err) => { console.log(err); });
+  server.on('error', (err) => {
+    if(err.code === "EADDRINUSE") {
+      //TryAnotherPort(err.port);
+    }
+    else if(err.code === "ECONNRESET") {
+      //TryConnect();
+    }
+    else { console.log("SSH Error:", err); }
+  });
 }
 
 TryConnect();
@@ -126,19 +142,27 @@ const addBannedUser = async (userData, callback) => {
 const addAwaitingBroadcast = async (broadcastData, callback) => {
   await new AwaitingBroadcast(broadcastData).save((err, doc) => {
     if(err) { callback(true, "High", err) }
-    else { console.log(doc.broadcast + " added to collection."); callback(false); }
+    else {
+      if(doc.displayName) { Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`) }
+      else { Log.SaveLog("Clan", doc.broadcast); }
+      callback(false);
+    }
   });
 }
 const addBroadcast = async (broadcastData, callback) => {
   //Callback fields { isError, severity, err }
-  await findBroadcast({ membershipID: broadcastData.membershipID, season: broadcastData.season, broadcast: broadcastData.broadcast }, async (isError, isFound, data) => {
+  await findBroadcast({ membershipID: broadcastData.membershipID, season: broadcastData.season, broadcast: broadcastData.broadcast, guildID: broadcastData.guildID }, async (isError, isFound, data) => {
     if(!isError) {
       if(!isFound) {
         await new Broadcast(broadcastData).save((err, doc) => {
           if(err) { callback(true, "High", err) }
-          else { console.log(doc.broadcast + " added to collection."); callback(false); }
+          else { 
+            if(doc.displayName) { Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`) }
+            else { Log.SaveLog("Clan", doc.broadcast); }
+            callback(false);
+          }
         });
-      } else { callback(true, "Low", `Duplicate broadcast: ${ broadcastData.membershipID }, ${ broadcastData.broadcast }`) }
+      } else { callback(true, "Low", `Duplicate broadcast: ${ broadcastData.guildID }, ${ broadcastData.membershipID }, ${ broadcastData.broadcast }`) }
     } else { callback(true, "High", data) }
   });
 }
@@ -189,7 +213,7 @@ const findClanByID = async (clanID, callback) => {
 }
 const findBroadcast = async (broadcast, callback) => {
   //Callback fields { isError, isFound, data }
-  await Broadcast.find({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast }, (err, array) => {
+  await Broadcast.find({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, guildID: broadcast.guildID }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array[0]); }
@@ -212,6 +236,16 @@ const getAllGuilds = async (callback) => {
 const getClanGuilds = async (clanID, callback) => {
   //Callback fields { isError, isFound, data }
   await Guild.find({ clans: clanID.toString() }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getTrackedClanGuilds = async (clanID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Guild.find({ clans: clanID.toString(), isTracking: true }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -370,7 +404,7 @@ const updateManifestVersion = (name, data, callback) => {
 
 //Remove
 const removeAwaitingBroadcast = async (broadcast, callback) => {
-  AwaitingBroadcast.deleteOne({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast }, (err) => {
+  AwaitingBroadcast.deleteOne({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, guildID: broadcast.guildID }, (err) => {
     if(err) { callback(true) } else { callback(false) }
   });
 }
@@ -405,6 +439,7 @@ module.exports = {
   getAllUsers,
   getAllGlobalItems,
   getTrackedGuilds,
+  getTrackedClanGuilds,
   getTrackedClans,
   getTrackedUsers,
   getUserItems,

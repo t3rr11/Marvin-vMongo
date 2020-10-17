@@ -38,17 +38,17 @@ async function init() {
   //Start Up Console Log
   Log.SaveLog("Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
+  setInterval(() => { update() }, 1000 * 5); //Every 10 seconds
+
   //SetTimeouts
   //setInterval(() => { CheckNewSeason(); }, 1000 * 1); //Every second
-  //setInterval(() => { UpdateClans() }, 1000 * 10); //Every 10 seconds
   //setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   //setInterval(() => { LogStatus() }, 1000 * 60); //Every 60 seconds
 
   //DiscordCommands.GuildCheck(client);
   //DiscordCommands.ClanCheck(client);
 
-  BroadcastHandler.checkForBroadcasts();
-
+  //Test.addTestBroadcast();
   //Test.testBroadcast(client);
   //Test.testFirstscan(client);
 }
@@ -90,6 +90,9 @@ async function update() {
 
   //Check Maintenance
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
+  
+  //Check for broadcasts
+  BroadcastHandler.checkForBroadcasts(client);
 }
 
 //Check if discord bot is ready.

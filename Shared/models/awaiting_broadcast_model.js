@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var broadcastsSchema = new Schema({
   clanID: String,
+  guildID: String,
   displayName: String,
   membershipID: String,
   season: Number,
