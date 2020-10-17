@@ -11,6 +11,7 @@ const Clan = require('./models/clan_model');
 const User = require('./models/user_model');
 const UserItems = require('./models/userItems_model');
 const UserTitles = require('./models/userTitles_model');
+const RegisteredUser = require('./models/registeredUser_model');
 const GlobalItem = require('./models/globalItem_model');
 const BanUser = require('./models/bannedUsers_model');
 const Broadcast = require('./models/broadcast_model');
@@ -75,8 +76,6 @@ function TryAnotherPort(failedPort) {
     else { console.log("SSH Error:", err); }
   });
 }
-
-TryConnect();
 
 //Adds
 const addUser = async (userData, callback) => {
@@ -172,6 +171,22 @@ const addManifest = async (manifestData, callback) => {
     else { console.log(doc.name + " added to collection."); callback(false); }
   });
 }
+const addRegisteredUser = async (userData, callback) => {
+  //Callback fields { isError, severity, err }
+  await findRegisteredUserByID(userData.discordID, async (isError, isFound, data) => {
+    if(!isError) {
+      if(!isFound) {
+        await new RegisteredUser(userData).save((err, user) => {
+          if(err) { callback(true, "High", err) }
+          else {
+            console.log(user.username + " has Registered.");
+            callback(false);
+          }
+        });
+      } else { callback(true, "Low", `Tried to add duplicate user: ${ userData.username }(${ userData.discordID })`) }
+    } else { callback(true, "High", data) }
+  });
+}
 
 //Finds
 const findUserByID = async (membershipID, callback) => {
@@ -214,6 +229,16 @@ const findClanByID = async (clanID, callback) => {
 const findBroadcast = async (broadcast, callback) => {
   //Callback fields { isError, isFound, data }
   await Broadcast.find({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, guildID: broadcast.guildID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array[0]); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const findRegisteredUserByID = async (discordID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await RegisteredUser.find({ discordID }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array[0]); }
@@ -266,6 +291,16 @@ const getAllClans = async (callback) => {
 const getAllUsers = async (callback) => {
   //Callback fields { isError, isFound, data }
   await User.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getAllRegisteredUsers = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await RegisteredUser.find({}, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -335,6 +370,23 @@ const getManifestVersion = async (callback) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getGuildPlayers = async (guildID, callback) => {
+  await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(guild) {
+        await User.find({ clanID: guild.clans }, (err, users) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(users.length > 0) { callback(false, true, users); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
       else { callback(false, false, null); }
     }
   });
@@ -419,6 +471,7 @@ const flagEnum = (state, value) => !!(state & value);
 function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
 
 module.exports = {
+  TryConnect,
   checkSSHConnection,
   checkDBConnection,
   addUser,
@@ -428,6 +481,7 @@ module.exports = {
   addBannedUser,
   addAwaitingBroadcast,
   addBroadcast,
+  addRegisteredUser,
   addManifest,
   findUserByID,
   findGuildByID,
@@ -437,6 +491,7 @@ module.exports = {
   getClanGuilds,
   getAllClans,
   getAllUsers,
+  getAllRegisteredUsers,
   getAllGlobalItems,
   getTrackedGuilds,
   getTrackedClanGuilds,
@@ -446,6 +501,7 @@ module.exports = {
   getUserTitles,
   getAwaitingBroadcasts,
   getManifestVersion,
+  getGuildPlayers,
   removeAwaitingBroadcast,
   removeAllAwaitingBroadcasts,
   updateUserByID,

@@ -3,6 +3,7 @@ const { ErrorHandler } = require('../../Shared/handlers/errorHandler');
 const Guilds = require('../data/guilds.json').guilds;
 const Clans = require('../data/clans.json').clans;
 const Definitions = require('../data/definitions.json').definitions;
+const RegisteredUsers = require('../data/regUsers.json').users;
 
 async function addNewGuilds() {
   for(let i in Guilds) {
@@ -68,4 +69,17 @@ async function addNewDefintions() {
   }
 }
 
-module.exports = { addNewGuilds, addNewClans, addNewDefintions }
+async function addRegisteredUsers() {
+  for(let i in RegisteredUsers) {
+    let user = RegisteredUsers[i];
+    Database.addRegisteredUser({
+      discordID: user.discord_id,
+      username: user.username,
+      membershipID: user.membershipId,
+      platform: user.platform,
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
+
+
+module.exports = { addNewGuilds, addNewClans, addNewDefintions, addRegisteredUsers }

@@ -19,6 +19,7 @@ let Restarting = false;
 let ScanSpeed = 10;
 let ClanScans = 0;
 let ScanLength = 0;
+let isConnecting = false;
 
 async function init() {
   //Clear console if in debug mode
@@ -132,6 +133,7 @@ async function doChecks() {
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
+  if(!isConnecting) { isConnecting = true; Database.TryConnect(); }
   if(Database.checkSSHConnection() && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);
@@ -141,5 +143,6 @@ let startupCheck = setInterval(async function Startup() {
     //Test.getClanInfo();
     //Merge.addNewGuilds();
     //Merge.addNewClans();
+    //Merge.addRegisteredUsers();
   }
 }, 1000);

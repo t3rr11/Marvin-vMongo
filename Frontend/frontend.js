@@ -22,9 +22,12 @@ let Users = 0;
 let Guilds = [];
 let Clans = [];
 let NewClans = [];
+let RegisteredUsers = [];
+let isConnecting = false;
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
+  if(!isConnecting) { isConnecting = true; Database.TryConnect(); }
   if(DiscordReady && Database.checkSSHConnection() && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the frontend and start running!
     clearInterval(startupCheck);
@@ -88,6 +91,13 @@ async function update() {
     resolve(true);
   }));
 
+  //Update RegisteredUsers
+  await new Promise(resolve => Database.getAllRegisteredUsers(function GetAllRegisteredUsers(isError, isFound, data) {
+    if(!isError) { if(isFound) { RegisteredUsers = data; } }
+    else { ErrorHandler("Low", data); }
+    resolve(true);
+  }));
+
   //Check Maintenance
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
   
@@ -106,7 +116,7 @@ client.on('shardReconnecting', (id) => { Log.SaveLog("Warning", `Shard is attemp
 client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
-client.on("message", async message => { MessageHandler(client, message, Guilds); });
+client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers); });
 
 //On Error
 client.on('error', async error => { console.log(error); });
