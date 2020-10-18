@@ -26,14 +26,14 @@ const checkSSHConnection = () => { return SSHConnected }
 const checkDBConnection = () => { return DBConnected }
 
 //SSH and Connect to Mongo
-async function TryConnect() {
+function FrontendConnect() {
   var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0];
   var server = ssh(mongoConfig, function (error, server) {
     if(error) { console.log("SSH connection error: " + error); }
     else {
       SSHConnected = true;
       console.log("Connected to SSH");
-      mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+      mongoose.connect('mongodb://127.0.0.1/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
       DB = mongoose.connection;
       DB.on('error', console.error.bind(console, 'DB connection error:'));
       DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
@@ -41,25 +41,19 @@ async function TryConnect() {
   });
 
   server.on('error', (err) => {
-    if(err.code === "EADDRINUSE") { TryAnotherPort(err.port); }
-    else if(err.code === "ECONNRESET") { TryConnect(); }
+    if(err.code === "ECONNRESET") { FrontendConnect(); }
+    else if(err.code === "CONNECT_FAILED") { FrontendConnect(); }
     else { console.log("SSH Error:", err); }
   });
 }
-function TryAnotherPort(failedPort) {
-  console.log(`Port ${ failedPort } was in use. Trying another port`);
-  var mongoConfig = SSHConfig.mongoConfig;
-  var availPorts = mongoConfig.dstPorts.filter(e => e !== failedPort);
-  var port = availPorts[Math.floor(Math.random() * availPorts.length)];
-  mongoConfig.dstPort = port;
-  mongoConfig.localPort = port;
-
+async function BackendConnect() {
+  var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1];
   var server = ssh(mongoConfig, function (error, server) {
     if(error) { console.log("SSH connection error: " + error); }
     else {
       SSHConnected = true;
       console.log("Connected to SSH");
-      mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+      mongoose.connect('mongodb://127.0.0.1/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
       DB = mongoose.connection;
       DB.on('error', console.error.bind(console, 'DB connection error:'));
       DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
@@ -67,12 +61,8 @@ function TryAnotherPort(failedPort) {
   });
 
   server.on('error', (err) => {
-    if(err.code === "EADDRINUSE") {
-      //TryAnotherPort(err.port);
-    }
-    else if(err.code === "ECONNRESET") {
-      //TryConnect();
-    }
+    if(err.code === "ECONNRESET") { BackendConnect(); }
+    else if(err.code === "CONNECT_FAILED") { BackendConnect(); }
     else { console.log("SSH Error:", err); }
   });
 }
@@ -391,6 +381,23 @@ const getGuildPlayers = async (guildID, callback) => {
     }
   });
 }
+const getGuildTitles = async (guildID, callback) => {
+  await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(guild) {
+        await UserTitles.find({ clanID: guild.clans }, (err, users) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(users.length > 0) { callback(false, true, users); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 const test = async (callback) => {
   await User.find({ membershipID: "4611686018471334813" }, (err, data) => {
@@ -471,7 +478,8 @@ const flagEnum = (state, value) => !!(state & value);
 function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
 
 module.exports = {
-  TryConnect,
+  FrontendConnect,
+  BackendConnect,
   checkSSHConnection,
   checkDBConnection,
   addUser,
@@ -502,6 +510,7 @@ module.exports = {
   getAwaitingBroadcasts,
   getManifestVersion,
   getGuildPlayers,
+  getGuildTitles,
   removeAwaitingBroadcast,
   removeAllAwaitingBroadcasts,
   updateUserByID,

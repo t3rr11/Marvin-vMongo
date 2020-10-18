@@ -12,7 +12,7 @@ const Config = require('../../Shared/configs/Config.json');
 
 const flagEnum = (state, value) => !!(state & value);
 function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
-async function UpdateClan(clan, callback) {
+async function UpdateClan(clan, season, callback) {
   //Get clan details
   const ifSucessful = await new Promise(resolve => 
     APIRequest.GetClan(clan, async (clan, isError, clanData) => {
@@ -36,7 +36,7 @@ async function UpdateClan(clan, callback) {
                         if(playerData.Response.profileRecords.data) {
                           //Check to see if scan was forced or first scan.
                           if(clan.forcedScan || clan.firstScan) { await UpdatePlayer(clan, onlineMembers[i], playerData.Response); }
-                          else { await ProcessPlayer(clan, onlineMembers[i], playerData.Response, guilds); }
+                          else { await ProcessPlayer(clan, season, onlineMembers[i], playerData.Response, guilds); }
                         }
                         else {
                           //Update privacy settings if user is private.
@@ -76,7 +76,7 @@ async function UpdateClan(clan, callback) {
                     });
                   }
                   //Now that all users in the clan have been scanned, process clan data and look for changes then save the data.
-                  await ProcessClanData(clan, guilds, clanData, onlineMembers);
+                  await ProcessClanData(clan, guilds, season, clanData, onlineMembers);
                 }
                 else { ErrorHandler("Med", `Failed to find any guilds for clan ${ clan.clanID }`); }
               }
@@ -99,16 +99,16 @@ async function UpdateClan(clan, callback) {
   if(ifSucessful) { callback(clan, false); }
 }
 
-async function ProcessClanData(clan, guilds, clanData, onlineMembers) {
+async function ProcessClanData(clan, guilds, season, clanData, onlineMembers) {
   let clanDetails = clanData.Response.detail;
   let currentClanLevel = clanDetails.clanInfo.d2ClanProgressions["584850370"].level;
   //Process clan data, look for changes
   // TODO
   for(let i in guilds) {
-    if(clan.clanName !== clanDetails.name) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "name_change"); }
-    if(clan.clanCallsign !== clanDetails.clanInfo.clanCallsign) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "tag_change"); }
+    if(clan.clanName !== clanDetails.name) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "name_change", season); }
+    if(clan.clanCallsign !== clanDetails.clanInfo.clanCallsign) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "tag_change", season); }
     if(clan.clanLevel !== currentClanLevel && clan.clanLevel < currentClanLevel) {
-      if(currentClanLevel === parseInt(clan.clanLevel)+1) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "level_up"); }
+      if(currentClanLevel === parseInt(clan.clanLevel)+1) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "level_up", season); }
     }
   }
 
@@ -125,14 +125,14 @@ async function ProcessClanData(clan, guilds, clanData, onlineMembers) {
   }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
-async function ProcessPlayer(clan, memberData, playerData, guilds) {
+async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
   Database.findUserByID(memberData.destinyUserInfo.membershipId, async function FindUserByID(isError, isFound, oldPlayerData) {
     if(!isError) {
       if(isFound) {
         //Look for broadcasts provided this user is not on their first load.
         if(!oldPlayerData.User.firstLoad) {
-          await CheckItems(clan, memberData, playerData, oldPlayerData, guilds);
-          await CheckTitles(clan, memberData, playerData, oldPlayerData, guilds);
+          await CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds);
+          await CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds);
         }
 
         //Finally update player and save new data.
@@ -147,7 +147,7 @@ async function ProcessPlayer(clan, memberData, playerData, guilds) {
   });
 }
 
-async function CheckItems(clan, memberData, playerData, oldPlayerData, guilds) {
+async function CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds) {
   var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
   var previousRecentItems = oldPlayerData.Items.recentItems;
   var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
@@ -174,7 +174,7 @@ async function CheckItems(clan, memberData, playerData, oldPlayerData, guilds) {
       //Find items that match in differences and send broadcast
       for(let j in differences) {
         if(itemsToLookFor.find(e => e == differences[j])) {
-          BroadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData);
+          BroadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
         }
       }
     }
@@ -183,7 +183,7 @@ async function CheckItems(clan, memberData, playerData, oldPlayerData, guilds) {
   //Log found items
   //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
 }
-async function CheckTitles(clan, memberData, playerData, oldPlayerData, guilds) {
+async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds) {
   const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1652422747];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   const seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
@@ -208,7 +208,7 @@ async function CheckTitles(clan, memberData, playerData, oldPlayerData, guilds) 
       //Find items that match in differences and send broadcast
       for(let j in differences) {
         if(itemsToLookFor.find(e => e == differences[j])) {
-          BroadcastHandler.sendTitleBroadcast(clan, guilds[i], differences[j], oldPlayerData);
+          BroadcastHandler.sendTitleBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
         }
       }
     }

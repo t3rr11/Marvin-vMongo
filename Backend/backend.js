@@ -14,12 +14,29 @@ const Test = require('./scripts/testing');
 //Global variables
 let InitializationTime = new Date().getTime();
 let LastScanTime = new Date().getTime();
+let Season = 0;
 let APIDisabled = false;
 let Restarting = false;
 let ScanSpeed = 10;
 let ClanScans = 0;
 let ScanLength = 0;
 let isConnecting = false;
+
+//Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
+let startupCheck = setInterval(async function Startup() {
+  if(!isConnecting) { isConnecting = true; Database.BackendConnect(); }
+  if(Database.checkSSHConnection() && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
+    //Initialize the backend and start running!
+    clearInterval(startupCheck);
+    init();
+
+    //Testing Below
+    //Test.getClanInfo();
+    //Merge.addNewGuilds();
+    //Merge.addNewClans();
+    //Merge.addRegisteredUsers();
+  }
+}, 1000);
 
 async function init() {
   //Clear console if in debug mode
@@ -66,7 +83,7 @@ async function init() {
       processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
 
       //Get clan members
-      Tracking.UpdateClan(clans[index], function UpdateClan(clan, isError, severity, err) {
+      Tracking.UpdateClan(clans[index], Season, function UpdateClan(clan, isError, severity, err) {
         if(isError) { ErrorHandler(severity, err); }
         //Remove it from queue as clan update has finished.
         processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
@@ -104,7 +121,7 @@ async function init() {
     
         //Create a new array with clans to scan that are not already being scanned.
         clans = allClans.filter(e => !processing.find(f => f.clanID === e.clanID));
-    
+
         //Reset start time and index.
         await Checks.UpdateScanSpeed(ScanSpeed, (Speed) => { ScanSpeed = Speed });
         startTime = new Date().getTime();
@@ -129,20 +146,5 @@ async function init() {
 async function doChecks() {
   await GlobalItemsHandler.updateGlobalItems();
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
+  await Checks.UpdateSeason(Season, (NSeason) => { Season = NSeason });
 }
-
-//Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
-let startupCheck = setInterval(async function Startup() {
-  if(!isConnecting) { isConnecting = true; Database.TryConnect(); }
-  if(Database.checkSSHConnection() && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
-    //Initialize the backend and start running!
-    clearInterval(startupCheck);
-    init();
-
-    //Testing Below
-    //Test.getClanInfo();
-    //Merge.addNewGuilds();
-    //Merge.addNewClans();
-    //Merge.addRegisteredUsers();
-  }
-}, 1000);

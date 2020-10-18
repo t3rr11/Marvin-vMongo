@@ -2,9 +2,8 @@ const Database = require('../../../Shared/database.js');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 const Log = require("../../../Shared/log.js");
-const Config = require('../../../Shared/configs/Config.json');
 
-function sendClanBroadcast(clan, guild, clanDetails, type) {
+function sendClanBroadcast(clan, guild, clanDetails, type, season) {
   var BroadcastMessage = null;
   if(type === "name_change") { BroadcastMessage = `The clan name has been changed from ${ clan.clanName } to ${ clanDetails.name }` }
   if(type === "tag_change") { BroadcastMessage = `The clan tag has been changed from ${ clan.clanCallsign } to ${ clanDetails.clanInfo.clanCallsign }` }
@@ -32,12 +31,12 @@ function sendClanBroadcast(clan, guild, clanDetails, type) {
   Database.addAwaitingBroadcast({
     clanID: clan.clanID,
     guildID: guild.guildID,
-    season: Config.currentSeason,
+    season: season,
     type: "clan",
     broadcast: BroadcastMessage,
   }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
-function sendItemBroadcast(clan, guild, itemHash, playerData) {
+function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   let itemDef = ManifestHandler.getManifest().DestinyCollectibleDefinition[itemHash];
   let count = -1;
   if(itemHash === "199171385") { count = Data.Raids.lastWish; } // 1000 Voices
@@ -49,7 +48,7 @@ function sendItemBroadcast(clan, guild, itemHash, playerData) {
     guildID: guild.guildID,
     displayName: playerData.User.displayName,
     membershipID: playerData.User.membershipID,
-    season: Config.season,
+    season: season,
     type: "item",
     broadcast: itemDef.displayProperties.name,
     hash: itemHash,
@@ -57,14 +56,14 @@ function sendItemBroadcast(clan, guild, itemHash, playerData) {
   }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
-function sendTitleBroadcast(clan, guild, titleHash, playerData) {
+function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {
   let titleDef = ManifestHandler.getManifest().DestinyRecordDefinition[titleHash];
   Database.addAwaitingBroadcast({
     clanID: clan.clanID,
     guildID: guild.guildID,
     displayName: playerData.User.displayName,
     membershipID: playerData.User.membershipID,
-    season: Config.season,
+    season: season,
     type: "title",
     broadcast: titleDef.titleInfo.titlesByGender.Male,
     hash: titleHash,
