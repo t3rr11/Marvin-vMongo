@@ -130,7 +130,7 @@ async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
     if(!isError) {
       if(isFound) {
         //Look for broadcasts provided this user is not on their first load.
-        if(!oldPlayerData.User.firstLoad) {
+        if(!oldPlayerData.User.firstLoad && !oldPlayerData.User.isPrivate) {
           await CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds);
           await CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds);
         }
@@ -188,31 +188,34 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   const seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
 
-  let previousTitles = oldPlayerData.Titles.titles;
-  let newTitles = seals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
-  var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
-
-  if(differences.length > 0) {
-    for(let i in guilds) {
-      //Get mode, global items and extra items.
-      let broadcastMode = guilds[i].broadcasts.mode;
-      let globalItems = (GlobalItemsHandler.getGlobalItems()).map(e => { return e.hash });
-      let extraItems = guilds[i].broadcasts.extraItems.map(e => { if(e.enabled) return e.hash });
-      let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
-      let itemsToLookFor = [];
-
-      if(broadcastMode === "Auto") { itemsToLookFor = globalItems; }
-      else if(broadcastMode === "Semi-Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
-      else if(broadcastMode === "Manual") { itemsToLookFor = extraItems; }
-
-      //Find items that match in differences and send broadcast
-      for(let j in differences) {
-        if(itemsToLookFor.find(e => e == differences[j])) {
-          BroadcastHandler.sendTitleBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
+  if(oldPlayerData.Titles.titles) {
+    let previousTitles = oldPlayerData.Titles.titles;
+    let newTitles = seals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
+    var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
+  
+    if(differences.length > 0) {
+      for(let i in guilds) {
+        //Get mode, global items and extra items.
+        let broadcastMode = guilds[i].broadcasts.mode;
+        let globalItems = (GlobalItemsHandler.getGlobalItems()).map(e => { return e.hash });
+        let extraItems = guilds[i].broadcasts.extraItems.map(e => { if(e.enabled) return e.hash });
+        let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
+        let itemsToLookFor = [];
+  
+        if(broadcastMode === "Auto") { itemsToLookFor = globalItems; }
+        else if(broadcastMode === "Semi-Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
+        else if(broadcastMode === "Manual") { itemsToLookFor = extraItems; }
+  
+        //Find items that match in differences and send broadcast
+        for(let j in differences) {
+          if(itemsToLookFor.find(e => e == differences[j])) {
+            BroadcastHandler.sendTitleBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
+          }
         }
       }
     }
   }
+  else { console.log(`Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
 
 async function UpdatePlayer(clan, memberData, playerData) {

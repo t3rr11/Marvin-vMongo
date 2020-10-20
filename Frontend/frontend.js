@@ -28,7 +28,7 @@ let isConnecting = false;
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
   if(!isConnecting) { isConnecting = true; Database.FrontendConnect(); }
-  if(DiscordReady && Database.checkSSHConnection() && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
+  if(DiscordReady && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the frontend and start running!
     clearInterval(startupCheck);
     await update();

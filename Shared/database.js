@@ -26,45 +26,32 @@ const checkSSHConnection = () => { return SSHConnected }
 const checkDBConnection = () => { return DBConnected }
 
 //SSH and Connect to Mongo
-function FrontendConnect() {
-  var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0];
-  var server = ssh(mongoConfig, function (error, server) {
-    if(error) { console.log("SSH connection error: " + error); }
-    else {
-      SSHConnected = true;
-      console.log("Connected to SSH");
-      mongoose.connect('mongodb://127.0.0.1/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
-      DB = mongoose.connection;
-      DB.on('error', console.error.bind(console, 'DB connection error:'));
-      DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
-    }
-  });
+function FrontendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("frontend", mongoConfig); }
+function BackendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; StartConnection("backend", mongoConfig); }
+function ExpressConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[2]; StartConnection("express", mongoConfig); }
 
-  server.on('error', (err) => {
-    if(err.code === "ECONNRESET") { FrontendConnect(); }
-    else if(err.code === "CONNECT_FAILED") { FrontendConnect(); }
-    else { console.log("SSH Error:", err); }
-  });
+function StartConnection(system, mongoConfig) {
+  if(Config.isLocal) {
+    var server = ssh(mongoConfig, (err) => { if(!err) { SSHConnected = true; console.log("Connected to SSH"); StartMongoConnection(); } });
+    server.on('error', (err) => {
+      if(err.code === "ECONNRESET" || err.code === "CONNECT_FAILED") {
+        switch(system) {
+          case "frontend": { FrontendConnect(); break; }
+          case "backend": { BackendConnect(); break; }
+          case "express": { ExpressConnect(); break; }
+          default: { console.log("Database Connection Error:", err); }
+        }
+      }
+      else { console.log("Database Connection Error:", err); }
+    });
+  }
+  else { StartMongoConnection(); }
 }
-async function BackendConnect() {
-  var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1];
-  var server = ssh(mongoConfig, function (error, server) {
-    if(error) { console.log("SSH connection error: " + error); }
-    else {
-      SSHConnected = true;
-      console.log("Connected to SSH");
-      mongoose.connect('mongodb://127.0.0.1/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
-      DB = mongoose.connection;
-      DB.on('error', console.error.bind(console, 'DB connection error:'));
-      DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
-    }
-  });
-
-  server.on('error', (err) => {
-    if(err.code === "ECONNRESET") { BackendConnect(); }
-    else if(err.code === "CONNECT_FAILED") { BackendConnect(); }
-    else { console.log("SSH Error:", err); }
-  });
+function StartMongoConnection() {
+  mongoose.connect('mongodb://127.0.0.1/Test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+  DB = mongoose.connection;
+  DB.on('error', console.error.bind(console, 'DB connection error:'));
+  DB.once('open', () => { console.log("Connected to MongoDB"); DBConnected = true; });
 }
 
 //Adds
@@ -132,8 +119,12 @@ const addAwaitingBroadcast = async (broadcastData, callback) => {
   await new AwaitingBroadcast(broadcastData).save((err, doc) => {
     if(err) { callback(true, "High", err) }
     else {
-      if(doc.displayName) { Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`) }
-      else { Log.SaveLog("Clan", doc.broadcast); }
+      if(doc.displayName) {
+        //Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`);
+      }
+      else {
+        //Log.SaveLog("Clan", doc.broadcast);
+      }
       callback(false);
     }
   });
@@ -480,6 +471,7 @@ function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: f
 module.exports = {
   FrontendConnect,
   BackendConnect,
+  ExpressConnect,
   checkSSHConnection,
   checkDBConnection,
   addUser,

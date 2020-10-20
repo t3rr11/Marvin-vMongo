@@ -13,6 +13,18 @@ async function BungieReq(path) {
   }
   catch (err) { return { "isError": true, "Data": err } }
 }
+async function NormalReq(path) {
+  return await fetch(`${ path }`).then(async (request) => {
+    try {
+      const response = await request.text();
+      const res = JSON.parse(response);
+      if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
+      else if(request.ok) { return { "isError": false, "Data": res } }
+      else { return { "isError": true, "Data": res } }
+    }
+    catch (err) { return { "isError": true, "Data": err } }
+  }).catch((err) => { return { "isError": true, "Data": err } });
+}
 
 const GetActivityHistory = async (membershipType, membershipId, characterId, count, mode, page = 0) => BungieReq(`/Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/Activities/?count=${count}&mode=${mode}&page=${page}`);
 const GetHistoricStatsForAccount = async (membershipType, membershipId) => BungieReq(`/Platform/Destiny2/${membershipType}/Account/${membershipId}/Stats/?groups=101`);
@@ -45,8 +57,12 @@ const GetManifestVersion = async (callback) => {
   const { isError, Data } = await BungieReq(`/Platform/Destiny2/Manifest/`);
   callback(isError, Data);
 }
+const GetClanWars = async (callback) => {
+  const { isError, Data } = await NormalReq(`http://localhost:3000/GetClanLeaderboards`);
+  callback(isError, Data);
+}
 
 module.exports = {
   GetProfile, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, SearchDestinyPlayer, GetMembershipId,
-  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers, GetSettings
+  GetMembershipsById, GetMembershipsForCurrentUser, GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers, GetSettings, GetClanWars
 }

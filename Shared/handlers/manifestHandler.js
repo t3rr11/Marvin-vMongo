@@ -49,7 +49,7 @@ checkManifestUpdate = async function CheckManifestUpdate() {
               console.log("Manifest is different updating...");
               updateManifest();
             }
-            else { storeManifest(); }
+            else { if(!checkManifestMounted()) { storeManifest(); } }
           }
           else { ErrorHandler("High", `Failed to get new manifest version: ${ newVersion }`) }
         });

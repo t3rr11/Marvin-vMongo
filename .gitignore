@@ -4,6 +4,7 @@
 /Backend/data
 /Backend/node_modules
 /Frontend/node_modules
+/Express/node_modules
 /Shared/node_modules
 /Shared/manifest
 
