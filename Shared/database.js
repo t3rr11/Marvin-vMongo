@@ -399,6 +399,23 @@ const getGuildTitles = async (guildID, callback) => {
     }
   });
 }
+const getGuildItems = async (guildID, callback) => {
+  await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(guild) {
+        await UserItems.find({ clanID: guild.clans }, (err, users) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(users.length > 0) { callback(false, true, users); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 const test = async (callback) => {
   await User.find({ membershipID: "4611686018471334813" }, (err, data) => {
@@ -514,6 +531,7 @@ module.exports = {
   getManifestVersion,
   getGuildPlayers,
   getGuildTitles,
+  getGuildItems,
   removeAwaitingBroadcast,
   removeAllAwaitingBroadcasts,
   updateUserByID,

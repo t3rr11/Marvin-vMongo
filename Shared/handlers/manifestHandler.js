@@ -13,6 +13,23 @@ function checkManifestMounted() {
 
 getManifest = () => { return Manifest; }
 getManifestVersion = () => { return ManifestVersion; }
+getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemLiteDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
+getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemLiteDefinition[hash] }
+getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemLiteDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
+
+getManifestTitleByName = (name) => {
+  const sealsNode = Manifest.DestinyPresentationNodeDefinition[1652422747];
+  const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
+  const sealsCompletionHashes = sealsParents.map(e => { return Manifest.DestinyPresentationNodeDefinition[e].completionRecordHash });
+  const seals = sealsCompletionHashes.map(e => Manifest.DestinyRecordDefinition[e]);
+
+  if(name === "conquorer s10") { return seals.find(e => e.hash === 1983630873); }
+  else if(name === "conquorer s11") { return seals.find(e => e.hash === 4081738395); }
+  else if(name === "flawless s10") { return seals.find(e => e.hash === 2945528800); }
+  else if(name === "flawless s11") { return seals.find(e => e.hash === 1547272082); }
+  else { return seals.find(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
+}
+
 
 storeManifest = async function StoreManifest() {
   await Database.getManifestVersion((isError, isFound, data) => {
@@ -112,4 +129,7 @@ updateManifest = async function UpdateManifest() {
 
 checkManifestUpdate();
 
-module.exports = { getManifest, getManifestVersion, checkManifestMounted, checkManifestUpdate, updateManifest }
+module.exports = {
+  getManifest, getManifestVersion, getManifestItemByName, getManifestItemByHash, getManifestItemByCollectibleHash,
+  getManifestTitleByName, checkManifestMounted, checkManifestUpdate, updateManifest
+}

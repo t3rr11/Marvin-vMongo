@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJson, GetClassName, AddCommas,
-  GetClanID, GetMembershipID, cleanString, addOrdinal
+  GetClanID, GetMembershipID, cleanString, addOrdinal, GetItemState
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -100,4 +100,17 @@ function cleanString(input) {
 function addOrdinal(value) {
   var s = ["th", "st", "nd", "rd"], v = value % 100;
   return value + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+const flagEnum = (state, value) => !!(state & value);
+function GetItemState(state) {
+  return {
+    none: flagEnum(state, 0),
+    notAcquired: flagEnum(state, 1),
+    obscured: flagEnum(state, 2),
+    invisible: flagEnum(state, 4),
+    cannotAffordMaterialRequirements: flagEnum(state, 8),
+    inventorySpaceUnavailable: flagEnum(state, 16),
+    uniquenessViolation: flagEnum(state, 32),
+    purchaseDisabled: flagEnum(state, 64)
+  };
 }

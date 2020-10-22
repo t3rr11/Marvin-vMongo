@@ -56,10 +56,13 @@ function MessageHandler(client, message, guilds, users) {
         case command.startsWith("trials profile seasonal"):
         case command.startsWith("trials profile overall"):
           { GetProfile(message, command, "trials", users, registeredUser); break; }
-        case command.startsWith("clanwars"): 
-          { GetClanWars(message, command, users, registeredUser); break; }
-        case command.startsWith("profile"): 
+        case command.startsWith("profile"):
           { GetProfile(message, command, "profile", users, registeredUser); break; }
+        case command.startsWith("clanwars"): { GetClanWars(message, command, users, registeredUser); break; }
+        case command.startsWith("item"): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!item"): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("title"): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!title"): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
         default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
@@ -73,21 +76,23 @@ async function GetLeaderboard(message, command, users, registeredUser) {
   let registeredPlayer;
 
   //Get players
-  await new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } else { message.channel.send("Not found"); } }
     else { message.channel.send(data); }
     resolve(true);
   }));
 
-  //Add registered user to players if not there already
-  if(registeredUser !== null || registeredUser !== "NoUser") {
-    await new Promise(resolve =>
-      Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
-        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
-        resolve(true);
-      })
-    );
-  }
+  //Get registered user info
+  var GetRegisteredUserInfo = new Promise(resolve =>
+    Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
+      if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
+      resolve(true);
+    })
+  );
+
+  //Promise all
+  if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetRegisteredUserInfo]); }
+  else { await Promise.all([await GetGuildPlayers]); }
 
   SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer);
 }
@@ -99,30 +104,112 @@ async function GetTitleLeaderboard(message, command, users, registeredUser) {
   let registeredPlayerTitles;
 
   //Get players
-  await new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } else { message.channel.send("Not found"); } }
     else { message.channel.send(data); }
     resolve(true);
   }));
 
   //Get player titles
-  await new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+  var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
     if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
     else { message.channel.send(data); }
     resolve(true);
   }));
 
-  //Add registered user to players if not there already
-  if(registeredUser !== null || registeredUser !== "NoUser") {
-    await new Promise(resolve =>
-      Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
-        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
-        resolve(true);
-      })
-    );
-  }
+  //Get registered user info
+  var GetRegisteredUserInfo = new Promise(resolve =>
+    Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
+      if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
+      resolve(true);
+    })
+  );
+
+  //Promise all
+  if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetGuildTitles, await GetRegisteredUserInfo]); }
+  else { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
 
   SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
+}
+async function GetObtainedItems(message, command, type, users, registeredUser) {
+  let players = [];
+  let playerItems = [];
+  let obtained = [];
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+
+  //Get item
+  var requestedItemName = type === "obtained" ? command.substr("item ".length) : command.substr("!item ".length);
+  var item;
+  if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
+  else {
+    item = ManifestHandler.getManifestItemByHash(requestedItemName);
+    if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+  }
+
+  //Get players
+  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Get player items
+  var GetGuildItems = new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
+    if(!isError) { if(isFound) { playerItems = data; } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Promise all
+  if(item) {
+    await Promise.all([await GetGuildPlayers, await GetGuildItems]);
+
+    for(var i in playerItems) {
+      let user = players.find(e => e.membershipID === playerItems[i].membershipID);
+      let itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state;
+      if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+      else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+    }
+  }
+
+  SendItemsLeaderboard(msg, command, type, players, obtained, item);
+}
+async function GetObtainedTitles(message, command, type, users, registeredUser) {
+  let players = [];
+  let playerTitles = [];
+  let obtained = [];
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+
+  //Get title
+  var requestedTitleName = type === "obtained" ? command.substr("title ".length) : command.substr("!title ".length);
+  var title = ManifestHandler.getManifestTitleByName(requestedTitleName);
+
+  //Get players
+  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Get player items
+  var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+    if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Promise all
+  if(title) {
+    await Promise.all([await GetGuildPlayers, await GetGuildTitles]);
+
+    for(var i in playerTitles) {
+      let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
+      if(type === "obtained") { if(playerTitles[i].titles.find(e => e === title.hash.toString())) { obtained.push(user.displayName); } }
+      else { if(!playerTitles[i].titles.find(e => e === title.hash)) { obtained.push(user.displayName); } }
+    }
+  }
+
+  SendTitlesLeaderboard(msg, command, type, players, obtained, title);
 }
 async function GetProfile(message, command, type, users, registeredUser) {
   let players = [];
@@ -189,7 +276,7 @@ async function GetProfile(message, command, type, users, registeredUser) {
     })
   );
 
-  //Add registered user to players if not there already
+  //Promise all
   if(registeredUser !== null || registeredUser !== "NoUser") {
     if(type === "profile") { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
   }
@@ -823,6 +910,56 @@ function SendLeaderboard(message, command, players, privatePlayers, registeredUs
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { console.log(err); }
   });
+}
+function SendItemsLeaderboard(message, command, type, players, playerItems, item) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
+    const chunkIndex = Math.floor(index / 15);
+    if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
+    resultArray[chunkIndex].push(item)
+    return resultArray
+  }, []);
+
+  if(item) {
+    if(playerItems.length > 0) {
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
+      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+    }
+    else { embed.setAuthor(`Nobody has it yet.`); }
+  }
+  else {
+    embed.setAuthor("Uhh oh...");
+    embed.setDescription(`Could not find the item requested.`);
+  }
+
+  message.edit(embed);
+}
+function SendTitlesLeaderboard(message, command, type, players, playerTitles, title) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, title, index) => { 
+    const chunkIndex = Math.floor(index / 15);
+    if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
+    resultArray[chunkIndex].push(title)
+    return resultArray
+  }, []);
+
+  if(title) {
+    if(playerTitles.length > 0) {
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title.titleInfo.titlesByGender.Male }`);
+      embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
+      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+    }
+    else { embed.setAuthor(`Nobody has it yet.`); }
+  }
+  else {
+    embed.setAuthor("Uhh oh...");
+    embed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqourer use: Flawless S10, Conqourer S11, Etc.`);
+  }
+
+  message.edit(embed);
 }
 function SendClanWarsLeaderboard(message, command, registeredUser, registeredPlayer, clanData) {
   let leaderboard = { names: [], first: [], second: [] }
