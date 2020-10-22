@@ -63,6 +63,7 @@ function MessageHandler(client, message, guilds, users) {
         case command.startsWith("!item"): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
         case command.startsWith("title"): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
         case command.startsWith("!title"): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("help"): { GetHelp(message, command, users, registeredUser); break; }
         default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
@@ -70,6 +71,97 @@ function MessageHandler(client, message, guilds, users) {
   }
 }
 
+async function GetHelp(message, command, users, registeredUser) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  switch(command) {
+    case "help rankings": {
+      embed.setAuthor("Rankings Help Menu");
+      embed.setDescription("Here is a list of ranking commands! Example: `~Iron Banner`");
+      embed.addField("Commands", "`~Valor`, `~Glory`, `~Infamy`, `~Iron Banner`, `~Max Power`, `~Triumph Score`, `~Time Played`, `~Season Rank`");
+      break;
+    }
+    case "help dungeons": {
+      embed.setAuthor("Dungeons Help Menu");
+      embed.setDescription("Here is a list of dungeon commands! Example: `~Pit of Heresy`");
+      embed.addField("Commands", "`~Shattered Throne`, `~Pit of Heresy`, `~Prophecy`");
+      break;
+    }
+    case "help raids": {
+      embed.setAuthor("Raids Help Menu");
+      embed.setDescription("Here is a list of raid commands! Example: `~LW`");
+      embed.addField("Commands", "`~Levi`, `~EoW`, `~SoS`, `~LW`, `~SoTP`, `~CoS`, `~GoS`");
+      break;
+    }
+    case "help items": {
+      embed.setAuthor("Items Help Menu");
+      embed.setDescription("The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n`~item One Thousand Voices` or\n`~!item Anarchy`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. `~item 123456`");
+      break;
+    }
+    case "help titles": {
+      embed.setAuthor("Titles Help Menu");
+      embed.setDescription("The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n`~title Rivensbane` or\n`~!title Chronicler`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. `~title 123456`");
+      break;
+    }
+    case "help seasonal": {
+      embed.setAuthor("Seasonal Help Menu");
+      embed.setDescription("Here is a list of seasonal commands! Example: `~Season Rank`");
+      embed.addField("Commands", "`~Season Rank`, `~Max Power`");
+      break;
+    }
+    case "help clan": {
+      embed.setAuthor("Clans Help Menu");
+      embed.setDescription("Here is a list of clan commands! Example: `~Set Clan`");
+      embed.addField("Commands", "`~Broadcasts Help`, `~Tracked Clans`, `~Set Clan`, `~Add Clan`, `~Remove Clan`");
+      break;
+    }
+    case "help globals": {
+      embed.setAuthor("Globals Help Menu");
+      embed.setDescription("Here is a list of global commands! Example: `~Global Time Played`");
+      embed.addField("Commands", "`~Global Time Played`, `~Global Season Rank`, `~Global Triumph Score`, `~Global Drystreaks`, `~Global Trials`"); 
+      break;
+    }
+    case "help trials": {
+      embed.setAuthor("Trials Help Menu");
+      embed.setDescription("Here is a list of trials commands! Profile commands can be altered by @ing the person you wish to view: `~Trials Profile @Someone`");
+      embed.addField("Profile Commands", "`~Trials Profile`, `~Trials Profile Weekly`, `~Trials Profile Seasonal`, `~Trials Profile Overall`");
+      embed.addField("Weekly Rankings", "`~Trials Wins`, `~Trials Flawless`, `~Trials Final Blows`, `~Trials Post Wins`, `~Trials Carries`");
+      embed.addField("Seasonal Rankings", "`~Trials Wins Seasonal`, `~Trials Flawless Seasonal`, `~Trials Final Blows Seasonal`, `~Trials Post Wins Seasonal`, `~Trials Carries Seasonal`");
+      embed.addField("Overall Rankings", "`~Trials Wins Overall`, `~Trials Flawless Overall`, `~Trials Final Blows Overall`, `~Trials Post Wins Overall`, `~Trials Carries Overall`");
+      embed.addField("Global Wins Rankings", "`~Global Trials Wins`, `~Global Trials Overall Wins`, `~Global Trials Seasonal Wins`, `~Global Trials Weekly Wins`");
+      embed.addField("Global Flawless Rankings", "`~Global Trials Flawless`, `~Global Trials Overall Flawless`, `~Global Trials Seasonal Flawless`, `~Global Trials Weekly Flawless`");
+      embed.addField("Global Carries Rankings", "`~Global Trials Carries`, `~Global Trials Overall Carries`, `~Global Trials Seasonal Carries`, `~Global Trials Weekly Carries`")  ;
+      break;
+    }
+    case "help clanwars": {
+      embed.setAuthor("Clanwars Help Menu");
+      embed.setDescription("Here is a list of Clanwars commands! Example: `~Clanwars Time`");
+      embed.addField("Rankings", "~Clanwars Valor\n~Clanwars Glory\n~Clanwars Infamy");
+      embed.addField("Raids", "~Clanwars Levi\n~Clanwars pLevi\n~Clanwars Eow\n~Clanwars pEow\n~Clanwars Sos\n~Clanwars pSos\n~Clanwars Last Wish\n~Clanwars Scourge\n~Clanwars Crown\n~Clanwars Garden");
+      embed.addField("Dungeons", "~Clanwars Pit\n~Clanwars Prophecy");
+      embed.addField("Others", "~Clanwars Season Rank\n~Clanwars Triumph Score\n~Clanwars Time Played");
+      break;
+    }
+    case "help others": {
+      embed.setAuthor("Others Help Menu");
+      embed.setDescription("Here is a list of other commands! Example: `~Donate`");
+      embed.addField("Commands", "`~Donate`");
+      break;
+    }
+    default: {
+      embed.setAuthor("Hey there! I am Marvin.")
+      embed.setDescription("I have so many commands now i've had to split them up here is a list of my help commands! Example: `~Help Rankings`")
+      embed.addField("Categories", "`Rankings`, `Dungeons`, `Raids`, `Items`, `Titles`, `Seasonal`, `Clan`, `Globals`, `Trials`, `~Clanwars`, `Others`")
+      embed.addField("Request", "If you wish to request something or would like to give feedback use the request command like this: `~request I would like to see Marvin track season ranks!`")
+      break;
+    }
+  }
+
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { console.log(err); }
+  });
+}
 async function GetLeaderboard(message, command, users, registeredUser) {
   let players = [];
   let privatePlayers = [];
