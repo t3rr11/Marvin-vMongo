@@ -90,7 +90,7 @@ async function init() {
 
       //Get clan members
       Tracking.UpdateClan(clans[index], Season, function UpdateClan(clan, isError, severity, err) {
-        if(isError) { ErrorHandler(severity, err); }
+        if(isError) { console.log(err); ErrorHandler(severity, err); }
         //Remove it from queue as clan update has finished.
         processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
       });
@@ -150,7 +150,7 @@ async function init() {
 
       //Get clan members
       Tracking.UpdateClan(rt_clans[rt_index], Season, function UpdateClan(clan, isError, severity, err) {
-        if(isError) { ErrorHandler(severity, err); }
+        if(isError) { console.log(err); ErrorHandler(severity, err); }
         //Remove it from queue as clan update has finished.
         rt_processing.splice(rt_processing.indexOf(rt_processing.find(e => e.clanID === clan.clanID)), 1);
       });

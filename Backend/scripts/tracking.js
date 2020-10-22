@@ -92,7 +92,20 @@ async function UpdateClan(clan, season, callback) {
           else { callback(clan, true, "Low", memberData); resolve(false); }
         });
       }
-      else { callback(clan, true, "Low", clanData); resolve(false); }
+      else {
+        if(clanData.ErrorCode === 686) {
+          //Update clan details as clan no longer exists.
+          Log.SaveLog("Info", `${ clan.clanName } no longer exists. Rip clan.`);
+          Database.updateClanByID(clan.clanID, {
+            clanName: `${ clan.clanName } (Deleted)`,
+            firstScan: true,
+            isTracking: false,
+            lastScan: new Date()
+          }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+        }
+        callback(clan, true, "Low", clanData.ErrorStatus);
+        resolve(false);
+      }
   }));
 
   //Finally callback and let backend know it went sucessfully.
