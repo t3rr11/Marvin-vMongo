@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJson, GetClassName, AddCommas,
-  GetClanID, GetMembershipID, cleanString
+  GetClanID, GetMembershipID, cleanString, addOrdinal
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -96,4 +96,8 @@ function cleanString(input) {
   var output = "";
   for(var i=0; i<input.length; i++) { if (input.charCodeAt(i) <= 127) { output += input.charAt(i); } }
   return output;
+}
+function addOrdinal(value) {
+  var s = ["th", "st", "nd", "rd"], v = value % 100;
+  return value + (s[(v - 20) % 10] || s[v] || s[0]);
 }

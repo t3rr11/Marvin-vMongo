@@ -55,9 +55,11 @@ function MessageHandler(client, message, guilds, users) {
         case command.startsWith("trials profile"): case command.startsWith("trials profile weekly"):
         case command.startsWith("trials profile seasonal"):
         case command.startsWith("trials profile overall"):
-          { GetTrialsProfile(message, command, users, registeredUser); break; }
+          { GetProfile(message, command, "trials", users, registeredUser); break; }
         case command.startsWith("clanwars"): 
           { GetClanWars(message, command, users, registeredUser); break; }
+        case command.startsWith("profile"): 
+          { GetProfile(message, command, "profile", users, registeredUser); break; }
         default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
@@ -65,7 +67,7 @@ function MessageHandler(client, message, guilds, users) {
   }
 }
 
-async function GetLeaderboard(message, type, users, registeredUser) {
+async function GetLeaderboard(message, command, users, registeredUser) {
   let players = [];
   let privatePlayers = [];
   let registeredPlayer;
@@ -81,15 +83,15 @@ async function GetLeaderboard(message, type, users, registeredUser) {
   if(registeredUser !== null || registeredUser !== "NoUser") {
     await new Promise(resolve =>
       Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
-        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data); } registeredPlayer = data; } }
+        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
         resolve(true);
       })
     );
   }
 
-  SendLeaderboard(message, type, players, privatePlayers, registeredUser, registeredPlayer);
+  SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer);
 }
-async function GetTitleLeaderboard(message, type, users, registeredUser) {
+async function GetTitleLeaderboard(message, command, users, registeredUser) {
   let players = [];
   let playerTitles = [];
   let privatePlayers = [];
@@ -114,28 +116,89 @@ async function GetTitleLeaderboard(message, type, users, registeredUser) {
   if(registeredUser !== null || registeredUser !== "NoUser") {
     await new Promise(resolve =>
       Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
-        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data); } registeredPlayer = data; } }
+        if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
         resolve(true);
       })
     );
   }
 
-  SendLeaderboard(message, type, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
+  SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
 }
-async function GetTrialsProfile(message, type, users, registeredUser) {
+async function GetProfile(message, command, type, users, registeredUser) {
+  let players = [];
+  let playerTitles = [];
   let registeredPlayer;
+  let registeredPlayerStats = [];
+  let registeredPlayerBroadcasts = [];
+
+  //Get players
+  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Get player titles
+  var GetGuildTitles = await new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+    if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
+    else { message.channel.send(data); }
+    resolve(true);
+  }));
+
+  //Get registered user info
+  var GetRegisteredUserInfo = await new Promise(resolve =>
+    Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
+      if(!isError) {
+        if(isFound) {
+          if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); }
+          if(!playerTitles.find(e => e.membershipID === registeredUser.membershipID)) { playerTitles.push(data.Titles); }
+          registeredPlayer = data;
+          registeredPlayerStats = {
+            timePlayed: { "data": data.User.timePlayed, "rank": players.sort(function(a, b) { return b.timePlayed - a.timePlayed; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            infamy: { "data": data.User.infamy.current, "rank": players.sort(function(a, b) { return b.infamy.current - a.infamy.current; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            valor: { "data": data.User.valor.current, "rank": players.sort(function(a, b) { return b.valor.current - a.valor.current; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            glory: { "data": data.User.glory, "rank": players.sort(function(a, b) { return b.glory - a.glory; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            triumphScore: { "data": data.User.triumphScore, "rank": players.sort(function(a, b) { return b.triumphScore - a.triumphScore; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            seasonRank: { "data": data.User.seasonRank, "rank": players.sort(function(a, b) { return b.seasonRank - a.seasonRank; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            titles: { "data": data.Titles.titles.length, "rank": playerTitles.sort(function(a, b) { return b.titles.length - a.titles.length; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            lastPlayed: data.User.lastPlayed,
+            highestPower: { "data": data.User.highestPower, "rank": players.sort(function(a, b) { return b.highestPower - a.highestPower; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            levi: { "data": data.User.raids.levi, "rank": players.sort(function(a, b) { return b.raids.levi - a.raids.levi; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            eow: { "data": data.User.raids.eow, "rank": players.sort(function(a, b) { return b.raids.eow - a.raids.eow; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            sos: { "data": data.User.raids.sos, "rank": players.sort(function(a, b) { return b.raids.sos - a.raids.sos; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            prestige_levi: { "data": data.User.raids.prestige_levi, "rank": players.sort(function(a, b) { return b.raids.prestige_levi - a.raids.prestige_levi; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            prestige_eow: { "data": data.User.raids.prestige_eow, "rank": players.sort(function(a, b) { return b.raids.prestige_eow - a.raids.prestige_eow; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            prestige_sos: { "data": data.User.raids.prestige_sos, "rank": players.sort(function(a, b) { return b.raids.prestige_sos - a.raids.prestige_sos; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            lastWish: { "data": data.User.raids.lastWish, "rank": players.sort(function(a, b) { return b.raids.lastWish - a.raids.lastWish; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            scourge: { "data": data.User.raids.scourge, "rank": players.sort(function(a, b) { return b.raids.scourge - a.raids.scourge; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            sorrows: { "data": data.User.raids.sorrows, "rank": players.sort(function(a, b) { return b.raids.sorrows - a.raids.sorrows; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            garden: { "data": data.User.raids.garden, "rank": players.sort(function(a, b) { return b.raids.garden - a.raids.garden; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
+            totalRaids: { "data": data.User.totalRaids, "rank": players.sort(function(a, b) { return b.totalRaids - a.totalRaids; }).findIndex(e => e.membershipID === data.User.membershipID) +1 }                    
+          }
+        }
+      }
+      resolve(true);
+    })
+  );
+
+  //Get broadcasts for user
+  var GetUserBroadcasts = await new Promise(resolve => 
+    Database.getUserBroadcasts(registeredUser.membershipID, function GetUserBroadcasts(isError, isFound, data) {
+      if(!isError) { if(isFound) { registeredPlayerBroadcasts = data; } }
+      resolve(true);
+    })
+  );
 
   //Add registered user to players if not there already
   if(registeredUser !== null || registeredUser !== "NoUser") {
-    await new Promise(resolve =>
-      Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
-        if(!isError) { if(isFound) { registeredPlayer = data; } }
-        resolve(true);
-      })
-    );
+    if(type === "profile") { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
+  }
+  else {
+    if(type === "profile") { await Promise.all([await GetGuildPlayers, await GetGuildTitles, await GetRegisteredUserInfo, await GetUserBroadcasts]); }
+    else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo]); }
   }
 
-  SendLeaderboard(message, type, null, null, registeredUser, registeredPlayer);
+  SendProfile(message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, players.length);
 }
 async function GetClanWars(message, command, users, registeredUser) {
   RequestHandler.GetClanWars(async (isError, clanData) => {
@@ -684,107 +747,6 @@ function SendLeaderboard(message, command, players, privatePlayers, registeredUs
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials profile"): {
-      switch(true) {
-        case command.startsWith("trials profile weekly"): {
-          if(registeredUser) {
-            if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
-              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
-              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
-              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.finalBlows)) }`, true)
-              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.postFlawlessWins)) }`, true)
-              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.carries)) }`, true)
-              break;
-            }
-            else {
-              embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
-              break;
-            }
-          }
-          else {
-            embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
-            break;
-          }
-        }
-        case command.startsWith("trials profile seasonal"): {
-          if(registeredUser) {
-            if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Seasonal Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
-              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.wins)) }`, true)
-              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.flawlessTickets)) }`, true)
-              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.finalBlows)) }`, true)
-              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.postFlawlessWins)) }`, true)
-              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.carries)) }`, true)
-              break;
-            }
-            else {
-              embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
-              break;
-            }
-          }
-          else {
-            embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
-            break;
-          }
-        }
-        case command.startsWith("trials profile overall"): {
-          if(registeredUser) {
-            if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Overall Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
-              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.wins)) }`, true)
-              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.flawlessTickets)) }`, true)
-              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.finalBlows)) }`, true)
-              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.postFlawlessWins)) }`, true)
-              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.carries)) }`, true)
-              break;
-            }
-            else {
-              embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
-              break;
-            }
-          }
-          else {
-            embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
-            break;
-          }
-        }
-        default: {
-          if(registeredUser) {
-            if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
-              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
-              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
-              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.finalBlows)) }`, true)
-              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.postFlawlessWins)) }`, true)
-              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.carries)) }`, true)
-              break;
-            }
-            else {
-              embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
-              break;
-            }
-          }
-          else {
-            embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
-            break;
-          }
-        }
-      }
-      break;
-    }
 
     //Others - triumphScore, totalTime, totalRaids, totalTitles
     case command.startsWith("triumph score"): case command.startsWith("triumphscore"): case command.startsWith("triumph"): case command.startsWith("triumphs"): {
@@ -862,7 +824,6 @@ function SendLeaderboard(message, command, players, privatePlayers, registeredUs
     else { console.log(err); }
   });
 }
-
 function SendClanWarsLeaderboard(message, command, registeredUser, registeredPlayer, clanData) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -1045,6 +1006,212 @@ function SendClanWarsLeaderboard(message, command, registeredUser, registeredPla
       break;
     }
     default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
+  }
+  
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { console.log(err); }
+  });
+}
+function SendProfile(message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  switch(true) {
+    case command.startsWith("profile"): {
+      switch(true) {
+        case command.startsWith("profile -r"): case command.startsWith("profile -raids"): {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
+              embed.addField("Leviathan", `${ Misc.AddCommas(registeredPlayerStats.levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.levi.rank) })*`, true);
+              embed.addField("Leviathan (PRESTIGE)", `${ Misc.AddCommas(registeredPlayerStats.prestige_levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.prestige_levi.rank) })*`, true);
+              embed.addField("Eater of Worlds", `${ Misc.AddCommas(registeredPlayerStats.eow.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.eow.rank) })*`, true);
+              embed.addField("Eater of Worlds (PRESTIGE)", `${ Misc.AddCommas(registeredPlayerStats.prestige_eow.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.prestige_eow.rank) })*`, true);
+              embed.addField("Spire of Stars", `${ Misc.AddCommas(registeredPlayerStats.sos.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.sos.rank) })*`, true);
+              embed.addField("Spire of Stars (PRESTIGE)", `${ Misc.AddCommas(registeredPlayerStats.prestige_sos.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.prestige_sos.rank) })*`, true);
+              embed.addField("Last Wish", `${ Misc.AddCommas(registeredPlayerStats.lastWish.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.lastWish.rank) })*`, true);
+              embed.addField("Scourge of the Past", `${ Misc.AddCommas(registeredPlayerStats.scourge.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.scourge.rank) })*`, true);
+              embed.addField("Crown of Sorrows", `${ Misc.AddCommas(registeredPlayerStats.sorrows.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.sorrows.rank) })*`, true);
+              embed.addField("Garden of Salvation", `${ Misc.AddCommas(registeredPlayerStats.garden.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.garden.rank) })*`, true);
+              embed.addField("See more at", `https://guardianstats.com/profile/${ registeredUser.membershipID }`);
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+        case command.startsWith("profile -b"): case command.startsWith("profile -broadcasts"): {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              if(registeredPlayerBroadcasts.length > 0) {
+                registeredPlayerBroadcasts.sort((a, b) => { return b.date - a.date }).slice(0, 15);
+                embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+                embed.setDescription("This only shows broadcasts whilst Marvin was tracking your clan. (Capped at 15 newest broadcasts)");
+                embed.addField("Name", registeredPlayerBroadcasts.map(e => { return e.broadcast }), true);
+                embed.addField("Date", registeredPlayerBroadcasts.map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }), true);
+                break;
+              }
+              else {
+                embed.setAuthor("Uhh oh...");
+                embed.setDescription("Could not find any broadcasts for your registered account. Have you obtained any since Marvin has started tracking your clan?");
+                break;
+              }
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+        default: {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
+              embed.addField("Name (SR)", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) } (${ registeredPlayerStats.seasonRank.data })`, true);
+              embed.addField("Time Played", `${ Misc.AddCommas(Math.round(registeredPlayerStats.timePlayed.data/60)) } Hrs *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.timePlayed.rank) })*`, true);
+              embed.addField("Last Played", `${ new Date(registeredPlayerStats.lastPlayed).getDate() }-${ new Date(registeredPlayerStats.lastPlayed).getMonth()+1 }-${ new Date(registeredPlayerStats.lastPlayed).getFullYear() }`, true);
+              embed.addField("Valor", `${ Misc.AddCommas(registeredPlayerStats.valor.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.valor.rank) })*`, true);
+              embed.addField("Glory", `${ Misc.AddCommas(registeredPlayerStats.glory.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.glory.rank) })*`, true);
+              embed.addField("Infamy", `${ Misc.AddCommas(registeredPlayerStats.infamy.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.infamy.rank) })*`, true);
+              embed.addField("Triumph Score", `${ Misc.AddCommas(registeredPlayerStats.triumphScore.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.triumphScore.rank) })*`, true);
+              embed.addField("Raids", `${ Misc.AddCommas(registeredPlayerStats.totalRaids.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.totalRaids.rank) })*`, true);
+              embed.addField("Titles", `${ Misc.AddCommas(registeredPlayerStats.titles.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.titles.rank) })*`, true);
+              embed.addField("Highest Power", `${ Misc.AddCommas(registeredPlayerStats.highestPower.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.highestPower.rank) })*`, true);
+              embed.addField("See more at", `https://guardianstats.com/profile/${ registeredUser.membershipID }`);
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case command.startsWith("trials profile"): {
+      switch(true) {
+        case command.startsWith("trials profile weekly"): {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
+              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
+              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
+              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.finalBlows)) }`, true)
+              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.postFlawlessWins)) }`, true)
+              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.carries)) }`, true)
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+        case command.startsWith("trials profile seasonal"): {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Seasonal Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
+              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.wins)) }`, true)
+              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.flawlessTickets)) }`, true)
+              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.finalBlows)) }`, true)
+              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.postFlawlessWins)) }`, true)
+              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.carries)) }`, true)
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+        case command.startsWith("trials profile overall"): {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Overall Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
+              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.wins)) }`, true)
+              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.flawlessTickets)) }`, true)
+              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.finalBlows)) }`, true)
+              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.postFlawlessWins)) }`, true)
+              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.carries)) }`, true)
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+        default: {
+          if(registeredUser) {
+            if(registeredUser !== "NoUser") {
+              embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
+              embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
+              embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
+              embed.addField("Final Blows", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.finalBlows)) }`, true)
+              embed.addField("Post Flawless Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.postFlawlessWins)) }`, true)
+              embed.addField("Carries", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.carries)) }`, true)
+              break;
+            }
+            else {
+              embed.setAuthor("Uhh oh...");
+              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              break;
+            }
+          }
+          else {
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            break;
+          }
+        }
+      }
+      break;
+    }
   }
   
   message.channel.send({embed}).catch(err => {

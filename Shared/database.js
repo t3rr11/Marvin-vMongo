@@ -335,6 +335,16 @@ const getUserItems = async (membershipID) => {
 const getUserTitles = async (membershipID) => {
   return await UserTitles.find({ membershipID });
 }
+const getUserBroadcasts = async (membershipID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Broadcast.find({ membershipID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getAwaitingBroadcasts = async (callback) => {
   //Callback fields { isError, isFound, data }
   await AwaitingBroadcast.find({}, (err, array) => {
@@ -499,6 +509,7 @@ module.exports = {
   getTrackedUsers,
   getUserItems,
   getUserTitles,
+  getUserBroadcasts,
   getAwaitingBroadcasts,
   getManifestVersion,
   getGuildPlayers,
