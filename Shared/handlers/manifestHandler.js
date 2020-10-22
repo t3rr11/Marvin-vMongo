@@ -16,7 +16,6 @@ getManifestVersion = () => { return ManifestVersion; }
 getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemLiteDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
 getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemLiteDefinition[hash] }
 getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemLiteDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
-
 getManifestTitleByName = (name) => {
   const sealsNode = Manifest.DestinyPresentationNodeDefinition[1652422747];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
