@@ -143,7 +143,7 @@ async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
     if(!isError) {
       if(isFound) {
         //Look for broadcasts provided this user is not on their first load.
-        if(!oldPlayerData.User.firstLoad && !oldPlayerData.User.isPrivate) {
+        if(!oldPlayerData.User.firstLoad && !oldPlayerData.User.isPrivate && oldPlayerData.Titles && oldPlayerData.Items) {
           await CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds);
           await CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds);
         }

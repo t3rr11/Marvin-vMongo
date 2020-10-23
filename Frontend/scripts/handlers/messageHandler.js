@@ -28,6 +28,13 @@ function MessageHandler(client, message, guilds, users) {
 
     try {
       switch(true) {
+        case command.startsWith("clanwars"): { GetClanWars(message, command, users, registeredUser); break; }
+        case command.startsWith("global") && !command.startsWith("globals"): { GetGlobal(message, command, users, registeredUser); break; }
+        case command.startsWith("item"): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!item"): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("title"): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!title"): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("help"): { GetHelp(message, command, users, registeredUser); break; }
         case command.startsWith("valor"): case command.startsWith("glory"): case command.startsWith("infamy"): 
         case command.startsWith("levi"): case command.startsWith("leviathan"):
         case command.startsWith("eow"): case command.startsWith("eater of worlds"):
@@ -52,18 +59,13 @@ function MessageHandler(client, message, guilds, users) {
           { GetLeaderboard(message, command, users, registeredUser); break; }
         case command.startsWith("titles total"): case command.startsWith("total titles"):
           { GetTitleLeaderboard(message, command, users, registeredUser); break; }
-        case command.startsWith("trials profile"): case command.startsWith("trials profile weekly"):
+        case command.startsWith("trials profile"):
+        case command.startsWith("trials profile weekly"):
         case command.startsWith("trials profile seasonal"):
         case command.startsWith("trials profile overall"):
           { GetProfile(message, command, "trials", users, registeredUser); break; }
         case command.startsWith("profile"):
           { GetProfile(message, command, "profile", users, registeredUser); break; }
-        case command.startsWith("clanwars"): { GetClanWars(message, command, users, registeredUser); break; }
-        case command.startsWith("item"): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!item"): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
-        case command.startsWith("title"): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!title"): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
-        case command.startsWith("help"): { GetHelp(message, command, users, registeredUser); break; }
         default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
@@ -78,19 +80,19 @@ async function GetHelp(message, command, users, registeredUser) {
     case "help rankings": {
       embed.setAuthor("Rankings Help Menu");
       embed.setDescription("Here is a list of ranking commands! Example: `~Iron Banner`");
-      embed.addField("Commands", "`~Valor`, `~Glory`, `~Infamy`, `~Iron Banner`, `~Max Power`, `~Triumph Score`, `~Time Played`, `~Season Rank`");
+      embed.addField("Commands", "`~Valor`\n`~Glory`\n`~Infamy`\n`~Iron Banner`\n`~Max Power`\n`~Triumph Score`\n`~Time Played`\n`~Season Rank`");
       break;
     }
     case "help dungeons": {
       embed.setAuthor("Dungeons Help Menu");
       embed.setDescription("Here is a list of dungeon commands! Example: `~Pit of Heresy`");
-      embed.addField("Commands", "`~Shattered Throne`, `~Pit of Heresy`, `~Prophecy`");
+      embed.addField("Commands", "`~Shattered Throne`\n`~Pit of Heresy`\n`~Prophecy`");
       break;
     }
     case "help raids": {
       embed.setAuthor("Raids Help Menu");
       embed.setDescription("Here is a list of raid commands! Example: `~LW`");
-      embed.addField("Commands", "`~Levi`, `~EoW`, `~SoS`, `~LW`, `~SoTP`, `~CoS`, `~GoS`");
+      embed.addField("Commands", "`~Levi`\n`~EoW`\n`~SoS`\n`~LW`\n`~SoTP`\n`~CoS`\n`~GoS`");
       break;
     }
     case "help items": {
@@ -106,19 +108,19 @@ async function GetHelp(message, command, users, registeredUser) {
     case "help seasonal": {
       embed.setAuthor("Seasonal Help Menu");
       embed.setDescription("Here is a list of seasonal commands! Example: `~Season Rank`");
-      embed.addField("Commands", "`~Season Rank`, `~Max Power`");
+      embed.addField("Commands", "`~Season Rank`\n`~Max Power`");
       break;
     }
     case "help clan": {
       embed.setAuthor("Clans Help Menu");
       embed.setDescription("Here is a list of clan commands! Example: `~Set Clan`");
-      embed.addField("Commands", "`~Broadcasts Help`, `~Tracked Clans`, `~Set Clan`, `~Add Clan`, `~Remove Clan`");
+      embed.addField("Commands", "`~Broadcasts Help`\n`~Tracked Clans`\n`~Set Clan`\n`~Add Clan`\n`~Remove Clan`");
       break;
     }
     case "help globals": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription("Here is a list of global commands! Example: `~Global Time Played`");
-      embed.addField("Commands", "`~Global Time Played`, `~Global Season Rank`, `~Global Triumph Score`, `~Global Drystreaks`, `~Global Trials`"); 
+      embed.addField("Commands", "`~Global Time Played`\n`~Global Season Rank`\n`~Global Triumph Score`\n`~Global Valor`\n`~Global Infamy`\n`~Global Levi`\n`~Global EoW`\n`~Global SoS`\n`~Global Last Wish`\n`~Global Scourge`\n`~Global Sorrows`\n`~Global Garden`\n`~Global Total Raids`\n`~Global Power`"); 
       break;
     }
     case "help trials": {
@@ -401,6 +403,53 @@ async function GetClanWars(message, command, users, registeredUser) {
       else { message.channel.send("Failed to generate clanwars leaderboards... Uhh report using: `~request`"); }
     }
   });
+}
+async function GetGlobal(message, command, users, registeredUser) {
+  let globalReq;
+  switch(true) {
+    case command.startsWith("global time played"): case command.startsWith("global time"): { globalReq = "GetGlobalTimePlayedLeadboard"; break; }
+    case command.startsWith("global sr"): case command.startsWith("global season rank"): { globalReq = "GetGlobalSeasonRankLeadboard"; break; }
+    case command.startsWith("global triumph score"): case command.startsWith("global triumph"): case command.startsWith("global triumphs"): { globalReq = "GetGlobalTriumphScoreLeadboard"; break; }
+    case command.startsWith("global valor"): { globalReq = "GetGlobalValorLeadboard"; break; }
+    case command.startsWith("global infamy"): { globalReq = "GetGlobalInfamyLeadboard"; break; }
+    case command.startsWith("global levi"): case command.startsWith("global leviathan"): { globalReq = "GetGlobalLeviLeadboard"; break; }
+    case command.startsWith("global eow"): case command.startsWith("global eater of worlds"): { globalReq = "GetGlobalEoWLeadboard"; break; }
+    case command.startsWith("global sos"): case command.startsWith("global spire of stars"): { globalReq = "GetGlobalSoSLeadboard"; break; }
+    case command.startsWith("global prestige levi"): case command.startsWith("global prestige leviathan"): { globalReq = "GetGlobalLeviPrestigeLeadboard"; break; }
+    case command.startsWith("global prestige eow"): case command.startsWith("global prestige eater of worlds"): { globalReq = "GetGlobalEoWPrestigeLeadboard"; break; }
+    case command.startsWith("global prestige sos"): case command.startsWith("global prestige spire of stars"): { globalReq = "GetGlobalSoSPrestigeLeadboard"; break; }
+    case command.startsWith("global last wish"): case command.startsWith("global lw"): { globalReq = "GetGlobalLastWishLeadboard"; break; }
+    case command.startsWith("global scourge"): case command.startsWith("global scourge of the past"): case command.startsWith("global sotp"): { globalReq = "GetGlobalScourgeLeadboard"; break; }
+    case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): { globalReq = "GetGlobalSorrowsLeadboard"; break; }
+    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): { globalReq = "GetGlobalGardenLeadboard"; break; }
+    case command.startsWith("global total raids"): case command.startsWith("global raids total"): { globalReq = "GetGlobalTotalRaidsLeadboard"; break; }
+    case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): { globalReq = "GetGlobalHighestPowerLeadboard"; break; }
+    default: break;
+  }
+  if(globalReq) {
+    RequestHandler[globalReq](async (isError, leaderboardData) => {
+      if(!isError) {
+        let registeredPlayer;
+  
+        //Add registered user to players if not there already
+        if(registeredUser !== null || registeredUser !== "NoUser") {
+          await new Promise(resolve =>
+            Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
+              if(!isError) { if(isFound) { registeredPlayer = data; } }
+              resolve(true);
+            })
+          );
+        }
+  
+        SendGlobalLeaderboard(message, command, registeredUser, registeredPlayer, leaderboardData);
+      }
+      else {
+        if(clanData.code === "ECONNREFUSED") { message.channel.send("The server that processes this information is offline. Feel free to let me know using `~request`"); }
+        else { message.channel.send("Failed to generate global leaderboards... Uhh report using: `~request`"); }
+      }
+    });
+  }
+  else { message.channel.send("We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: `~help globals`"); }
 }
 
 function SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
@@ -1443,6 +1492,284 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
     }
   }
   
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { console.log(err); }
+  });
+}
+function SendGlobalLeaderboard(message, command, registeredUser, registeredPlayer, leaderboardData) {
+  let leaderboard = { names: [], first: [], second: [] }
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  switch(true) {
+    //Pvp
+    case command.startsWith("global valor"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.valor.current) }` });
+      leaderboard.second = top.map((e, index) => { return `${ ~~(e.valor.current/2000) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.valor.current) }`);
+        leaderboard.second.push("", `${ ~~(registeredPlayer.User.valor.current/2000) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Seasonal Valor Rankings");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Valor", leaderboard.first, true);
+      embed.addField("Resets", leaderboard.second, true);
+      break;
+    }
+    case command.startsWith("global infamy"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.infamy.current) }` });
+      leaderboard.second = top.map((e, index) => { return `${ ~~(e.infamy.current/2000) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.infamy.current) }`);
+        leaderboard.second.push("", `${ ~~(registeredPlayer.User.infamy.current/2000) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Seasonal Infamy Rankings");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Infamy", leaderboard.first, true);
+      embed.addField("Resets", leaderboard.second, true);
+      break;
+    }
+
+    //Raids
+    case command.startsWith("global leviathan"): case command.startsWith("global levi"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.levi }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.levi }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Leviathan Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global eater of worlds"): case command.startsWith("global eow"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.eow }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.eow }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Eater of Worlds Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global spire of stars"): case command.startsWith("global sos"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.sos }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.sos }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Spire of Stars Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global prestige leviathan"): case command.startsWith("global prestige levi"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.prestige_levi }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_levi }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Prestige Leviathan Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global prestige eater of worlds"): case command.startsWith("global prestige eow"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.prestige_eow }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_eow }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Prestige Eater of Worlds Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global prestige spire of stars"): case command.startsWith("global prestige sos"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.prestige_sos }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_sos }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Prestige Spire of Stars Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global last wish"): case command.startsWith("global lw"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.lastWish) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.lastWish) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Last Wish Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global scourge"): case command.startsWith("global scourge of the past"): case command.startsWith("global sotp"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.scourge) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.scourge) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Scourge of the Past Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.sorrows) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.sorrows) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Crown of Sorrows Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"):  case command.startsWith("global gos"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.garden) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.garden) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Garden of Salvation Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global total raids"): case command.startsWith("global raids total"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.totalRaids) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.totalRaids) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Total Raid Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+
+    //Others
+    case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Highest Power");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Power", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global time played"): case command.startsWith("global time"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(Math.round(e.timePlayed/60)) } Hrs` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(Math.round(registeredPlayer.User.timePlayed/60)) } Hrs`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Most Time Played");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Hours", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global sr"): case command.startsWith("global season rank"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.seasonRank) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.seasonRank) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Season Rank");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Rank", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global triumph score"): case command.startsWith("global triumph"): case command.startsWith("global triumphs"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Triumph Score");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Score", leaderboard.first, true);
+      break;
+    }
+  }
+
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { console.log(err); }
