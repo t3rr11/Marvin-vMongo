@@ -110,9 +110,16 @@ const addGlobalItem = async (globalItemData, callback) => {
   });
 }
 const addBannedUser = async (userData, callback) => {
-  await new BanUser(userData).save((err, doc) => {
-    if(err) { callback(true, "High", err) }
-    else { console.log(doc.name + " added to collection."); callback(false); }
+  //Callback fields { isError, severity, err }
+  await findBannedUserByID(userData.discordID, async (isError, isFound, data) => {
+    if(!isError) {
+      if(!isFound) {
+        await new BanUser(userData).save((err, doc) => {
+          if(err) { callback(true, "High", err); }
+          else { console.log(doc.discordID + " added to collection."); callback(false); }
+        });
+      } else { callback(true, "Low", `User is already banned.`); }
+    } else { callback(true, "High", data); }
   });
 }
 const addAwaitingBroadcast = async (broadcastData, callback) => {
@@ -153,19 +160,26 @@ const addManifest = async (manifestData, callback) => {
   });
 }
 const addRegisteredUser = async (userData, callback) => {
-  //Callback fields { isError, severity, err }
+  //Callback fields { isError, isAdded, isUpdated }
   await findRegisteredUserByID(userData.discordID, async (isError, isFound, data) => {
     if(!isError) {
       if(!isFound) {
         await new RegisteredUser(userData).save((err, user) => {
-          if(err) { callback(true, "High", err) }
+          if(err) { callback(true, false, false); }
           else {
             console.log(user.username + " has Registered.");
-            callback(false);
+            callback(false, true, false);
           }
         });
-      } else { callback(true, "Low", `Tried to add duplicate user: ${ userData.username }(${ userData.discordID })`) }
-    } else { callback(true, "High", data) }
+      }
+      else {
+        RegisteredUser.updateOne({ discordID: userData.discordID }, userData, { }, (err, numAffected) => {
+          if(err || numAffected < 1) { callback(true, false, false); }
+          else { callback(false, false, true); }
+        });
+      }
+    }
+    else { callback(true, false, false); }
   });
 }
 
@@ -184,6 +198,16 @@ const findUserByID = async (membershipID, callback) => {
         });
       }
       else { callback(false, false); }
+    }
+  });
+}
+const findBannedUserByID = async (discordID, callback) => {
+  //Callback fields { isError, isFound, data }
+  await BanUser.find({ discordID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array[0]); }
+      else { callback(false, false, null); }
     }
   });
 }
@@ -345,6 +369,16 @@ const getUserBroadcasts = async (membershipID, callback) => {
     }
   });
 }
+const getAllBannedUsers = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await BanUser.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getAwaitingBroadcasts = async (callback) => {
   //Callback fields { isError, isFound, data }
   await AwaitingBroadcast.find({}, (err, array) => {
@@ -453,6 +487,12 @@ const updateUserByID = async (membershipID, data, callback) => {
     else { callback(true, "High", successCheck) }
   }
 }
+const updateBannerUserByID = async (discordID, data, callback) => {
+  BanUser.updateOne({ discordID }, data, { }, (err, numAffected) => {
+    if(err || numAffected < 1) { callback(true, "Med", err); }
+    else { callback(false); }
+  });
+}
 const updatePrivacyByID = async (membershipID, data, callback) => {
   let user = await User.findOneAndUpdate({ membershipID }, data);
   if(user !== null) {
@@ -478,8 +518,19 @@ const updateManifestVersion = (name, data, callback) => {
     else { callback(false); }
   });
 }
+const updateGuildByID = async (guildID, data, callback) => {
+  Guild.updateOne({ guildID }, data, { }, (err, numAffected) => {
+    if(err || numAffected < 1) { callback(true, "Med", err); }
+    else { callback(false); }
+  });
+}
 
 //Remove
+const removeBannedUser = async (discordID, callback) => {
+  BanUser.deleteOne({ discordID }, (err, numAffected) => {
+    if(err || numAffected.deletedCount < 1) { callback(true, "Low", err) } else { callback(false) }
+  });
+}
 const removeAwaitingBroadcast = async (broadcast, callback) => {
   AwaitingBroadcast.deleteOne({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, guildID: broadcast.guildID }, (err) => {
     if(err) { callback(true) } else { callback(false) }
@@ -495,10 +546,11 @@ module.exports = {
   FrontendConnect, BackendConnect, ExpressConnect,
   checkSSHConnection, checkDBConnection,
   addUser, addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest,
-  findUserByID, findGuildByID, findClanByID, findBroadcast, getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems,
-  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAwaitingBroadcasts,
-  getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems,
-  removeAwaitingBroadcast, removeAllAwaitingBroadcasts,
-  updateUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion,
+  findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
+  getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems,
+  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
+  getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems,
+  removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts,
+  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,
   test
 }

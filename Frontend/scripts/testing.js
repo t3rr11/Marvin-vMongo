@@ -15,7 +15,16 @@ function addTestBroadcast() {
     count: 1
   }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } })
 }
-
+function addGuild() {
+  Database.addGuild({
+    guildID: "305561313675968513",
+    guildName: "Test Server",
+    ownerID: "194972321168097280",
+    ownerAvatar: "5d26991834b1477572ba55aa47689d02",
+    clans: [3917089],
+    region: "sydney",
+  }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+}
 function testBroadcast(client) {
   BroadcastHandler.processBroadcast(client, {
     clanID: 3917089,
@@ -35,4 +44,4 @@ function testFirstscan(client) {
   });
 }
 
-module.exports = { addTestBroadcast, testBroadcast, testFirstscan }
+module.exports = { addTestBroadcast, testBroadcast, testFirstscan, addGuild }

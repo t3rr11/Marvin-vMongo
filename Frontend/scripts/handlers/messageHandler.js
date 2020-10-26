@@ -1,4 +1,7 @@
+const fs = require('fs');
 const Discord = require('discord.js');
+const Register = require('./registerHandler.js');
+const ClanHandler = require('./clanHandler.js');
 const Database = require('../../../Shared/database');
 const Misc = require('../../../Shared/misc');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
@@ -7,7 +10,7 @@ const RequestHandler = require('../../../Shared/handlers/requestHandler');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
-function MessageHandler(client, message, guilds, users) {
+function MessageHandler(client, message, guilds, users, APIDisabled) {
   //TODO
   if(message.guild) {
     var guild = guilds.find(e => e.guildID == message.guild.id);
@@ -28,13 +31,47 @@ function MessageHandler(client, message, guilds, users) {
 
     try {
       switch(true) {
-        case command.startsWith("clanwars"): { GetClanWars(message, command, users, registeredUser); break; }
-        case command.startsWith("global") && !command.startsWith("globals"): { GetGlobal(message, command, users, registeredUser); break; }
-        case command.startsWith("item"): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!item"): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
-        case command.startsWith("title"): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!title"): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
+        //Admin
+        case message.author.id === "194972321168097280" && command.startsWith("del"): { DeleteMessages(message, command.substr("del ".length)); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("mban"): { AddBannedUser(message, command); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("munban"): { RemoveBannedUser(message, command); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("mchange"): { ChangeBannedUser(message, command); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("view mbans"): { ViewBans(message); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
+
+        //Help
         case command.startsWith("help"): { GetHelp(message, command, users, registeredUser); break; }
+        case command === "rankings": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "dungeons": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "raids": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "items": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "titles": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "seasonal": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "globals": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "trials": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "clanwars": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "others": { GetHelp(message, command, users, registeredUser); break; }
+        case command === "clan": { GetHelp(message, command, users, registeredUser); break; }
+        
+        //Management
+        case command.startsWith("current season"): case command.startsWith("season"): case command.startsWith("next season"): { GetSeason(message); break; }
+        case command.startsWith("register"): { Register(message, command, users, registeredUser); break; }
+        case command.startsWith("request"): { Request(client, message, command); break; }
+        case command.startsWith("set clan"): { ClanHandler.RegisterClan(message, command); break; }
+        case command.startsWith("add clan"): { ClanHandler.AddClan(message, command); break; }
+        case command.startsWith("remove clan"): { ClanHandler.RemoveClan(message, command); break; }
+        case command.startsWith("tracked clans"): case command.startsWith("clans tracked"): case command.startsWith("clans"): { ClanHandler.GetTrackedClans(message, command); break; }
+        
+
+        //Rankings
+        case command.startsWith("clan wars"): { message.channel.send("The command is used without a space: `~Clanwars`. It's for stability issues sorry."); break; }
+        case command.startsWith("clanwars "): { GetClanWars(message, command, users, registeredUser); break; }
+        case command.startsWith("global ") && !command.startsWith("globals"): { GetGlobal(message, command, users, registeredUser); break; }
+        case command.startsWith("item "): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!item "): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("title "): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!title "): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
         case command.startsWith("valor"): case command.startsWith("glory"): case command.startsWith("infamy"): 
         case command.startsWith("levi"): case command.startsWith("leviathan"):
         case command.startsWith("eow"): case command.startsWith("eater of worlds"):
@@ -48,82 +85,217 @@ function MessageHandler(client, message, guilds, users) {
         case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
         case command.startsWith("triumph score"): case command.startsWith("triumph"): case command.startsWith("triumphs"):
         case command.startsWith("time"): case command.startsWith("time played"): case command.startsWith("total time"):
-        case command.startsWith("raids total"): case command.startsWith("total raids"):
+        case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(message, command, users, registeredUser); break; }
+        case command.startsWith("profile"): { GetProfile(message, command, "profile", users, registeredUser); break; }
+
+        //Trials
         case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
         case command.startsWith("trials weekly wins"): case command.startsWith("trials seasonal wins"): case command.startsWith("trials overall wins"): 
         case command.startsWith("trials weekly flawless"): case command.startsWith("trials seasonal flawless"): case command.startsWith("trials overall flawless"): 
         case command.startsWith("trials weekly final blows"): case command.startsWith("trials seasonal final blows"): case command.startsWith("trials overall final blows"): 
         case command.startsWith("trials weekly post wins"): case command.startsWith("trials seasonal post wins"): 
         case command.startsWith("trials weekly carries"): case command.startsWith("trials overall post wins"): 
-        case command.startsWith("trials seasonal carries"): case command.startsWith("trials overall carries"):
-          { GetLeaderboard(message, command, users, registeredUser); break; }
-        case command.startsWith("titles total"): case command.startsWith("total titles"):
-          { GetTitleLeaderboard(message, command, users, registeredUser); break; }
+        case command.startsWith("trials seasonal carries"): case command.startsWith("trials overall carries"): { GetLeaderboard(message, command, users, registeredUser); break; }
+        case command.startsWith("titles total"): case command.startsWith("total titles"): { GetTitleLeaderboard(message, command, users, registeredUser); break; }
         case command.startsWith("trials profile"):
         case command.startsWith("trials profile weekly"):
         case command.startsWith("trials profile seasonal"):
-        case command.startsWith("trials profile overall"):
-          { GetProfile(message, command, "trials", users, registeredUser); break; }
-        case command.startsWith("profile"):
-          { GetProfile(message, command, "profile", users, registeredUser); break; }
+        case command.startsWith("trials profile overall"): { GetProfile(message, command, "trials", users, registeredUser); break; }
+
+        //Others
+        case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { message.channel.send("Want to help support future updates or bots? Visit my Patreon! https://www.patreon.com/Terrii"); break; }
+        case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
+        case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); }
+        
+        //Default - Unknown commands
         default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
-    catch (err) { ErrorHandler("High", err); }
+    catch (err) { ErrorHandler("High", err); message.channel.send("Uhh something went really wrong... Sorry about that."); }
   }
+}
+async function Request(client, message, command) {
+  const request = command.substr("request ".length);
+  const embed = new Discord.MessageEmbed()
+  .setColor(0x0099FF)
+  .setAuthor(`New Request by ${ message.author.username }#${ message.author.discriminator }, ID: ${ message.author.id }`)
+  .setDescription(request)
+  .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
+  .setTimestamp()
+  client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({embed});
+  message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://guardianstats.com/JoinMarvin");
+}
+function DeleteMessages(message, amount) {
+  message.channel.bulkDelete(amount, true).catch(err => {
+    if(err) {
+      console.log(err);
+      if(err.code === 50013) { message.channel.send('I do not have permission to delete messages in this channel.'); }
+      else { message.channel.send('There was an error trying to prune messages in this channel!'); }
+    }
+  });
+}
+function AddBannedUser(message, command) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let id = command.substr(5, 18);
+  let reason = command.substr(`mban ${ id } `.length);
+  Database.addBannedUser({ discordID: id, reason: reason.length > 4 ? reason : "You have been banned." },
+  (isError, severity, err) => {
+    if(isError) {
+      ErrorHandler(severity, err);
+      embed.setColor(0x0099FF);
+      embed.setAuthor("Failed");
+      embed.setDescription(err);
+      message.channel.send({embed});
+    }
+    else {
+      embed.setColor(0x0099FF);
+      embed.setAuthor("User has been banned!");
+      embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
+      message.channel.send({embed});
+    }
+  });
+}
+function RemoveBannedUser(message, command) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let id = command.substr(`munban `.length);
+  Database.removeBannedUser(id, (isError, severity, err) => {
+    if(isError) {
+      ErrorHandler(severity, err);
+      embed.setColor(0x0099FF);
+      embed.setAuthor("Failed");
+      embed.setDescription(err !== null ? err : "User was not found");
+      message.channel.send({embed});
+    }
+    else {
+      embed.setColor(0x0099FF);
+      embed.setAuthor("User has been unbanned!");
+      embed.setDescription(`**User:** ${ id }`);
+      message.channel.send({embed});
+    }
+  });
+}
+function ChangeBannedUser(message, command) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let id = command.substr(8, 18);
+  let reason = command.substr(`mchange ${ id } `.length);
+  Database.updateBannerUserByID(id, { discordID: id, reason: reason.length > 4 ? reason : "You have been banned." },
+  (isError, severity, err) => {
+    if(isError) {
+      ErrorHandler(severity, err);
+      embed.setColor(0x0099FF);
+      embed.setAuthor("Failed");
+      embed.setDescription(err);
+      message.channel.send({embed});
+    }
+    else {
+      embed.setColor(0x0099FF);
+      embed.setAuthor("Banned user has been updated!");
+      embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
+      message.channel.send({embed});
+    }
+  });
+}
+function ViewBans(message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Here lies a list of banned users. Who no longer have access to Marvins features.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  Database.getAllBannedUsers((isError, isFound, data) => {
+    if(!isError) {
+      if(isFound) {
+        embed.setDescription(data.map((user) => { return `**User:** ${ user.discordID }, **Reason:** ${ user.reason }` }));
+        message.channel.send({embed});
+      }
+      else { message.channel.send("There were no banned users found."); }
+    }
+    else { ErrorHandler("Low", "Failed to grab banned users"); message.channel.send("Failed to get banned users from db."); }
+  });
+}
+function GetGeolocationalData(client, message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let Regions = [];
+  for(let g in client.guilds.cache.array()) {
+    var guild = client.guilds.cache.array()[g];
+    //Group some up.
+    if(guild.region.startsWith("us")) { guild.region = "US" }
+    if(guild.region.startsWith("eu") || guild.region.startsWith("london")) { guild.region = "europe" }
+    
+    //Add them up
+    if(!Regions.find(e => e.name === guild.region)) { Regions.push({ "name": guild.region, "amount": 1 }); }
+    else { Regions[Regions.findIndex(e => e.name === guild.region)].amount++ }
+  }
+  Regions.sort(function(a, b) { return b.amount - a.amount; });
+  embed.setAuthor("Servers based on Region.")
+  embed.setDescription(`**Total Servers: **${ client.guilds.cache.array().length }\n`)
+  embed.addField("Region", Regions.map((region) => { return Misc.capitalize(region.name) }), true)
+  embed.addField("Amount", Regions.map((region) => { return region.amount }), true)
+  embed.addField("Percent", Regions.map((region) => { return `${ ((region.amount / client.guilds.cache.array().length) * 100).toFixed(2) }%` }), true)
+  message.channel.send({embed});
+}
+function GetScanSpeed(message) {
+  var backend_status = JSON.parse(fs.readFileSync('../Backend/data/backend_status.json').toString());
+  message.channel.send(`ScanSpeed is scanning at a rate of ${ backend_status.scanSpeed } clans per second. With a slow down rate of ${ Math.round(backend_status.scanSpeed * 0.8) } and a reset of ${ Math.round(backend_status.scanSpeed * 0.6) }`);
+}
+function SetScanSpeed(message, command) {
+  let speed = command.substr(`set scanspeed `.length);
+  var backend_status = JSON.parse(fs.readFileSync('../Backend/data/backend_status.json').toString());
+  backend_status.scanSpeed = parseInt(speed);
+  fs.writeFile('../Backend/data/backend_status.json', JSON.stringify(backend_status), (err) => { if (err) console.error(err) });
+  message.channel.send(`ScanSpeed is now scanning at a rate of ${ speed } clans per second. With a slow down rate of ${ Math.round(speed * 0.8) } and a reset of ${ Math.round(speed * 0.6) }`);
+}
+function GetSeason(message) {
+  var config = JSON.parse(fs.readFileSync('../Shared/configs/Config.json').toString());
+  message.channel.send(`Destiny 2 is currently in season ${ config.currentSeason }. Season ${ config.currentSeason+1 } starts in: ${ Misc.formatTime((new Date(config.newSeasonDate) - new Date().getTime()) / 1000) }`);
 }
 
 async function GetHelp(message, command, users, registeredUser) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   switch(command) {
-    case "help rankings": {
+    case "help rankings": case "rankings": {
       embed.setAuthor("Rankings Help Menu");
       embed.setDescription("Here is a list of ranking commands! Example: `~Iron Banner`");
       embed.addField("Commands", "`~Valor`\n`~Glory`\n`~Infamy`\n`~Iron Banner`\n`~Max Power`\n`~Triumph Score`\n`~Time Played`\n`~Season Rank`");
       break;
     }
-    case "help dungeons": {
+    case "help dungeons": case "dungeons": {
       embed.setAuthor("Dungeons Help Menu");
       embed.setDescription("Here is a list of dungeon commands! Example: `~Pit of Heresy`");
       embed.addField("Commands", "`~Shattered Throne`\n`~Pit of Heresy`\n`~Prophecy`");
       break;
     }
-    case "help raids": {
+    case "help raids": case "raids": {
       embed.setAuthor("Raids Help Menu");
       embed.setDescription("Here is a list of raid commands! Example: `~LW`");
       embed.addField("Commands", "`~Levi`\n`~EoW`\n`~SoS`\n`~LW`\n`~SoTP`\n`~CoS`\n`~GoS`");
       break;
     }
-    case "help items": {
+    case "help items": case "items": {
       embed.setAuthor("Items Help Menu");
       embed.setDescription("The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n`~item One Thousand Voices` or\n`~!item Anarchy`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. `~item 123456`");
       break;
     }
-    case "help titles": {
+    case "help titles": case "titles": {
       embed.setAuthor("Titles Help Menu");
       embed.setDescription("The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n`~title Rivensbane` or\n`~!title Chronicler`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. `~title 123456`");
       break;
     }
-    case "help seasonal": {
+    case "help seasonal": case "seasonal": {
       embed.setAuthor("Seasonal Help Menu");
       embed.setDescription("Here is a list of seasonal commands! Example: `~Season Rank`");
       embed.addField("Commands", "`~Season Rank`\n`~Max Power`");
       break;
     }
-    case "help clan": {
+    case "help clan": case "clan": {
       embed.setAuthor("Clans Help Menu");
       embed.setDescription("Here is a list of clan commands! Example: `~Set Clan`");
       embed.addField("Commands", "`~Broadcasts Help`\n`~Tracked Clans`\n`~Set Clan`\n`~Add Clan`\n`~Remove Clan`");
       break;
     }
-    case "help globals": {
+    case "help globals": case "globals": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription("Here is a list of global commands! Example: `~Global Time Played`");
       embed.addField("Commands", "`~Global Time Played`\n`~Global Season Rank`\n`~Global Triumph Score`\n`~Global Valor`\n`~Global Infamy`\n`~Global Levi`\n`~Global EoW`\n`~Global SoS`\n`~Global Last Wish`\n`~Global Scourge`\n`~Global Sorrows`\n`~Global Garden`\n`~Global Total Raids`\n`~Global Power`"); 
       break;
     }
-    case "help trials": {
+    case "help trials": case "trials": {
       embed.setAuthor("Trials Help Menu");
       embed.setDescription("Here is a list of trials commands! Profile commands can be altered by @ing the person you wish to view: `~Trials Profile @Someone`");
       embed.addField("Profile Commands", "`~Trials Profile`, `~Trials Profile Weekly`, `~Trials Profile Seasonal`, `~Trials Profile Overall`");
@@ -135,16 +307,14 @@ async function GetHelp(message, command, users, registeredUser) {
       embed.addField("Global Carries Rankings", "`~Global Trials Carries`, `~Global Trials Overall Carries`, `~Global Trials Seasonal Carries`, `~Global Trials Weekly Carries`")  ;
       break;
     }
-    case "help clanwars": {
+    case "help clanwars": case "clanwars": {
       embed.setAuthor("Clanwars Help Menu");
       embed.setDescription("Here is a list of Clanwars commands! Example: `~Clanwars Time`");
-      embed.addField("Rankings", "~Clanwars Valor\n~Clanwars Glory\n~Clanwars Infamy");
       embed.addField("Raids", "~Clanwars Levi\n~Clanwars pLevi\n~Clanwars Eow\n~Clanwars pEow\n~Clanwars Sos\n~Clanwars pSos\n~Clanwars Last Wish\n~Clanwars Scourge\n~Clanwars Crown\n~Clanwars Garden");
-      embed.addField("Dungeons", "~Clanwars Pit\n~Clanwars Prophecy");
       embed.addField("Others", "~Clanwars Season Rank\n~Clanwars Triumph Score\n~Clanwars Time Played");
       break;
     }
-    case "help others": {
+    case "help others": case "others": {
       embed.setAuthor("Others Help Menu");
       embed.setDescription("Here is a list of other commands! Example: `~Donate`");
       embed.addField("Commands", "`~Donate`");
@@ -444,8 +614,8 @@ async function GetGlobal(message, command, users, registeredUser) {
         SendGlobalLeaderboard(message, command, registeredUser, registeredPlayer, leaderboardData);
       }
       else {
-        if(clanData.code === "ECONNREFUSED") { message.channel.send("The server that processes this information is offline. Feel free to let me know using `~request`"); }
-        else { message.channel.send("Failed to generate global leaderboards... Uhh report using: `~request`"); }
+        if(leaderboardData.code === "ECONNREFUSED") { message.channel.send("The server that processes this information is offline. Feel free to let me know using `~request`"); }
+        else { console.log(leaderboardData); message.channel.send("Failed to generate global leaderboards... Uhh report using: `~request`"); }
       }
     });
   }
@@ -1283,7 +1453,7 @@ function SendClanWarsLeaderboard(message, command, registeredUser, registeredPla
       embed.addField("Ranks", leaderboard.first, true);
       break;
     }
-    default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
+    default: { embed.setDescription('That\'s not a valid clanwars command. Use `~help clanwars` to see clanwars commands.'); break; }
   }
   
   message.channel.send({embed}).catch(err => {

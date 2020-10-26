@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJson, GetClassName, AddCommas,
-  GetClanID, GetMembershipID, cleanString, addOrdinal, GetItemState
+  GetClanID, GetMembershipID, cleanString, addOrdinal, GetItemState, capitalize
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -114,3 +114,5 @@ function GetItemState(state) {
     purchaseDisabled: flagEnum(state, 64)
   };
 }
+function capitalize(string) { return string.charAt(0).toUpperCase() + string.slice(1); }
+

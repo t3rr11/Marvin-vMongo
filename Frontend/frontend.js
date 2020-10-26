@@ -10,7 +10,6 @@ const { MessageHandler } = require('./scripts/handlers/messageHandler');
 const BroadcastHandler = require('./scripts/handlers/broadcastsHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
-const APIRequest = require('../Shared/handlers/requestHandler');
 const Config = require('../Shared/configs/Config.json');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
@@ -41,7 +40,7 @@ async function init() {
   //Start Up Console Log
   Log.SaveLog("Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
-  setInterval(() => { update() }, 1000 * 5); //Every 10 seconds
+  setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
 
   //SetTimeouts
   //setInterval(() => { CheckNewSeason(); }, 1000 * 1); //Every second
@@ -54,6 +53,7 @@ async function init() {
   //Test.addTestBroadcast();
   //Test.testBroadcast(client);
   //Test.testFirstscan(client);
+  //Test.addGuild();
 }
 
 async function update() {
@@ -105,10 +105,8 @@ async function update() {
   BroadcastHandler.checkForBroadcasts(client);
 }
 
-//Check if discord bot is ready.
+//Check if discord bot is ready and shard info
 client.on("ready", async () => { DiscordReady = true; });
-
-//Shard Info
 client.on('shardDisconnect', (event, id) => { Log.SaveError(`Shard has disconnected and will no longer reconnect: ${ id }`); });
 client.on('shardError', (error, shardID) => { Log.SaveError(`Shard encounted an error: ${ id }, ${ error }`); });
 client.on('shardReady', (id, unavailableGuilds) => { Log.SaveLog("Info", `Shard is ready: ${ id }`); });
@@ -116,7 +114,7 @@ client.on('shardReconnecting', (id) => { Log.SaveLog("Warning", `Shard is attemp
 client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
-client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers); });
+client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled); });
 
 //On Error
 client.on('error', async error => { console.log(error); });
