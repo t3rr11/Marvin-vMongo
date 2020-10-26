@@ -9,8 +9,8 @@ const Config = require('../../../Shared/configs/Config.json');
 const { cleanString } = require('../../../Shared/misc');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
-async function Register(message, command, users, registeredUser) {
-  if(command === "register") { message.reply("To register please use: Use: `~Register example` example being your destiny username."); }
+async function Register(prefix, message, command, users, registeredUser) {
+  if(command === "register") { message.reply(`To register please use: Use: \`${prefix}Register example\` example being your destiny username.`); }
   else if(command === "register example") { message.reply("To register please replace example with your destiny username."); }
   else {
     let username = command.substr("register ".length);
@@ -36,7 +36,7 @@ async function Register(message, command, users, registeredUser) {
               Log.SaveError(`Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
             }
           }
-          else { ErrorHandler("Med", data); message.channel.send("There was an issue getting data for the requested user. Please try again, if it persits please report with `~request`"); }
+          else { ErrorHandler("Med", data); message.channel.send(`There was an issue getting data for the requested user. Please try again, if it persits please report with \`${prefix}request\``); }
         });
       }
       else { message.reply('This is your Steam ID not your Membership ID, Please follow these steps to get your Membership ID: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your Membership ID.'); }
@@ -50,7 +50,7 @@ async function Register(message, command, users, registeredUser) {
           let clans = [];
 
           embed.setAuthor("Too many results...");
-          embed.setDescription("If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: `~Register 4611686018*****`");
+          embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\``);
 
           for(let i in data.Response) {
             usernames.push(`${ GetPlatformEmoji(data.Response[i].membershipType) } ${ data.Response[i].displayName }`);
@@ -69,10 +69,8 @@ async function Register(message, command, users, registeredUser) {
           embed.addField("Bungie ID", ids, true);
 
           message.channel.send({embed});
-
-          //message.reply('There were too many results... \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this `~Register 1234567890`.');
         }
-        else if(data.Response.length === 0) { message.reply('No users with that name found... Try this: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this `~Register 1234567890`.'); }
+        else if(data.Response.length === 0) { message.reply(`No users with that name found... Try this: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this \`${prefix}Register 1234567890\`.`); }
         else { FinishRegistration(message, command, users, registeredUser, data.Response[0]); }
       });
     } 

@@ -41,37 +41,37 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
 
         //Help
-        case command.startsWith("help"): { GetHelp(message, command, users, registeredUser); break; }
-        case command === "rankings": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "dungeons": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "raids": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "items": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "titles": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "seasonal": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "globals": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "trials": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "clanwars": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "others": { GetHelp(message, command, users, registeredUser); break; }
-        case command === "clan": { GetHelp(message, command, users, registeredUser); break; }
+        case command.startsWith("help"): { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "rankings": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "dungeons": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "raids": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "items": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "titles": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "seasonal": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "globals": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "trials": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "clanwars": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "others": { GetHelp(prefix, message, command, users, registeredUser); break; }
+        case command === "clan": { GetHelp(prefix, message, command, users, registeredUser); break; }
         
         //Management
         case command.startsWith("current season"): case command.startsWith("season"): case command.startsWith("next season"): { GetSeason(message); break; }
-        case command.startsWith("register"): { Register(message, command, users, registeredUser); break; }
+        case command.startsWith("register"): { Register(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("request"): { Request(client, message, command); break; }
-        case command.startsWith("set clan"): { ClanHandler.RegisterClan(message, command); break; }
-        case command.startsWith("add clan"): { ClanHandler.AddClan(message, command); break; }
-        case command.startsWith("remove clan"): { ClanHandler.RemoveClan(message, command); break; }
-        case command.startsWith("tracked clans"): case command.startsWith("clans tracked"): case command.startsWith("clans"): { ClanHandler.GetTrackedClans(message, command); break; }
-        
+        case command.startsWith("set clan"): { ClanHandler.RegisterClan(prefix, message, command); break; }
+        case command.startsWith("add clan"): { ClanHandler.AddClan(prefix, message, command); break; }
+        case command.startsWith("remove clan"): { ClanHandler.RemoveClan(prefix, message, command); break; }
+        case command.startsWith("tracked clans"): case command.startsWith("clans tracked"): case command.startsWith("clans"): { ClanHandler.GetTrackedClans(prefix, message, command); break; }
+
 
         //Rankings
-        case command.startsWith("clan wars"): { message.channel.send("The command is used without a space: `~Clanwars`. It's for stability issues sorry."); break; }
-        case command.startsWith("clanwars "): { GetClanWars(message, command, users, registeredUser); break; }
-        case command.startsWith("global ") && !command.startsWith("globals"): { GetGlobal(message, command, users, registeredUser); break; }
-        case command.startsWith("item "): { GetObtainedItems(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!item "): { GetObtainedItems(message, command, "not", users, registeredUser); break; }
-        case command.startsWith("title "): { GetObtainedTitles(message, command, "obtained", users, registeredUser); break; }
-        case command.startsWith("!title "): { GetObtainedTitles(message, command, "not", users, registeredUser); break; }
+        case command.startsWith("clan wars"): { message.channel.send(`The command is used without a space: \`${ prefix }Clanwars\`. It's for stability issues sorry.`); break; }
+        case command.startsWith("clanwars "): { GetClanWars(prefix, message, command, users, registeredUser); break; }
+        case command.startsWith("global ") && !command.startsWith("globals"): { GetGlobal(prefix, message, command, users, registeredUser); break; }
+        case command.startsWith("item "): { GetObtainedItems(prefix, message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!item "): { GetObtainedItems(prefix, message, command, "not", users, registeredUser); break; }
+        case command.startsWith("title "): { GetObtainedTitles(prefix, message, command, "obtained", users, registeredUser); break; }
+        case command.startsWith("!title "): { GetObtainedTitles(prefix, message, command, "not", users, registeredUser); break; }
         case command.startsWith("valor"): case command.startsWith("glory"): case command.startsWith("infamy"): 
         case command.startsWith("levi"): case command.startsWith("leviathan"):
         case command.startsWith("eow"): case command.startsWith("eater of worlds"):
@@ -85,8 +85,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
         case command.startsWith("triumph score"): case command.startsWith("triumph"): case command.startsWith("triumphs"):
         case command.startsWith("time"): case command.startsWith("time played"): case command.startsWith("total time"):
-        case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(message, command, users, registeredUser); break; }
-        case command.startsWith("profile"): { GetProfile(message, command, "profile", users, registeredUser); break; }
+        case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
+        case command.startsWith("profile"): { GetProfile(prefix, message, command, "profile", users, registeredUser); break; }
 
         //Trials
         case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
@@ -95,12 +95,12 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("trials weekly final blows"): case command.startsWith("trials seasonal final blows"): case command.startsWith("trials overall final blows"): 
         case command.startsWith("trials weekly post wins"): case command.startsWith("trials seasonal post wins"): 
         case command.startsWith("trials weekly carries"): case command.startsWith("trials overall post wins"): 
-        case command.startsWith("trials seasonal carries"): case command.startsWith("trials overall carries"): { GetLeaderboard(message, command, users, registeredUser); break; }
-        case command.startsWith("titles total"): case command.startsWith("total titles"): { GetTitleLeaderboard(message, command, users, registeredUser); break; }
+        case command.startsWith("trials seasonal carries"): case command.startsWith("trials overall carries"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
+        case command.startsWith("titles total"): case command.startsWith("total titles"): { GetTitleLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("trials profile"):
         case command.startsWith("trials profile weekly"):
         case command.startsWith("trials profile seasonal"):
-        case command.startsWith("trials profile overall"): { GetProfile(message, command, "trials", users, registeredUser); break; }
+        case command.startsWith("trials profile overall"): { GetProfile(prefix, message, command, "trials", users, registeredUser); break; }
 
         //Others
         case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { message.channel.send("Want to help support future updates or bots? Visit my Patreon! https://www.patreon.com/Terrii"); break; }
@@ -108,7 +108,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); }
         
         //Default - Unknown commands
-        default: { message.channel.send('I\'m not sure what that commands is sorry. Use `~help` to see commands.').then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
+        default: { message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
     }
     catch (err) { ErrorHandler("High", err); message.channel.send("Uhh something went really wrong... Sorry about that."); }
@@ -245,86 +245,83 @@ function GetSeason(message) {
   message.channel.send(`Destiny 2 is currently in season ${ config.currentSeason }. Season ${ config.currentSeason+1 } starts in: ${ Misc.formatTime((new Date(config.newSeasonDate) - new Date().getTime()) / 1000) }`);
 }
 
-async function GetHelp(message, command, users, registeredUser) {
+async function GetHelp(prefix, message, command, users, registeredUser) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   switch(command) {
     case "help rankings": case "rankings": {
       embed.setAuthor("Rankings Help Menu");
-      embed.setDescription("Here is a list of ranking commands! Example: `~Iron Banner`");
-      embed.addField("Commands", "`~Valor`\n`~Glory`\n`~Infamy`\n`~Iron Banner`\n`~Max Power`\n`~Triumph Score`\n`~Time Played`\n`~Season Rank`");
+      embed.setDescription(`Here is a list of ranking commands! Example: \`${prefix}Iron Banner\``);
+      embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\``);
       break;
     }
     case "help dungeons": case "dungeons": {
       embed.setAuthor("Dungeons Help Menu");
-      embed.setDescription("Here is a list of dungeon commands! Example: `~Pit of Heresy`");
-      embed.addField("Commands", "`~Shattered Throne`\n`~Pit of Heresy`\n`~Prophecy`");
+      embed.setDescription(`Here is a list of dungeon commands! Example: \`${prefix}Pit of Heresy\``);
+      embed.addField("Commands", `\`${prefix}Shattered Throne\`\n\`${prefix}Pit of Heresy\`\n\`${prefix}Prophecy\``);
       break;
     }
     case "help raids": case "raids": {
       embed.setAuthor("Raids Help Menu");
-      embed.setDescription("Here is a list of raid commands! Example: `~LW`");
-      embed.addField("Commands", "`~Levi`\n`~EoW`\n`~SoS`\n`~LW`\n`~SoTP`\n`~CoS`\n`~GoS`");
+      embed.setDescription(`Here is a list of raid commands! Example: \`${prefix}LW\``);
+      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\``);
       break;
     }
     case "help items": case "items": {
       embed.setAuthor("Items Help Menu");
-      embed.setDescription("The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n`~item One Thousand Voices` or\n`~!item Anarchy`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. `~item 123456`");
+      embed.setDescription(`The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or\n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\``);
       break;
     }
     case "help titles": case "titles": {
       embed.setAuthor("Titles Help Menu");
-      embed.setDescription("The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n`~title Rivensbane` or\n`~!title Chronicler`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. `~title 123456`");
+      embed.setDescription(`The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n\`${prefix}title Rivensbane\` or\n\`${prefix}!title Chronicler\`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. \`${prefix}title 123456\``);
       break;
     }
     case "help seasonal": case "seasonal": {
       embed.setAuthor("Seasonal Help Menu");
-      embed.setDescription("Here is a list of seasonal commands! Example: `~Season Rank`");
-      embed.addField("Commands", "`~Season Rank`\n`~Max Power`");
+      embed.setDescription(`Here is a list of seasonal commands! Example: \`${prefix}Season Rank\``);
+      embed.addField("Commands", `\`${prefix}Season Rank\`\n\`${prefix}Max Power\``);
       break;
     }
     case "help clan": case "clan": {
       embed.setAuthor("Clans Help Menu");
-      embed.setDescription("Here is a list of clan commands! Example: `~Set Clan`");
-      embed.addField("Commands", "`~Broadcasts Help`\n`~Tracked Clans`\n`~Set Clan`\n`~Add Clan`\n`~Remove Clan`");
+      embed.setDescription(`Here is a list of clan commands! Example: \`${prefix}Set Clan\``);
+      embed.addField("Commands", `\`${prefix}Broadcasts Help\`\n\`${prefix}Tracked Clans\`\n\`${prefix}Set Clan\`\n\`${prefix}Add Clan\`\n\`${prefix}Remove Clan\``);
       break;
     }
     case "help globals": case "globals": {
       embed.setAuthor("Globals Help Menu");
-      embed.setDescription("Here is a list of global commands! Example: `~Global Time Played`");
-      embed.addField("Commands", "`~Global Time Played`\n`~Global Season Rank`\n`~Global Triumph Score`\n`~Global Valor`\n`~Global Infamy`\n`~Global Levi`\n`~Global EoW`\n`~Global SoS`\n`~Global Last Wish`\n`~Global Scourge`\n`~Global Sorrows`\n`~Global Garden`\n`~Global Total Raids`\n`~Global Power`"); 
+      embed.setDescription(`Here is a list of global commands! Example: \`${prefix}Global Time Played\``);
+      embed.addField("Commands", `\`${prefix}Global Time Played\`\n\`${prefix}Global Season Rank\`\n\`${prefix}Global Triumph Score\`\n\`${prefix}Global Valor\`\n\`${prefix}Global Infamy\`\n\`${prefix}Global Levi\`\n\`${prefix}Global EoW\`\n\`${prefix}Global SoS\`\n\`${prefix}Global Last Wish\`\n\`${prefix}Global Scourge\`\n\`${prefix}Global Sorrows\`\n\`${prefix}Global Garden\`\n\`${prefix}Global Total Raids\`\n\`${prefix}Global Power\``); 
       break;
     }
     case "help trials": case "trials": {
       embed.setAuthor("Trials Help Menu");
-      embed.setDescription("Here is a list of trials commands! Profile commands can be altered by @ing the person you wish to view: `~Trials Profile @Someone`");
-      embed.addField("Profile Commands", "`~Trials Profile`, `~Trials Profile Weekly`, `~Trials Profile Seasonal`, `~Trials Profile Overall`");
-      embed.addField("Weekly Rankings", "`~Trials Wins`, `~Trials Flawless`, `~Trials Final Blows`, `~Trials Post Wins`, `~Trials Carries`");
-      embed.addField("Seasonal Rankings", "`~Trials Wins Seasonal`, `~Trials Flawless Seasonal`, `~Trials Final Blows Seasonal`, `~Trials Post Wins Seasonal`, `~Trials Carries Seasonal`");
-      embed.addField("Overall Rankings", "`~Trials Wins Overall`, `~Trials Flawless Overall`, `~Trials Final Blows Overall`, `~Trials Post Wins Overall`, `~Trials Carries Overall`");
-      embed.addField("Global Wins Rankings", "`~Global Trials Wins`, `~Global Trials Overall Wins`, `~Global Trials Seasonal Wins`, `~Global Trials Weekly Wins`");
-      embed.addField("Global Flawless Rankings", "`~Global Trials Flawless`, `~Global Trials Overall Flawless`, `~Global Trials Seasonal Flawless`, `~Global Trials Weekly Flawless`");
-      embed.addField("Global Carries Rankings", "`~Global Trials Carries`, `~Global Trials Overall Carries`, `~Global Trials Seasonal Carries`, `~Global Trials Weekly Carries`")  ;
+      embed.setDescription(`Here is a list of trials commands! Profile commands can be altered by @ing the person you wish to view: \`${prefix}Trials Profile @Someone\``);
+      embed.addField("Profile Commands", `\`${prefix}Trials Profile\`, \`${prefix}Trials Profile Weekly\`, \`${prefix}Trials Profile Seasonal\`, \`${prefix}Trials Profile Overall\``);
+      embed.addField("Weekly Rankings", `\`${prefix}Trials Wins\`, \`${prefix}Trials Flawless\`, \`${prefix}Trials Final Blows\`, \`${prefix}Trials Post Wins\`, \`${prefix}Trials Carries\``);
+      embed.addField("Seasonal Rankings", `\`${prefix}Trials Seasonal Wins\`, \`${prefix}Trials Seasonal Flawless\`, \`${prefix}Trials Seasonal Final Blows\`, \`${prefix}Trials Seasonal Post Wins\`, \`${prefix}Trials Seasonal Carries\``);
+      embed.addField("Overall Rankings", `\`${prefix}Trials Overall Wins\`, \`${prefix}Trials Overall Flawless\`, \`${prefix}Trials Overall Final Blows\`, \`${prefix}Trials Overall Post Wins\`, \`${prefix}Trials Overall Carries\``);
       break;
     }
     case "help clanwars": case "clanwars": {
       embed.setAuthor("Clanwars Help Menu");
-      embed.setDescription("Here is a list of Clanwars commands! Example: `~Clanwars Time`");
-      embed.addField("Raids", "~Clanwars Levi\n~Clanwars pLevi\n~Clanwars Eow\n~Clanwars pEow\n~Clanwars Sos\n~Clanwars pSos\n~Clanwars Last Wish\n~Clanwars Scourge\n~Clanwars Crown\n~Clanwars Garden");
-      embed.addField("Others", "~Clanwars Season Rank\n~Clanwars Triumph Score\n~Clanwars Time Played");
+      embed.setDescription(`Here is a list of Clanwars commands! Example: \`${prefix}Clanwars Time\``);
+      embed.addField("Raids", `\`${prefix}Clanwars Levi\`\n\`${prefix}Clanwars pLevi\`\n\`${prefix}Clanwars Eow\`\n\`${prefix}Clanwars pEow\`\n\`${prefix}Clanwars Sos\`\n\`${prefix}Clanwars pSos\`\n\`${prefix}Clanwars Last Wish\`\n\`${prefix}Clanwars Scourge\`\n\`${prefix}Clanwars Crown\`\n\`${prefix}Clanwars Garden\``);
+      embed.addField("Others", `\`${prefix}Clanwars Season Rank\`\n\`${prefix}Clanwars Triumph Score\`\n\`${prefix}Clanwars Time Played\``);
       break;
     }
     case "help others": case "others": {
       embed.setAuthor("Others Help Menu");
-      embed.setDescription("Here is a list of other commands! Example: `~Donate`");
-      embed.addField("Commands", "`~Donate`");
+      embed.setDescription(`Here is a list of other commands! Example: \`${prefix}Donate\``);
+      embed.addField("Commands", `\`${prefix}Donate\``);
       break;
     }
     default: {
       embed.setAuthor("Hey there! I am Marvin.")
-      embed.setDescription("I have so many commands now i've had to split them up here is a list of my help commands! Example: `~Help Rankings`")
-      embed.addField("Categories", "`Rankings`, `Dungeons`, `Raids`, `Items`, `Titles`, `Seasonal`, `Clan`, `Globals`, `Trials`, `~Clanwars`, `Others`")
-      embed.addField("Request", "If you wish to request something or would like to give feedback use the request command like this: `~request I would like to see Marvin track season ranks!`")
+      embed.setDescription(`I have so many commands now i've had to split them up here is a list of my help commands! Example: \`${prefix}Rankings\``)
+      embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``)
+      embed.addField("Request", `If you wish to request something or would like to give feedback use the request command like this: \`${prefix}request I would like to see Marvin track season ranks!\``)
       break;
     }
   }
@@ -334,7 +331,7 @@ async function GetHelp(message, command, users, registeredUser) {
     else { console.log(err); }
   });
 }
-async function GetLeaderboard(message, command, users, registeredUser) {
+async function GetLeaderboard(prefix, message, command, users, registeredUser) {
   let players = [];
   let privatePlayers = [];
   let registeredPlayer;
@@ -358,9 +355,9 @@ async function GetLeaderboard(message, command, users, registeredUser) {
   if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetRegisteredUserInfo]); }
   else { await Promise.all([await GetGuildPlayers]); }
 
-  SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer);
+  SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer);
 }
-async function GetTitleLeaderboard(message, command, users, registeredUser) {
+async function GetTitleLeaderboard(prefix, message, command, users, registeredUser) {
   let players = [];
   let playerTitles = [];
   let privatePlayers = [];
@@ -393,9 +390,9 @@ async function GetTitleLeaderboard(message, command, users, registeredUser) {
   if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetGuildTitles, await GetRegisteredUserInfo]); }
   else { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
 
-  SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
+  SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
 }
-async function GetObtainedItems(message, command, type, users, registeredUser) {
+async function GetObtainedItems(prefix, message, command, type, users, registeredUser) {
   let players = [];
   let playerItems = [];
   let obtained = [];
@@ -436,9 +433,9 @@ async function GetObtainedItems(message, command, type, users, registeredUser) {
     }
   }
 
-  SendItemsLeaderboard(msg, command, type, players, obtained, item);
+  SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item);
 }
-async function GetObtainedTitles(message, command, type, users, registeredUser) {
+async function GetObtainedTitles(prefix, message, command, type, users, registeredUser) {
   let players = [];
   let playerTitles = [];
   let obtained = [];
@@ -473,9 +470,9 @@ async function GetObtainedTitles(message, command, type, users, registeredUser) 
     }
   }
 
-  SendTitlesLeaderboard(msg, command, type, players, obtained, title);
+  SendTitlesLeaderboard(prefix, msg, command, type, players, obtained, title);
 }
-async function GetProfile(message, command, type, users, registeredUser) {
+async function GetProfile(prefix, message, command, type, users, registeredUser) {
   let players = [];
   let playerTitles = [];
   let registeredPlayer;
@@ -549,9 +546,9 @@ async function GetProfile(message, command, type, users, registeredUser) {
     else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo]); }
   }
 
-  SendProfile(message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, players.length);
+  SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, players.length);
 }
-async function GetClanWars(message, command, users, registeredUser) {
+async function GetClanWars(prefix, message, command, users, registeredUser) {
   RequestHandler.GetClanWars(async (isError, clanData) => {
     if(!isError) {
       let registeredPlayer;
@@ -566,15 +563,15 @@ async function GetClanWars(message, command, users, registeredUser) {
         );
       }
 
-      SendClanWarsLeaderboard(message, command, registeredUser, registeredPlayer, clanData);
+      SendClanWarsLeaderboard(prefix, message, command, registeredUser, registeredPlayer, clanData);
     }
     else {
-      if(clanData.code === "ECONNREFUSED") { message.channel.send("The server that processes this information is offline. Feel free to let me know using `~request`"); }
-      else { message.channel.send("Failed to generate clanwars leaderboards... Uhh report using: `~request`"); }
+      if(clanData.code === "ECONNREFUSED") { message.channel.send(`The server that processes this information is offline. Feel free to let me know using \`${prefix}request\``); }
+      else { message.channel.send(`Failed to generate clanwars leaderboards... Uhh report using: \`${prefix}request\``); }
     }
   });
 }
-async function GetGlobal(message, command, users, registeredUser) {
+async function GetGlobal(prefix, message, command, users, registeredUser) {
   let globalReq;
   switch(true) {
     case command.startsWith("global time played"): case command.startsWith("global time"): { globalReq = "GetGlobalTimePlayedLeadboard"; break; }
@@ -611,18 +608,18 @@ async function GetGlobal(message, command, users, registeredUser) {
           );
         }
   
-        SendGlobalLeaderboard(message, command, registeredUser, registeredPlayer, leaderboardData);
+        SendGlobalLeaderboard(prefix, message, command, registeredUser, registeredPlayer, leaderboardData);
       }
       else {
-        if(leaderboardData.code === "ECONNREFUSED") { message.channel.send("The server that processes this information is offline. Feel free to let me know using `~request`"); }
-        else { console.log(leaderboardData); message.channel.send("Failed to generate global leaderboards... Uhh report using: `~request`"); }
+        if(leaderboardData.code === "ECONNREFUSED") { message.channel.send(`The server that processes this information is offline. Feel free to let me know using \`${prefix}request\``); }
+        else { console.log(leaderboardData); message.channel.send(`Failed to generate global leaderboards... Uhh report using: \`${prefix}request\``); }
       }
     });
   }
-  else { message.channel.send("We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: `~help globals`"); }
+  else { message.channel.send(`We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: \`${prefix}help globals\``); }
 }
 
-function SendLeaderboard(message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
+function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
@@ -1212,7 +1209,7 @@ function SendLeaderboard(message, command, players, privatePlayers, registeredUs
     //Default
     default: {
       embed.setAuthor("Uhh oh...");
-      embed.setDescription("So something went wrong and this command just didn't work. It dun broke. Please report using `~request`");
+      embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
       break;
     }
   }
@@ -1222,7 +1219,7 @@ function SendLeaderboard(message, command, players, privatePlayers, registeredUs
     else { console.log(err); }
   });
 }
-function SendItemsLeaderboard(message, command, type, players, playerItems, item) {
+function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
@@ -1247,7 +1244,7 @@ function SendItemsLeaderboard(message, command, type, players, playerItems, item
 
   message.edit(embed);
 }
-function SendTitlesLeaderboard(message, command, type, players, playerTitles, title) {
+function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, title) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, title, index) => { 
@@ -1272,7 +1269,7 @@ function SendTitlesLeaderboard(message, command, type, players, playerTitles, ti
 
   message.edit(embed);
 }
-function SendClanWarsLeaderboard(message, command, registeredUser, registeredPlayer, clanData) {
+function SendClanWarsLeaderboard(prefix, message, command, registeredUser, registeredPlayer, clanData, prefix) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
@@ -1453,7 +1450,7 @@ function SendClanWarsLeaderboard(message, command, registeredUser, registeredPla
       embed.addField("Ranks", leaderboard.first, true);
       break;
     }
-    default: { embed.setDescription('That\'s not a valid clanwars command. Use `~help clanwars` to see clanwars commands.'); break; }
+    default: { embed.setDescription(`That\'s not a valid clanwars command. Use \`${prefix}help clanwars\` to see clanwars commands.`); break; }
   }
   
   message.channel.send({embed}).catch(err => {
@@ -1461,7 +1458,7 @@ function SendClanWarsLeaderboard(message, command, registeredUser, registeredPla
     else { console.log(err); }
   });
 }
-function SendProfile(message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength) {
+function SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength, prefix) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   switch(true) {
@@ -1487,13 +1484,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1516,13 +1513,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1546,13 +1543,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1575,13 +1572,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1599,13 +1596,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1623,13 +1620,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1647,13 +1644,13 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
             }
             else {
               embed.setAuthor("Uhh oh...");
-              embed.setDescription("The person you have @ has not registered. Get them to register\nThey can do this by using `~register`");
+              embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
             embed.setAuthor("Uhh oh...");
-            embed.setDescription("In order to view your trials profile i need to know who you are. I cannot know without you registering first. Use: `~register`");
+            embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
         }
@@ -1667,7 +1664,7 @@ function SendProfile(message, command, registeredUser, registeredPlayer, registe
     else { console.log(err); }
   });
 }
-function SendGlobalLeaderboard(message, command, registeredUser, registeredPlayer, leaderboardData) {
+function SendGlobalLeaderboard(prefix, message, command, registeredUser, registeredPlayer, leaderboardData, prefix) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 

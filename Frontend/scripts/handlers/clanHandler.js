@@ -9,7 +9,7 @@ const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'loca
 
 module.exports = { RegisterClan, AddClan, RemoveClan, GetTrackedClans };
 
-async function RegisterClan(message, command) {
+async function RegisterClan(prefix, message, command) {
   Database.findRegisteredUserByID(message.author.id, function findRegisteredUserByID(isError, isFound, user) {
     if(!isError) {
       if(isFound) {
@@ -59,18 +59,18 @@ async function RegisterClan(message, command) {
                   else { ErrorHandler("Low", data); message.channel.send("There was an error when trying to get clan data. Try again?"); } 
                 });
               }
-              else { message.reply("This server already has a registered clan, if you wish to add another to the tracking use `~Add clan`, or if you have changed clan use `~Remove clan` first."); }
+              else { message.reply(`This server already has a registered clan, if you wish to add another to the tracking use \`${prefix}Add clan\`, or if you have changed clan use \`${prefix}Remove clan\` first.`); }
             }
           }
           else { ErrorHandler("Med", guild); message.reply("An error has occured... This has been logged, sorry about that!"); }
         });
       }
-      else { message.reply("Please register first so that i know who you are in order to add your clan. Use: `~Register`"); }
+      else { message.reply(`Please register first so that i know who you are in order to add your clan. Use: \`${prefix}Register\``); }
     }
     else { ErrorHandler("Med", user); message.reply("An error has occured... This has been logged, sorry about that!"); }
   });
 }
-function AddClan(message, command) {
+function AddClan(prefix, message, command) {
   Database.findRegisteredUserByID(message.author.id, function findRegisteredUserByID(isError, isFound, user) {
     if(!isError) {
       if(isFound) {
@@ -107,13 +107,13 @@ function AddClan(message, command) {
                     const embed = new Discord.MessageEmbed()
                     .setColor(0x0099FF)
                     .setAuthor("How to add another clan!")
-                    .setDescription("In order to add a new clan to be tracked along side your main clan you will need to find that clan here: https://www.bungie.net/en/ClanV2/MyClans \n\nOnce you've found the clan you wish to add check the URL of the page, it should say `https://www.bungie.net/en/ClanV2/Index?groupId=1234567`. \n\nThen it's just a matter of using that groupId like this: `~add clan 1234567`")
+                    .setDescription(`In order to add a new clan to be tracked along side your main clan you will need to find that clan here: https://www.bungie.net/en/ClanV2/MyClans \n\nOnce you've found the clan you wish to add check the URL of the page, it should say \`https://www.bungie.net/en/ClanV2/Index?groupId=1234567\`. \n\nThen it's just a matter of using that groupId like this: \`${prefix}add clan 1234567\``)
                     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
                     .setTimestamp()
                     message.channel.send({embed});
                   }
                 }
-                else { message.reply("Only discord administrators or the one who linked this server can add or remove clans from the server. Get them to use: `~add clan` for you."); }
+                else { message.reply(`Only discord administrators or the one who linked this server can add or remove clans from the server. Get them to use: \`${prefix}add clan\` for you.`); }
               }
               else { RegisterClan(message, command); }
             }
@@ -122,12 +122,12 @@ function AddClan(message, command) {
           else { Log.SaveError("Failed to find clan."); message.reply("An error has occured... This has been logged, sorry about that!"); }
         });
       }
-      else { message.reply("Please register first so that i know who you are in order to add your clan. Use: `~Register`"); }
+      else { message.reply(`Please register first so that i know who you are in order to add your clan. Use: \`${prefix}Register\``); }
     }
     else { Log.SaveError("Failed to check if user exists"); message.reply("An error has occured... This has been logged, sorry about that!"); }
   });
 }
-function RemoveClan(message, command) {
+function RemoveClan(prefix, message, command) {
   const clanID = command.substr("remove clan ".length);
   if(clanID.length > 0) {
     Database.findRegisteredUserByID(message.author.id, function findRegisteredUserByID(isError, isFound, user) {
@@ -153,14 +153,14 @@ function RemoveClan(message, command) {
             else { ErrorHandler("Med", guild); message.reply("An error has occured... This has been logged, sorry about that!"); }
           });
         }
-        else { message.reply("Please register first so that i know who you are in order to add your clan. Use: `~Register`"); }
+        else { message.reply(`Please register first so that i know who you are in order to add your clan. Use: \`${prefix}Register\``); }
       }
       else { ErrorHandler("Med", "Failed to check if user exists"); message.reply("An error has occured... This has been logged, sorry about that!"); }
     });
   }
   else { GetTrackedClans(message); }
 }
-async function GetTrackedClans(message) {
+async function GetTrackedClans(prefix, message, command) {
   Database.findGuildByID(message.guild.id, async function findGuildByID(isError, isFound, guild) {
     if(!isError) {
       if(isFound) {
@@ -183,7 +183,7 @@ async function GetTrackedClans(message) {
         const embed = new Discord.MessageEmbed()
         .setColor(0x0099FF)
         .setAuthor("Clans Tracked")
-        .setDescription("To add another clan use: `~add clan`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: `~remove clan 123456`")
+        .setDescription(`To add another clan use: \`${prefix}add clan\`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: \`${prefix}remove clan 123456\``)
         .addField("Name", clanData.names, true)
         .addField("Clan ID", clanData.ids, true)
         .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
