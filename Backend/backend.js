@@ -10,6 +10,7 @@ const ManifestHandler = require('../Shared/handlers/manifestHandler');
 const Checks = require('../Shared/checks');
 const Merge = require('./scripts/sqlMerge');
 const Test = require('./scripts/testing');
+const Metrics = require('./scripts/metrics');
 
 //Global variables
 let InitializationTime = new Date().getTime();
@@ -71,6 +72,7 @@ async function init() {
   setInterval(() => { doChecks(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { GlobalItemsHandler.updateGlobalItems(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
+  setInterval(() => { Metrics.setMetrics(APIDisabled, index, rt_index, clans.length, rt_clans.length, processing.length, rt_processing.length) }, 1000); // 1 Second Interval
 
   //Console Log
   Log.SaveLog("Info", `Backend server has started.`);
@@ -90,7 +92,7 @@ async function init() {
 
       //Get clan members
       Tracking.UpdateClan(clans[index], Season, function UpdateClan(clan, isError, severity, err) {
-        if(isError) { console.log(err); ErrorHandler(severity, err); }
+        if(isError) { ErrorHandler(severity, err); }
         //Remove it from queue as clan update has finished.
         processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
       });
@@ -103,6 +105,7 @@ async function init() {
           Restarting = true;
           restartTracking();
         }
+        else { processing = processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 15)); }
       }
     }
 
@@ -115,15 +118,15 @@ async function init() {
       if(!isError) {
         var onlineMembers = 0;
         for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
-        console.log(`Scan took: ${ Misc.formatTime((new Date().getTime() - startTime) / 1000) }to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ (Config.scanSpeed / 2) }`);
+        console.log(`Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) }to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ (Config.scanSpeed / 2) }`);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
         allClans = data.filter(e => !e.realtime);
         clans = []; //Reset clans array to be empty.
     
-        //Check processing clans, If any are taking longer than 15 minutes, remove from processing queue and re-add.
-        for(var i in processing) { if((new Date().getTime() - processing[i].added) > (1000 * 60 * 15)) { processing.splice(processing.indexOf(processing.find(e => e.clanID === processing[i].clanID)), 1); } }
-    
+        //Check processing clans, If any are taking longer than 15 minutes, remove from processing queue and re-add.    
+        processing = processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 15));
+
         //Create a new array with clans to scan that are not already being scanned.
         clans = allClans.filter(e => !processing.find(f => f.clanID === e.clanID));
 
@@ -163,6 +166,7 @@ async function init() {
           RT_Restarting = true;
           rt_restart();
         }
+        else { rt_processing = rt_processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 5)); }
       }
     }
 
@@ -180,7 +184,7 @@ async function init() {
         rt_clans = []; //Reset rt_clans array to be empty.
 
         //Check rt_processing clans, If any are taking longer than 15 minutes, remove from rt_processing queue and re-add.
-        for(var i in rt_processing) { if((new Date().getTime() - rt_processing[i].added) > (1000 * 60 * 15)) { rt_processing.splice(rt_processing.indexOf(rt_processing.find(e => e.clanID === rt_processing[i].clanID)), 1); } }
+        rt_processing = rt_processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 15));
             
         //Create a new array with clans to scan that are not already being scanned.
         rt_clans = rt_allClans.filter(e => !rt_processing.find(f => f.clanID === e.clanID));

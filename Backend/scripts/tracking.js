@@ -103,7 +103,7 @@ async function UpdateClan(clan, season, callback) {
             lastScan: new Date()
           }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
         }
-        callback(clan, true, "Low", clanData.ErrorStatus);
+        callback(clan, true, "Low", clanData);
         resolve(false);
       }
   }));

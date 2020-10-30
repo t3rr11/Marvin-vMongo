@@ -6,6 +6,7 @@
   "dependencies": {
     "mongoose": "^5.10.8",
     "node-fetch": "^2.6.1",
+    "pm2": "^4.5.0",
     "tunnel-ssh": "^4.1.4"
   },
   "devDependencies": {},

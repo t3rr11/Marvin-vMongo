@@ -1,27 +1,35 @@
 const fetch = require('node-fetch');
 const Config = require('../configs/Config.json');
+const Misc = require('../misc');
 const expressHost = Config.isLocal ? "10.1.1.14" : "localhost";
 
 //Bungie requests
 async function BungieReq(path) {
-  const request = await fetch(`https://www.bungie.net${ path }`,{ headers: { "X-API-Key": Config.apiKey, "Content-Type": "application/json" } });
-  const response = await request.text();
-  try {
-    const res = JSON.parse(response);
-    if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
-    else if(request.ok) { return { "isError": false, "Data": res } }
-    else { return { "isError": true, "Data": res } }
-  }
-  catch (err) { return { "isError": true, "Data": err } }
+  return await fetch(`https://www.bungie.net${ path }`, { headers: { "X-API-Key": Config.apiKey, "Content-Type": "application/json" } }).then(async (request) => {
+    try {
+      const response = await request.text();
+      if(Misc.IsJSON(response)) {
+        const res = JSON.parse(response);
+        if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
+        else if(request.ok) { return { "isError": false, "Data": res } }
+        else { return { "isError": true, "Data": res } }
+      }
+      else { return { "isError": true, "Data": "Did not recieve json" } }
+    }
+    catch (err) { return { "isError": true, "Data": err } }
+  }).catch((err) => { return { "isError": true, "Data": err } });
 }
 async function NormalReq(path) {
   return await fetch(`${ path }`).then(async (request) => {
     try {
       const response = await request.text();
-      const res = JSON.parse(response);
-      if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
-      else if(request.ok) { return { "isError": false, "Data": res } }
-      else { return { "isError": true, "Data": res } }
+      if(Misc.IsJSON(response)) {
+        const res = JSON.parse(response);
+        if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
+        else if(request.ok) { return { "isError": false, "Data": res } }
+        else { return { "isError": true, "Data": res } }
+      }
+      else { return { "isError": true, "Data": "Did not recieve json" } }
     }
     catch (err) { return { "isError": true, "Data": err } }
   }).catch((err) => { return { "isError": true, "Data": err } });

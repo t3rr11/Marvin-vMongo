@@ -1,10 +1,10 @@
 module.exports = {
-  GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJson, GetClassName, AddCommas,
+  GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJSON, GetClassName, AddCommas,
   GetClanID, GetMembershipID, cleanString, addOrdinal, GetItemState, capitalize
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
-function IsJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
+function IsJSON(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
 function GetClassName(classType) {
   if(classType === 0) { return "Titan" }
   else if(classType === 1) { return "Hunter" }
@@ -59,7 +59,7 @@ function GetReadableDate() {
   var dateString = day + "-" + month + "-" + year;
   return dateString;
 }
-function formatTime(TimeinSeconds) {
+function formatTime(type, TimeinSeconds) {
   var seconds  = Math.floor(Number(TimeinSeconds));
   var years    = Math.floor(seconds / (24*60*60*7*4.34*12));
   var seconds  = seconds - Math.floor(years   * (24*60*60*7*4.34*12));
@@ -74,13 +74,13 @@ function formatTime(TimeinSeconds) {
   var minutes  = Math.floor(seconds / (60));
   var seconds  = seconds - Math.floor(minutes * (60));
 
-  var YDisplay = years > 0 ? years + (years == 1 ? 'Y ' : 'Y ') : '';
-  var MDisplay = months > 0 ? months + (months == 1 ? 'M ' : 'M ') : '';
-  var wDisplay = weeks > 0 ? weeks + (weeks == 1 ? 'w ' : 'w ') : '';
-  var dDisplay = days > 0 ? days + (days == 1 ? 'd ' : 'd ') : '';
-  var hDisplay = hours > 0 ? hours + (hours == 1 ? 'h ' : 'h ') : '';
-  var mDisplay = minutes > 0 ? minutes + (minutes == 1 ? 'm ' : 'm ') : '';
-  var sDisplay = seconds > 0 ? seconds + (seconds == 1 ? 's ' : 's ') : '';
+  var YDisplay = years > 0 ? years + (years == 1 ? (type === "big" ? ' year ' : 'Y ') : (type === "big" ? ' years ' : 'Y ')) : '';
+  var MDisplay = months > 0 ? months + (months == 1 ? (type === "big" ? ' month ' : 'M ') : (type === "big" ? ' months ' : 'M ')) : '';
+  var wDisplay = weeks > 0 ? weeks + (weeks == 1 ? (type === "big" ? ' week ' : 'w ') : (type === "big" ? ' weeks ' : 'w ')) : '';
+  var dDisplay = days > 0 ? days + (days == 1 ? (type === "big" ? ' day ' : 'd ') : (type === "big" ? ' days ' : 'd ')) : '';
+  var hDisplay = hours > 0 ? hours + (hours == 1 ? (type === "big" ? ' hour ' : 'h ') : (type === "big" ? ' hours ' : 'h ')) : '';
+  var mDisplay = minutes > 0 ? minutes + (minutes == 1 ? (type === "big" ? ' minute ' : 'm ') : (type === "big" ? ' minutes ' : 'm ')) : '';
+  var sDisplay = seconds > 0 ? seconds + (seconds == 1 ? (type === "big" ? ' second ' : 's ') : (type === "big" ? ' seconds ' : 's ')) : '';
 
   if (TimeinSeconds < 60) { return sDisplay; }
   if (TimeinSeconds >= 60 && TimeinSeconds < 3600) { return mDisplay + sDisplay; }
