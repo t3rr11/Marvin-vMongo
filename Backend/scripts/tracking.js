@@ -86,6 +86,25 @@ async function UpdateClan(clan, season, callback) {
               resolve2(true);
             }));
 
+            //Check for players that are no longer in the clan.
+            await new Promise(resolve3 => Database.getClanUsers(clan.clanID, async function GetClanUsers(isError, isFound, players) {
+              if(!isError) {
+                if(isFound) {
+                  for(let i in players) {
+                    if(!members.find(e => e.destinyUserInfo.membershipId === players[i].membershipID)) {
+                      Database.removeClanFromPlayer(players[i].membershipID);
+                      Log.SaveLog("Clan", `${ players[i].displayName } has left the clan ${ clan.clanID }`);
+                    }
+                  }
+                }
+                else {
+                  //ErrorHandler("Low", `No players were found from clan: ${ clan.clanID }`);
+                }
+              }
+              else { ErrorHandler("Low", `Error getting players from clan: ${ clan.clanID }`); }
+              resolve3(true);
+            }));
+
             //End of clan scan, resolve promise and remove from processing queue.
             resolve(true);
           }
