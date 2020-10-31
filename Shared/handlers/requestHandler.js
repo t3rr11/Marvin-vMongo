@@ -2,10 +2,16 @@ const fetch = require('node-fetch');
 const Config = require('../configs/Config.json');
 const Misc = require('../misc');
 const expressHost = Config.isLocal ? "10.1.1.14" : "localhost";
+const http = require('http');
+const https = require('https');
+
+const httpAgent = new http.Agent({ keepAlive: true });
+const httpsAgent = new https.Agent({ keepAlive: true });
+const agent = (_parsedURL) => _parsedURL.protocol == 'http:' ? httpAgent : httpsAgent;
 
 //Bungie requests
 async function BungieReq(path) {
-  return await fetch(`https://www.bungie.net${ path }`, { headers: { "X-API-Key": Config.apiKey, "Content-Type": "application/json" } }).then(async (request) => {
+  return await fetch(`https://www.bungie.net${ path }`, { headers: { "X-API-Key": Config.apiKey, "Content-Type": "application/json" }, agent }).then(async (request) => {
     try {
       const response = await request.text();
       if(Misc.IsJSON(response)) {
@@ -20,7 +26,7 @@ async function BungieReq(path) {
   }).catch((err) => { return { "isError": true, "Data": err } });
 }
 async function NormalReq(path) {
-  return await fetch(`${ path }`).then(async (request) => {
+  return await fetch(`${ path }`, { agent }).then(async (request) => {
     try {
       const response = await request.text();
       if(Misc.IsJSON(response)) {
