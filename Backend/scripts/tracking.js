@@ -70,8 +70,10 @@ async function UpdateClan(clan, season, callback) {
                         }
                       }
                       else {
-                        if(playerData.ErrorCode === 1601) { ErrorHandler("Low", `Player ${ onlineMembers[i].destinyUserInfo.membershipId } not found.`); }
-                        else { if(playerData.ErrorStatus) { ErrorHandler("Med", `Error: ${ playerData.ErrorStatus }`); } else { ErrorHandler("Med", playerData); } }
+                        if(playerData.ErrorCode === 1601) {
+                          //ErrorHandler("Low", `Player ${ onlineMembers[i].destinyUserInfo.membershipId } not found.`);
+                        }
+                        else { if(playerData.ErrorStatus) { ErrorHandler("Low", `Error: ${ playerData.ErrorStatus }`); } else { ErrorHandler("Low", playerData); } }
                       }
                     });
                   }
@@ -338,7 +340,7 @@ function FormatAccountInfo(clan, memberData, playerData) {
     "highestPower": highestPower,
     "timePlayed": timePlayed,
     "lastPlayed": lastPlayed,
-    "currentClass": Misc.GetClassName(lastPlayedCharacter.classType),
+    "currentClass": lastPlayedCharacter ? Misc.GetClassName(lastPlayedCharacter.classType) : "Unknown",
     "dlcOwned": dlcOwned
   }
 }

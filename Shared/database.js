@@ -450,6 +450,32 @@ const getGuildItems = async (guildID, callback) => {
     }
   });
 }
+const getGuildBroadcasts = async (guildID, callback) => {
+  await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(guild) {
+        await Broadcast.find({ clanID: guild.clans }, (err, broadcasts) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(broadcasts.length > 0) { callback(false, true, broadcasts); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getClanUsers = async (clanID, callback) => {
+  await User.find({ clanID }, (err, players) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(players.length > 0) { callback(false, true, players); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 const test = async (callback) => {
   await User.find({ membershipID: "4611686018471334813" }, (err, data) => {
@@ -524,6 +550,17 @@ const updateGuildByID = async (guildID, data, callback) => {
     else { callback(false); }
   });
 }
+const forceFullRescan = (callback) => {
+  Clan.updateMany({}, { $set: { forcedScan: true } }, function(err, numAffected){
+    if(err || numAffected < 1) { callback(true, "Med", err); }
+    else {
+      User.updateMany({}, { $set: { firstLoad: true } }, function(err, numAffected){
+        if(err || numAffected < 1) { callback(true, "Med", err); }
+        else { callback(false); }
+      });
+    }
+  });
+}
 
 //Remove
 const removeBannedUser = async (discordID, callback) => {
@@ -541,6 +578,14 @@ const removeAllAwaitingBroadcasts = async (callback) => {
     if(err) { callback(true) } else { callback(false) }
   });
 }
+const removeClanFromPlayer = async (membershipID) => {
+  let user = await User.findOne({ membershipID });
+  if(user !== null) {
+    User.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from user: ${ membershipID }`); } });
+    UserItems.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from userItems: ${ membershipID }`); } });
+    UserTitles.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from userTitles: ${ membershipID }`); } });
+  }
+}
 
 module.exports = {
   FrontendConnect, BackendConnect, ExpressConnect,
@@ -549,8 +594,8 @@ module.exports = {
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
-  getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems,
-  removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts,
-  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,
+  getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
+  removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
+  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   test
 }

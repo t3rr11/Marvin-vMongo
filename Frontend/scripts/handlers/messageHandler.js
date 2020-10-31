@@ -40,6 +40,13 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case message.author.id === "194972321168097280" && command.startsWith("view mbans"): { ViewBans(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
+        case message.author.id === "194972321168097280" && command === "force rescan": {
+          Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
+            if(isError) { ErrorHandler(severity, err); message.channel.send("Failed to force a full rescan."); }
+            else { message.channel.send("Forced a full rescan."); }
+          });
+          break;
+        }
 
         //Help
         case command.startsWith("help"): { GetHelp(prefix, message, command); break; }
@@ -55,6 +62,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command === "others": { GetHelp(prefix, message, command); break; }
         case command === "clan": { GetHelp(prefix, message, command); break; }
         case command === "broadcasts": { GetHelp(prefix, message, command); break; }
+        case command === "drystreaks": { GetHelp(prefix, message, command); break; }
         
         //Management
         case command.startsWith("current season"): case command.startsWith("season"): case command.startsWith("next season"): { GetSeason(message); break; }
@@ -96,6 +104,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("time"): case command.startsWith("time played"): case command.startsWith("total time"):
         case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("profile"): { GetProfile(prefix, message, command, "profile", users, registeredUser); break; }
+        case command.startsWith("drystreak "): { GetDrystreak(prefix, message, command); break; }
 
         //Trials
         case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
@@ -257,27 +266,31 @@ function ChangePrefix(prefix, message, command, guild) {
   let newPrefix = command.substr("set prefix ".length);
   if(newPrefix.length > 0 && newPrefix !== " ") {
     if(guild) {
-      guild.prefix = newPrefix;
-      Database.updateGuildByID(message.guild.id, { prefix: newPrefix },
-        function updateGuildByID(isError, severity, err) {
-          if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
-          else {
-            message.channel.send(`Too easy Marvin will only react to your new prefix \`${newPrefix}\`, Example: \`${newPrefix}help\`.`);
-            Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+      if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+        guild.prefix = newPrefix;
+        Database.updateGuildByID(message.guild.id, { prefix: newPrefix },
+          function updateGuildByID(isError, severity, err) {
+            if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
+            else {
+              message.channel.send(`Too easy Marvin will only react to your new prefix \`${newPrefix}\`, Example: \`${newPrefix}help\`.`);
+              Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+            }
           }
-        }
-      );
+        );
+      }
     }
     else {
-      Database.addGuild({ guildID: message.guild.id, guildName: message.guild.name, ownerID: message.author.id, ownerAvatar: message.author.avatar, region: message.guild.region, prefix: newPrefix },
-        function addGuild(isError, severity, err) {
-          if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
-          else {
-            message.channel.send(`Too easy in a few seconds Marvin will only react to the prefix \`${newPrefix}\`, Example: \`${newPrefix}help\``);
-            Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+      if(message.member.hasPermission("ADMINISTRATOR")) {
+        Database.addGuild({ guildID: message.guild.id, guildName: message.guild.name, ownerID: message.author.id, ownerAvatar: message.author.avatar, region: message.guild.region, prefix: newPrefix },
+          function addGuild(isError, severity, err) {
+            if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
+            else {
+              message.channel.send(`Too easy in a few seconds Marvin will only react to the prefix \`${newPrefix}\`, Example: \`${newPrefix}help\``);
+              Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+            }
           }
-        }
-      );
+        );
+      }
     }
   }
   else { message.channel.send(`In order to change the prefix use the command like this: \`${ prefix }set prefix {value}\`. Example: \`${ prefix }set prefix ~\``); }
@@ -411,12 +424,12 @@ async function GetHelp(prefix, message, command) {
     }
     case "help items": case "items": {
       embed.setAuthor("Items Help Menu");
-      embed.setDescription(`The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or\n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\``);
+      embed.setDescription(`The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or to see who is missing the item use: \n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\``);
       break;
     }
     case "help titles": case "titles": {
       embed.setAuthor("Titles Help Menu");
-      embed.setDescription(`The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n\`${prefix}title Rivensbane\` or\n\`${prefix}!title Chronicler\`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. \`${prefix}title 123456\``);
+      embed.setDescription(`The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n\`${prefix}title Rivensbane\` or to see who is missing the title use: \n\`${prefix}!title Chronicler\`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. \`${prefix}title 123456\``);
       break;
     }
     case "help seasonal": case "seasonal": {
@@ -433,7 +446,7 @@ async function GetHelp(prefix, message, command) {
     }
     case "help broadcasts": case "broadcasts": {
       embed.setAuthor("Broadcasts Help Menu");
-      embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set Clan\``);
+      embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
       embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
       break;
     }
@@ -465,11 +478,17 @@ async function GetHelp(prefix, message, command) {
       embed.addField("Commands", `\`${prefix}Donate\``);
       break;
     }
+    case "help drystreaks": case "drystreaks": {
+      embed.setAuthor("Drystreaks Help Menu");
+      embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\``);
+      break;
+    }
     default: {
-      embed.setAuthor("Hey there! I am Marvin.")
-      embed.setDescription(`I have so many commands now i've had to split them up here is a list of my help commands! Example: \`${prefix}Rankings\``)
-      embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``)
-      embed.addField("Request", `If you wish to request something or would like to give feedback use the request command like this: \`${prefix}request I would like to see Marvin track season ranks!\``)
+      embed.setAuthor("Hey there! I am Marvin.");
+      embed.setDescription(`I have so many commands now i've had to split them up here is a list of my help commands! Example: \`${prefix}Rankings\``);
+      embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``);
+      embed.addField("Request", `If you wish to request something or would like to give feedback use the request command like this: \`${prefix}request I would like to see Marvin track season ranks!\``);
       break;
     }
   }
@@ -486,8 +505,7 @@ async function GetLeaderboard(prefix, message, command, users, registeredUser) {
 
   //Get players
   var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
-    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } }
     resolve(true);
   }));
 
@@ -514,15 +532,13 @@ async function GetTitleLeaderboard(prefix, message, command, users, registeredUs
 
   //Get players
   var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
-    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player titles
   var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
-    if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
@@ -557,15 +573,13 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
 
   //Get players
   var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
-    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player items
   var GetGuildItems = new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
-    if(!isError) { if(isFound) { playerItems = data; } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { playerItems = data; } }
     resolve(true);
   }));
 
@@ -595,15 +609,13 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
 
   //Get players
   var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
-    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player items
   var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
-    if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
@@ -629,15 +641,13 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
 
   //Get players
   var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
-    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player titles
   var GetGuildTitles = await new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
-    if(!isError) { if(isFound) { playerTitles = data; } else { message.channel.send("Not found"); } }
-    else { message.channel.send(data); }
+    if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
@@ -765,6 +775,99 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
     });
   }
   else { message.channel.send(`We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: \`${prefix}help globals\``); }
+}
+async function GetDrystreak(prefix, message, command) {
+  let players = [];
+  let playerItems = [];
+  let broadcasts = [];
+  let drystreaks = [];
+  let collectibleHash;
+  let isFound = false;
+
+  switch(command.substr("drystreak ".length).toString().toUpperCase()) {
+    case "1000 VOICES": case "1KV": case "1K VOICES": case "ONE THOUSAND VOICES": case "199171385": { collectibleHash = 199171385; isFound = true; break; }
+    case "ANARCHY": case "2220014607": { collectibleHash = 2220014607; isFound = true; break; }
+    case "ALWAYS ON TIME": case "1903459810": { collectibleHash = 1903459810; isFound = true; break; }
+    case "TARRABAH": case "2329697053": { collectibleHash = 2329697053; isFound = true; break; }
+    case "LUXURIOUS TOAST": case "1866399776": { collectibleHash = 1866399776; isFound = true; break; }
+    default: { break; }
+  }
+
+  if(isFound) {
+    let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+
+    //Get players
+    var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+      if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
+      resolve(true);
+    }));
+
+    //Get player items
+    var GetGuildItems = new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
+      if(!isError) { if(isFound) { playerItems = data; } }
+      resolve(true);
+    }));
+
+    //Get broadcasts
+    var GetGuildBroadcasts = new Promise(resolve => Database.getGuildBroadcasts(message.guild.id, function GetGuildBroadcasts(isError, isFound, data) {
+      if(!isError) { if(isFound) { broadcasts = data; } }
+      resolve(true);
+    }));
+
+    //Promise all
+    await Promise.all([await GetGuildPlayers, await GetGuildItems, await GetGuildBroadcasts]);
+
+    //Since broadcasts are logged as they come in, we need to make sure we are filtering out users who have since left the clan(s).
+    broadcasts = broadcasts.filter(e => players.find(f => f.membershipID === e.membershipID));
+    
+    //Further filter out unrelated items.
+    broadcasts = broadcasts.filter(e => e.hash !== collectibleHash);
+
+
+    //Filter through items looking for people missing the item.
+    for(var i in playerItems) {
+      let user = players.find(e => e.membershipID === playerItems[i].membershipID);
+      let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash)).state;
+      let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
+      let completions = 0;
+      console.log(user.raids.scourge);
+      if(collectibleHash === 199171385) { completions = user.raids.lastWish }
+      else if(collectibleHash === 2220014607) { completions = user.raids.scourge }
+      else if(collectibleHash === 1903459810) { completions = user.raids.scourge }
+      else if(collectibleHash === 2329697053) { completions = user.raids.sorrows }
+      else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
+      if(Misc.GetItemState(itemState).notAcquired) {
+        drystreaks.push({
+          "displayName": user.displayName,
+          "item": item.displayProperties.name,
+          "obtained": false,
+          "completions": completions
+        }); 
+      }
+    }
+
+    //Go through broadcasts and look for when they obtained said item and add them to the list.
+    for(var i in broadcasts) {
+      let user = players.find(e => e.membershipID === broadcasts[i].membershipID);
+      let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
+      if(broadcasts[i].hash.toString() === collectibleHash.toString()) {
+        drystreaks.push({
+          "displayName": user.displayName,
+          "item": item.displayProperties.name,
+          "obtained": true,
+          "completions": broadcasts[i].count
+        });
+      }
+    }
+
+    SendDrystreakLeaderboard(prefix, msg, command, players, broadcasts, drystreaks);
+  }
+  else {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    embed.setAuthor("Drystreaks");
+    embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: ${prefix}help drystreaks`);
+    msg.edit({ embed });
+  }
 }
 
 function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
@@ -1417,7 +1520,7 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
 
   message.edit(embed);
 }
-function SendClanWarsLeaderboard(prefix, message, command, registeredUser, registeredPlayer, clanData, prefix) {
+function SendClanWarsLeaderboard(prefix, message, command, registeredUser, registeredPlayer, clanData) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
@@ -1606,7 +1709,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
     else { console.log(err); }
   });
 }
-function SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength, prefix) {
+function SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   switch(true) {
@@ -1812,7 +1915,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
     else { console.log(err); }
   });
 }
-function SendGlobalLeaderboard(prefix, message, command, registeredUser, registeredPlayer, leaderboardData, prefix) {
+function SendGlobalLeaderboard(prefix, message, command, registeredUser, registeredPlayer, leaderboardData) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
@@ -2089,6 +2192,20 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { console.log(err); }
   });
+}
+function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts, drystreaks) {
+  if(drystreaks.length > 0) {
+    let leaderboard = { names: [], first: [], second: [] }
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    let top = drystreaks.sort((a, b) => { return b.completions - a.completions }).slice(0, 10);
+    leaderboard.names = top.map((e, index) => { return `${ e.obtained ? "✓" : "✗"} - ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+    leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.completions) }` });
+    embed.setAuthor(`Top 10 Unluckiest People - ${ drystreaks[0].item }`);
+    embed.setDescription(`✓ = Obtained, ✗ = Not Obtained`);
+    embed.addField("Name", leaderboard.names, true);
+    embed.addField("Completions", leaderboard.first, true);
+    message.edit({embed});
+  }
 }
 
 module.exports = { MessageHandler }

@@ -158,7 +158,7 @@ function RemoveClan(prefix, message, command) {
       else { ErrorHandler("Med", "Failed to check if user exists"); message.reply("An error has occured... This has been logged, sorry about that!"); }
     });
   }
-  else { GetTrackedClans(message); }
+  else { GetTrackedClans(prefix, message, command); }
 }
 async function GetTrackedClans(prefix, message, command) {
   Database.findGuildByID(message.guild.id, async function findGuildByID(isError, isFound, guild) {
