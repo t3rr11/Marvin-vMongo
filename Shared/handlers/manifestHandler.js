@@ -55,6 +55,7 @@ storeManifest = async function StoreManifest() {
     else { ErrorHandler("High", `Failed to get manifest version: ${ data }`); }
   });
 }
+//Backend manages this check, it runs every 10 minutes. Neither frontend nor Express should interact with this function to avoid multiple updates.
 checkManifestUpdate = async function CheckManifestUpdate() {
   await Database.getManifestVersion(function GetOldManifestVersion(isError, isFound, version) {
     if(!isError) {

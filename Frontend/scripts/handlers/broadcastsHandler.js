@@ -223,7 +223,7 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
           const embed = new Discord.MessageEmbed()
           .setColor(0xFFE000)
           .setAuthor("Clan Broadcast")
-          .setDescription(`${ clan.clanName } has finished loading for the first time. You are free to use commands now! For help use: ~help.`)
+          .setDescription(`${ clan.clanName } has finished loading for the first time. You are free to use commands now!`)
           .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
           .setTimestamp();
           try {

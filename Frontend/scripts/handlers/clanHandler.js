@@ -87,11 +87,12 @@ function AddClan(prefix, message, command) {
                         const clanData = clan.Response.detail;
                         if(clanData.clanInfo) {
                           if(!clans.includes(clanID)) {
-                            clans.push(parseInt(clanID));
+                            clans.push(clanID.toString());
                             Database.updateGuildByID(message.guild.id, { clans }, function updateGuildByID(isError, severity, err) {
                               if(!isError) {
                                 Log.SaveLog("Clans", `Clan Added: ${ clanData.name } (${ clanData.groupId }) to the tracking for ${ message.guild.id }`);
                                 message.channel.send(`${ clanData.name } has been succesfully added and will start to be tracked for this server! If this is the first time they've been scanned, it may take a few minutes to load the data for the first time. Please wait.`);
+                                CheckIfNewClan(clanID, clanData); //Check if it is a new clan.
                               }
                               else { ErrorHandler(severity, err); message.reply(`There was an error trying to add clan. Sorry please try again.`); }
                             });
@@ -138,10 +139,13 @@ function RemoveClan(prefix, message, command) {
               if(isFound) {
                 if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
                   if(guild.clans.includes(clanID)) {
-                    var clans = [...guild.clans.filter(e => e !== clanID)];
+                    var clans = [...guild.clans.filter(e => e.toString() !== clanID.toString())];
                     Database.updateGuildByID(message.guild.id, { clans }, function updateGuildByID(isError, severity, err) {
                       if(isError) { ErrorHandler(severity, err); }
-                      else { message.channel.send("Clan has been removed and will no longer be associated to this server."); }
+                      else {
+                        message.channel.send("Clan has been removed and will no longer be associated to this server.");
+                        CheckIfStillTracking(clanID); //Check if clan still requires to be tracked.
+                      }
                     });
                   }
                   else { message.channel.send(`This server does not track a clan with the ID: ${ clanID }, Try again?`); }
@@ -159,6 +163,38 @@ function RemoveClan(prefix, message, command) {
     });
   }
   else { GetTrackedClans(prefix, message, command); }
+}
+function CheckIfStillTracking(clanID) {
+  //Now check if any clans are tracking that clanID, if not disable tracking for clan.
+  Database.getTrackedClanGuilds(clanID, function CheckClanTracked(isError, isFound, data) {
+    if(!isError && !isFound) {
+      Database.updateClanByID(clanID, { isTracking: false }, function RemoveTrackingFromClan(isError, severity, err) {
+        if(!isError) { Log.SaveLog("Clan", `Clan: ${ clanID } has been removed from tracking as there are no more guilds tracking it.`); }
+        else { ErrorHandler(severity, `Failed to remove tracking from clan: ${ clanID }, ${ err }`) }
+      });
+    }
+  });
+}
+function CheckIfNewClan(clanID, clanData) {
+  Database.findClanByID(clanID, function CheckIfClanExists(isError, isFound, data) {
+    if(!isError) {
+      if(!isFound) {
+        Database.addClan({ clanID: clanData.groupId, clanName: clanData.name, clanCallsign: clanData.clanInfo.clanCallsign }, (isError, severity, err) => {
+          if(isError) { ErrorHandler(severity, err) }
+          else { Log.SaveLog("Clan", `Clan: ${ clanID } has been added to tracking.`); }
+        });
+      }
+      else {
+        if(!data.isTracking) {
+          Database.updateClanByID(clanID, { clanID: clanData.groupId, clanName: clanData.name, clanCallsign: clanData.clanInfo.clanCallsign, isTracking: true, firstScan: true }, function EnableTrackingForClan(isError, severity, err) {
+            if(!isError) { Log.SaveLog("Clan", `Clan: ${ clanID } has come back! Re-tracking now.`); }
+            else { ErrorHandler(severity, `Failed to enable tracking for clan: ${ clanID }, ${ err }`) }
+          });
+        }
+      }
+    }
+    else { ErrorHandler(severity, `Failed to find clan: ${ clanID }, ${ err }`); }
+  });
 }
 async function GetTrackedClans(prefix, message, command) {
   Database.findGuildByID(message.guild.id, async function findGuildByID(isError, isFound, guild) {

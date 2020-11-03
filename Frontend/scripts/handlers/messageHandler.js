@@ -12,7 +12,6 @@ const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
 function MessageHandler(client, message, guilds, users, APIDisabled) {
-  //TODO
   if(message.guild) {
     var guild = guilds.find(e => e.guildID == message.guild.id);
     var prefix = guild ? guild.prefix : "~";
