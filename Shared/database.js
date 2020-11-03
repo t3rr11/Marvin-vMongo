@@ -28,7 +28,8 @@ const checkDBConnection = () => { return DBConnected }
 //SSH and Connect to Mongo
 function FrontendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("frontend", mongoConfig); }
 function BackendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; StartConnection("backend", mongoConfig); }
-function ExpressConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[2]; StartConnection("express", mongoConfig); }
+function ExpressConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("express", mongoConfig); }
+function GlobalsConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; StartConnection("globals", mongoConfig); }
 
 function StartConnection(system, mongoConfig) {
   if(Config.isLocal) {
@@ -39,6 +40,7 @@ function StartConnection(system, mongoConfig) {
           case "frontend": { FrontendConnect(); break; }
           case "backend": { BackendConnect(); break; }
           case "express": { ExpressConnect(); break; }
+          case "globals": { GlobalsConnect(); break; }
           default: { console.log("Database Connection Error:", err); }
         }
       }
@@ -303,6 +305,16 @@ const getAllUsers = async (callback) => {
     }
   });
 }
+const getAllTrackedUsers = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await User.find({ clanID: { $ne: 0 } }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getAllRegisteredUsers = async (callback) => {
   //Callback fields { isError, isFound, data }
   await RegisteredUser.find({}, (err, array) => {
@@ -489,29 +501,14 @@ const test = async (callback) => {
 
 //Updates
 const updateUserByID = async (membershipID, data, callback) => {
-  let user = await User.findOne({ membershipID });
-  if(user !== null) {
-    let successCheck = [];
-    await new Promise(resolve => { User.updateOne({ membershipID }, data.user, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } }); resolve(true); })
-    await new Promise(resolve => { UserItems.updateOne({ membershipID }, data.items, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
-    await new Promise(resolve => { UserTitles.updateOne({ membershipID }, data.titles, {}, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
-    if(successCheck.every(e => e === true)) {
-      callback(false);
-      //console.log(`Updated User: ${ data.user.displayName }`);
-    }
-    else { callback(true, "High", successCheck) }
-  }
-  else {
-    let successCheck = [];
-    await new Promise(resolve => { new User(data.user).save((err, doc) => { if(err) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
-    await new Promise(resolve => { new UserItems(data.items).save((err, doc) => { if(err) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
-    await new Promise(resolve => { new UserTitles(data.titles).save((err, doc) => { if(err) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } resolve(true); }); });
-    if(successCheck.every(e => e === true)) {
-      callback(false);
-      //console.log(`Added User: ${ data.user.displayName }`);
-    }
-    else { callback(true, "High", successCheck) }
-  }
+  let successCheck = [];
+
+  await new Promise(resolve => { User.findOneAndUpdate({ membershipID }, data.user, { upsert: true, setDefaultsOnInsert: true }, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "User", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+  await new Promise(resolve => { UserItems.findOneAndUpdate({ membershipID }, data.items, { upsert: true, setDefaultsOnInsert: true }, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserItems", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+  await new Promise(resolve => { UserTitles.findOneAndUpdate({ membershipID }, data.titles, { upsert: true, setDefaultsOnInsert: true }, (err, numAffected) => { if(err || numAffected < 1) { successCheck.push({ "error": "UserTitles", "reason": err }); } else { successCheck.push(true); } }); resolve(true); });
+  
+  if(successCheck.every(e => e === true)) { callback(false); } //Successfully updated user.
+  else { callback(true, "High", successCheck) } //Failed to update user.
 }
 const updateBannerUserByID = async (discordID, data, callback) => {
   BanUser.updateOne({ discordID }, data, { }, (err, numAffected) => {
@@ -579,20 +576,17 @@ const removeAllAwaitingBroadcasts = async (callback) => {
   });
 }
 const removeClanFromPlayer = async (membershipID) => {
-  let user = await User.findOne({ membershipID });
-  if(user !== null) {
-    User.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from user: ${ membershipID }`); } });
-    UserItems.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from userItems: ${ membershipID }`); } });
-    UserTitles.updateOne({ membershipID }, { clanID: 0 }, {}, (err, numAffected) => { if(err || numAffected < 1) { console.log(`Failed to remove clan from userTitles: ${ membershipID }`); } });
-  }
+  User.findOneAndUpdate({ membershipID }, { membershipID, clanID: 0, firstLoad: true }, { upsert: true, setDefaultsOnInsert: true }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
+  UserItems.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
+  UserTitles.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
 }
 
 module.exports = {
-  FrontendConnect, BackendConnect, ExpressConnect,
   checkSSHConnection, checkDBConnection,
+  FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addUser, addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest,
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
-  getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems,
+  getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,

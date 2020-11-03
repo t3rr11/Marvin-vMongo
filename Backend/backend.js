@@ -120,7 +120,7 @@ async function init() {
       if(!isError) {
         var onlineMembers = 0;
         for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
-        console.log(`Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) } to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ Config.scanSpeed }`);
+        console.log(`Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) } to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ ScanSpeed }`);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
         allClans = data.filter(e => !e.realtime);
