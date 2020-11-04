@@ -61,11 +61,16 @@ async function init() {
   var rt_tempSpeed = 15000;
   var rt_scanSpeed = 5;
 
-  await Database.getTrackedClans((isError, isFound, data) => {
-    if(!isError) {
-      allClans, clans = data.filter(e => !e.realtime);
-      rt_allClans, rt_clans = data.filter(e => e.realtime);
-    }
+  new Promise(resolve => {
+    Database.getTrackedClans((isError, isFound, data) => {
+      if(!isError) {
+        allClans = data.filter(e => !e.realtime);
+        clans = data.filter(e => !e.realtime);
+        rt_allClans = data.filter(e => e.realtime);
+        rt_clans = data.filter(e => e.realtime);
+      }
+      resolve(true);
+    });
   });
 
   //Loops
@@ -73,8 +78,8 @@ async function init() {
   setInterval(() => { doChecks(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { GlobalItemsHandler.updateGlobalItems(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
-  setInterval(() => { Metrics.setMetrics(APIDisabled, index, rt_index, clans.length, rt_clans.length, processing.length, rt_processing.length) }, 1000); // 1 Second Interval
-  setInterval(() => { Log.LogBackendStatus(index, rt_index, clans.length, rt_clans.length, processing.length, rt_processing.length, (new Date().getTime() - startTime), ScanSpeed, !APIDisabled); }, 1000); // 1 Second Interval
+  setInterval(() => { Metrics.setMetrics(APIDisabled, index, rt_index, allClans.length, rt_allClans.length, processing.length, rt_processing.length) }, 1000); // 1 Second Interval
+  setInterval(() => { Log.LogBackendStatus(index, rt_index, allClans.length, rt_allClans.length, processing.length, rt_processing.length, (new Date().getTime() - InitializationTime), ScanSpeed, !APIDisabled); }, 1000); // 1 Second Interval
 
   //Console Log
   Log.SaveLog("Backend", "Info", `Backend server has started.`);

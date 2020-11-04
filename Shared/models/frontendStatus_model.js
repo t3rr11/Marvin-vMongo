@@ -6,7 +6,6 @@ var frontendStatusSchema = new Schema({
   servers: Number,
   commandsInput: Number,
   uptime: Number,
-  currentSeason: Number,
   date: { type: Date, default: Date.now }
 });
 

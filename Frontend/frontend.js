@@ -15,6 +15,7 @@ const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
 //Variables
+let InitializationTime = new Date().getTime();
 let DiscordReady = false;
 let APIDisabled = false;
 let Users = 0;
@@ -23,6 +24,7 @@ let Clans = [];
 let NewClans = [];
 let RegisteredUsers = [];
 let isConnecting = false;
+let commandsInput = 0;
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
@@ -41,6 +43,7 @@ async function init() {
   Log.SaveLog("Frontend", "Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
   setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
+  setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
 
   //SetTimeouts
   //setInterval(() => { CheckNewSeason(); }, 1000 * 1); //Every second
@@ -114,7 +117,7 @@ client.on('shardReconnecting', (id) => { Log.SaveLog("Frontend", "Warning", `Sha
 client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Frontend", "Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
-client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled); });
+client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled); commandsInput++; });
 
 //On Error
 client.on('error', async error => { Log.SaveLog("Frontend", "Error", error) });

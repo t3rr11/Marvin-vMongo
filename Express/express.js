@@ -28,9 +28,10 @@ app.get("/Test", async function(req, res) { res.status(200).send("Hello World");
 app.get("/GetBackendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 1 }); });
 app.get("/GetFrontendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 1 }); });
 app.get("/GetLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }); });
-app.get("/GetBackendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 100 }); });
-app.get("/GetFrontendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 100 }); });
-app.get("/GetLogHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 100 }); });
+app.get("/GetBackendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 300 }); });
+app.get("/GetFrontendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 300 }); });
+app.get("/GetLogHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }); });
+app.get("/GetDailyAPIStatus", async function (req, res) { await DatabaseFunction(req, res, { func: "getAPIStatus", amount: 86400 }); });
 
 async function DatabaseFunction(req, res, data) {
   try {

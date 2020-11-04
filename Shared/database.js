@@ -538,13 +538,13 @@ const getLogs = async (data, callback) => {
     }
   });
 }
-
-const test = async (callback) => {
-  await User.find({ membershipID: "4611686018471334813" }, (err, data) => {
-    if(err) { callback(true, false, err) }
+const getAPIStatus = async (data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await BackendStatusLog.find({}, { _id: 0, APIStatus: 1, date: 1 }).sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
     else {
-      if(data.length > 0) { callback(false, true, data) } 
-      else { callback(false, false) }
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
     }
   });
 }
@@ -638,8 +638,7 @@ module.exports = {
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getLogs,
+  getBackendLogs, getFrontendLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
-  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
-  test
+  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan
 }

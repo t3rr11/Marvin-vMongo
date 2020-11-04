@@ -2,10 +2,9 @@
 const fs = require('fs');
 var Misc = require("./misc.js");
 var Database = require("./database.js");
-var { ErrorHandler } = require("./handlers/errorHandler.js");
 
 //Exports
-module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus };
+module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogFrontendStatus };
 
 //Functions
 function SaveLog(location, type, log) {
@@ -37,4 +36,17 @@ function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_proce
     uptime, speed, APIStatus,
   },
   function AddBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+}
+
+function LogFrontendStatus(users, servers, commandsInput, uptime) {
+  Database.addFrontendStatusLog({ users, servers, commandsInput, uptime },
+  function AddFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+}
+
+function ErrorHandler(severity, error) {
+  if(severity === "High") { console.log('\x1b[1;31m%s\x1b[0m', `Severity: ${ severity }, Caller: ${ arguments.callee.caller.name }, Error: ${ JSON.stringify(error) }`); }
+  else if(severity === "Med") { console.log('\x1b[1;33m%s\x1b[0m', `Severity: ${ severity }, Caller: ${ arguments.callee.caller.name }, Error: ${ JSON.stringify(error) }`); }
+  else if(severity === "Low") { console.log('\x1b[1;33m%s\x1b[0m', `Severity: ${ severity }, Caller: ${ arguments.callee.caller.name }, Error: ${ JSON.stringify(error) }`); }
+  else { console.log(`Severity: ${ severity }, Caller: ${ arguments.callee.caller.name }, Error: ${ JSON.stringify(error) }`); }
+  SaveLog("ErrorHandler", "Error", `Severity: ${ severity }, Caller: ${ arguments.callee.caller.name }, Error: ${ JSON.stringify(error) }`);
 }
