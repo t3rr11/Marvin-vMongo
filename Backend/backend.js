@@ -74,10 +74,11 @@ async function init() {
   setInterval(() => { GlobalItemsHandler.updateGlobalItems(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
   setInterval(() => { Metrics.setMetrics(APIDisabled, index, rt_index, clans.length, rt_clans.length, processing.length, rt_processing.length) }, 1000); // 1 Second Interval
+  setInterval(() => { Log.LogBackendStatus(index, rt_index, clans.length, rt_clans.length, processing.length, rt_processing.length, (new Date().getTime() - startTime), ScanSpeed, !APIDisabled); }, 1000); // 1 Second Interval
 
   //Console Log
-  Log.SaveLog("Info", `Backend server has started.`);
-  Log.SaveLog("Info", `Tracking ${ Config.enableTracking ? "Enabled." : "Disabled." }`);
+  Log.SaveLog("Backend", "Info", `Backend server has started.`);
+  Log.SaveLog("Backend", "Info", `Tracking ${ Config.enableTracking ? "Enabled." : "Disabled." }`);
 
   //Clan scanner function, this is the main heart of the backend. It will scan for clan members, then update them or add them accordingly.
   clanScanner = async ()  => {
@@ -120,7 +121,7 @@ async function init() {
       if(!isError) {
         var onlineMembers = 0;
         for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
-        console.log(`Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) } to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ ScanSpeed }`);
+        Log.SaveLog("Backend", "Scan", `Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) } to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ ScanSpeed }`);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
         allClans = data.filter(e => !e.realtime);
@@ -155,7 +156,7 @@ async function init() {
 
         //Get clan members
         Tracking.UpdateClan(rt_clans[rt_index], Season, function UpdateClan(clan, isError, severity, err) {
-          if(isError) { console.log(err); ErrorHandler(severity, err); }
+          if(isError) { Log.SaveLog("Backend", "Error", err); ErrorHandler(severity, err); }
           //Remove it from queue as clan update has finished.
           rt_processing.splice(rt_processing.indexOf(rt_processing.find(e => e.clanID === clan.clanID)), 1);
         });
@@ -181,7 +182,7 @@ async function init() {
       if(!isError) {
         var onlineMembers = 0;
         for(let i in rt_clans) { onlineMembers += rt_clans[i].onlineMembers; }
-        console.log(`Realtime Scanned: ${ rt_clans.length } clans. Which was a total of ${ onlineMembers } players. @ Scanspeed: ${ rt_scanSpeed }`);
+        Log.SaveLog("Backend", "Scan", `Realtime Scanned: ${ rt_clans.length } clans. Which was a total of ${ onlineMembers } players. @ Scanspeed: ${ rt_scanSpeed }`);
         rt_allClans = data.filter(e => e.realtime);
         rt_clans = []; //Reset rt_clans array to be empty.
 

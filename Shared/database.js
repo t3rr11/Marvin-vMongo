@@ -1,7 +1,6 @@
 //Required Libraries and Files
 const mongoose = require('mongoose');
 const ssh = require('tunnel-ssh');
-const Log = require('./log');
 const Config = require('./configs/Config.json');
 const SSHConfig = require(`./configs/${ Config.isLocal ? 'local' : 'live' }/SSHConfig.js`).Config;
 
@@ -17,6 +16,10 @@ const BanUser = require('./models/bannedUsers_model');
 const Broadcast = require('./models/broadcast_model');
 const AwaitingBroadcast = require('./models/awaiting_broadcast_model');
 const Manifest = require('./models/manifest_model');
+const LogItem = require('./models/log_model');
+const BroadcastLog = require('./models/broadcastLog_model');
+const FrontendStatusLog = require('./models/frontendStatus_model');
+const BackendStatusLog = require('./models/backendStatus_model');
 
 //Variables
 let SSHConnected = false;
@@ -41,10 +44,18 @@ function StartConnection(system, mongoConfig) {
           case "backend": { BackendConnect(); break; }
           case "express": { ExpressConnect(); break; }
           case "globals": { GlobalsConnect(); break; }
-          default: { console.log("Database Connection Error:", err); }
+          default: {
+            addLog({ location: "Database", type: "Error", log: `Database Connection Error: ${ JSON.stringify(err) }` },
+              function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+            });
+          }
         }
       }
-      else { console.log("Database Connection Error:", err); }
+      else {
+        addLog({ location: "Database", type: "Error", log: `Database Connection Error: ${ JSON.stringify(err) }` },
+          function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+        });
+      }
     });
   }
   else { StartMongoConnection(); }
@@ -57,22 +68,6 @@ function StartMongoConnection() {
 }
 
 //Adds
-const addUser = async (userData, callback) => {
-  //Callback fields { isError, severity, err }
-  await findUserByID(userData.membershipID, async (isError, isFound, data) => {
-    if(!isError) {
-      if(!isFound) {
-        await new User(userData).save((err, user) => {
-          if(err) { callback(true, "High", err) }
-          else {
-            console.log(user.displayName + " added to collection.");
-            callback(false);
-          }
-        });
-      } else { callback(true, "Low", `Tried to add duplicate user: ${ userData.membershipID }`) }
-    } else { callback(true, "High", data) }
-  });
-}
 const addGuild = async (guildData, callback) => {
   //Callback fields { isError, severity, err }
   await findGuildByID(guildData.guildID, async (isError, isFound, data) => {
@@ -80,10 +75,7 @@ const addGuild = async (guildData, callback) => {
       if(!isFound) {
         await new Guild(guildData).save((err, guild) => {
           if(err) { callback(true, "High", err) }
-          else {
-            console.log(guild.guildName + " added to collection.");
-            callback(false);
-          }
+          else { callback(false); }
         });
       } else { callback(true, "Low", `Tried to add duplicate guild: ${ guildData.guildName }`) }
     } else { callback(true, "High", data) }
@@ -96,10 +88,7 @@ const addClan = async (clanData, callback) => {
       if(!isFound) {
         await new Clan(clanData).save((err, clan) => {
           if(err) { callback(true, "High", err) }
-          else {
-            console.log(clan.clanName + " added to collection.");
-            callback(false);
-          }
+          else { callback(false); }
         });
       } else { callback(true, "Low", `Tried to add duplicate clan: ${ clanData.clanName }`) }
     } else { callback(true, "High", data) }
@@ -108,7 +97,7 @@ const addClan = async (clanData, callback) => {
 const addGlobalItem = async (globalItemData, callback) => {
   await new GlobalItem(globalItemData).save((err, doc) => {
     if(err) { callback(true, "High", err) }
-    else { console.log(doc.name + " added to collection."); callback(false); }
+    else { callback(false); }
   });
 }
 const addBannedUser = async (userData, callback) => {
@@ -118,7 +107,7 @@ const addBannedUser = async (userData, callback) => {
       if(!isFound) {
         await new BanUser(userData).save((err, doc) => {
           if(err) { callback(true, "High", err); }
-          else { console.log(doc.discordID + " added to collection."); callback(false); }
+          else { callback(false); }
         });
       } else { callback(true, "Low", `User is already banned.`); }
     } else { callback(true, "High", data); }
@@ -129,10 +118,10 @@ const addAwaitingBroadcast = async (broadcastData, callback) => {
     if(err) { callback(true, "High", err) }
     else {
       if(doc.displayName) {
-        //Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`);
+        //console.log("Database", "Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`);
       }
       else {
-        //Log.SaveLog("Clan", doc.broadcast);
+        //console.log("Database", "Clan", doc.broadcast);
       }
       callback(false);
     }
@@ -146,8 +135,16 @@ const addBroadcast = async (broadcastData, callback) => {
         await new Broadcast(broadcastData).save((err, doc) => {
           if(err) { callback(true, "High", err) }
           else { 
-            if(doc.displayName) { Log.SaveLog("Clan", `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }`) }
-            else { Log.SaveLog("Clan", doc.broadcast); }
+            if(doc.displayName) {
+              addLog({ location: "Database", type: "Broadcast", log: `${ doc.displayName } (${ doc.membershipID }) from guild: (${ doc.guildID }) has obtained ${ doc.broadcast }` },
+                function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+              });
+            }
+            else {
+              addLog({ location: "Database", type: "Broadcast", log: doc.broadcast },
+                function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+              });
+            }
             callback(false);
           }
         });
@@ -158,7 +155,7 @@ const addBroadcast = async (broadcastData, callback) => {
 const addManifest = async (manifestData, callback) => {
   await new Manifest(manifestData).save((err, doc) => {
     if(err) { callback(true, "High", err) }
-    else { console.log(doc.name + " added to collection."); callback(false); }
+    else { callback(false); }
   });
 }
 const addRegisteredUser = async (userData, callback) => {
@@ -168,10 +165,7 @@ const addRegisteredUser = async (userData, callback) => {
       if(!isFound) {
         await new RegisteredUser(userData).save((err, user) => {
           if(err) { callback(true, false, false); }
-          else {
-            console.log(user.username + " has Registered.");
-            callback(false, true, false);
-          }
+          else { callback(false, true, false); }
         });
       }
       else {
@@ -182,6 +176,32 @@ const addRegisteredUser = async (userData, callback) => {
       }
     }
     else { callback(true, false, false); }
+  });
+}
+const addLog = async (logData, callback) => {
+  if(logData.type === "Broadcast") {
+    await new BroadcastLog(logData).save((err, doc) => {
+      if(err) { callback(true, "High", err) }
+      else { callback(false); }
+    });
+  }
+  else {
+    await new LogItem(logData).save((err, doc) => {
+      if(err) { callback(true, "High", err) }
+      else { callback(false); }
+    });
+  }
+}
+const addBackendStatusLog = async (logData, callback) => {
+  await new BackendStatusLog(logData).save((err, doc) => {
+    if(err) { callback(true, "High", err) }
+    else { callback(false); }
+  });
+}
+const addFrontendStatusLog = async (logData, callback) => {
+  await new FrontendStatusLog(logData).save((err, doc) => {
+    if(err) { callback(true, "High", err) }
+    else { callback(false); }
   });
 }
 
@@ -488,6 +508,36 @@ const getClanUsers = async (clanID, callback) => {
     }
   });
 }
+const getBackendLogs = async (data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await BackendStatusLog.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getFrontendLogs = async (data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await FrontendStatusLog.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getLogs = async (data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await LogItem.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 const test = async (callback) => {
   await User.find({ membershipID: "4611686018471334813" }, (err, data) => {
@@ -521,13 +571,12 @@ const updatePrivacyByID = async (membershipID, data, callback) => {
   if(user !== null) {
     callback(false);
     if(user.isPrivate !== data.isPrivate) {
-      console.log(`Updated Privacy Settings For User: ${ user.displayName }, isPrivate: ${ data.isPrivate }`);
+      addLog({ location: "Database", type: "Clan", log: `Updated Privacy Settings For User: ${ user.displayName }, isPrivate: ${ data.isPrivate }` },
+        function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+      });
     }
   }
-  else {
-    callback(true, "Low", `NoUser`);
-    //console.log(`User: ${ membershipID }, does not exist yet. Need to make?`);
-  }
+  else { callback(true, "Low", `NoUser`); }
 }
 const updateClanByID = async (clanID, data, callback) => {
   Clan.updateOne({ clanID }, data, { }, (err, numAffected) => {
@@ -576,19 +625,20 @@ const removeAllAwaitingBroadcasts = async (callback) => {
   });
 }
 const removeClanFromPlayer = async (membershipID) => {
-  User.findOneAndUpdate({ membershipID }, { membershipID, clanID: 0, firstLoad: true }, { upsert: true, setDefaultsOnInsert: true }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
-  UserItems.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
-  UserTitles.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { console.log(`User error: ${ err }`); } });
+  User.findOneAndUpdate({ membershipID }, { membershipID, clanID: 0, firstLoad: true }, { upsert: true, setDefaultsOnInsert: true }, (err) => { if(err) { } });
+  UserItems.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { } });
+  UserTitles.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { } });
 }
 
 module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
-  addUser, addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest,
+  addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
+  getBackendLogs, getFrontendLogs, getLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   test

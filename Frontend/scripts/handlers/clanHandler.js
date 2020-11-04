@@ -30,7 +30,7 @@ async function RegisterClan(prefix, message, command) {
                     }, (isError, severity, err) => {
                       if(isError) { ErrorHandler(severity, err); }
                       else {
-                        Log.SaveLog("Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
+                        Log.SaveLog("Frontend", "Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
                         message.channel.send(`${ clan.name } has been successfully registered to this server! If this is the first time registering it may take a few minutes to grab your clans data for the first time.`);
                       }
                     });
@@ -49,7 +49,7 @@ async function RegisterClan(prefix, message, command) {
                       Database.updateGuildByID(message.guild.id, { clans: [clan.groupId] }, (isError, severity, err) => {
                         if(isError) { ErrorHandler(severity, err); }
                         else {
-                          Log.SaveLog("Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
+                          Log.SaveLog("Frontend", "Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
                           message.channel.send(`${ clan.name } has been successfully registered to this server! If this is the first time registering it may take a few minutes to grab your clans data for the first time.`);
                         }
                       });
@@ -90,7 +90,7 @@ function AddClan(prefix, message, command) {
                             clans.push(clanID.toString());
                             Database.updateGuildByID(message.guild.id, { clans }, function updateGuildByID(isError, severity, err) {
                               if(!isError) {
-                                Log.SaveLog("Clans", `Clan Added: ${ clanData.name } (${ clanData.groupId }) to the tracking for ${ message.guild.id }`);
+                                Log.SaveLog("Frontend", "Clans", `Clan Added: ${ clanData.name } (${ clanData.groupId }) to the tracking for ${ message.guild.id }`);
                                 message.channel.send(`${ clanData.name } has been succesfully added and will start to be tracked for this server! If this is the first time they've been scanned, it may take a few minutes to load the data for the first time. Please wait.`);
                                 CheckIfNewClan(clanID, clanData); //Check if it is a new clan.
                               }
@@ -120,12 +120,12 @@ function AddClan(prefix, message, command) {
             }
             else { RegisterClan(message, command); }
           }
-          else { Log.SaveError("Failed to find clan."); message.reply("An error has occured... This has been logged, sorry about that!"); }
+          else { Log.SaveLog("Frontend", "Error", "Failed to find clan."); message.reply("An error has occured... This has been logged, sorry about that!"); }
         });
       }
       else { message.reply(`Please register first so that i know who you are in order to add your clan. Use: \`${prefix}Register\``); }
     }
-    else { Log.SaveError("Failed to check if user exists"); message.reply("An error has occured... This has been logged, sorry about that!"); }
+    else { Log.SaveLog("Frontend", "Error", "Failed to check if user exists"); message.reply("An error has occured... This has been logged, sorry about that!"); }
   });
 }
 function RemoveClan(prefix, message, command) {
@@ -169,7 +169,7 @@ function CheckIfStillTracking(clanID) {
   Database.getTrackedClanGuilds(clanID, function CheckClanTracked(isError, isFound, data) {
     if(!isError && !isFound) {
       Database.updateClanByID(clanID, { isTracking: false }, function RemoveTrackingFromClan(isError, severity, err) {
-        if(!isError) { Log.SaveLog("Clan", `Clan: ${ clanID } has been removed from tracking as there are no more guilds tracking it.`); }
+        if(!isError) { Log.SaveLog("Frontend", "Clan", `Clan: ${ clanID } has been removed from tracking as there are no more guilds tracking it.`); }
         else { ErrorHandler(severity, `Failed to remove tracking from clan: ${ clanID }, ${ err }`) }
       });
     }
@@ -181,13 +181,13 @@ function CheckIfNewClan(clanID, clanData) {
       if(!isFound) {
         Database.addClan({ clanID: clanData.groupId, clanName: clanData.name, clanCallsign: clanData.clanInfo.clanCallsign }, (isError, severity, err) => {
           if(isError) { ErrorHandler(severity, err) }
-          else { Log.SaveLog("Clan", `Clan: ${ clanID } has been added to tracking.`); }
+          else { Log.SaveLog("Frontend", "Clan", `Clan: ${ clanID } has been added to tracking.`); }
         });
       }
       else {
         if(!data.isTracking) {
           Database.updateClanByID(clanID, { clanID: clanData.groupId, clanName: clanData.name, clanCallsign: clanData.clanInfo.clanCallsign, isTracking: true, firstScan: true }, function EnableTrackingForClan(isError, severity, err) {
-            if(!isError) { Log.SaveLog("Clan", `Clan: ${ clanID } has come back! Re-tracking now.`); }
+            if(!isError) { Log.SaveLog("Frontend", "Clan", `Clan: ${ clanID } has come back! Re-tracking now.`); }
             else { ErrorHandler(severity, `Failed to enable tracking for clan: ${ clanID }, ${ err }`) }
           });
         }

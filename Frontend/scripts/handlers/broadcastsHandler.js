@@ -79,7 +79,7 @@ async function processBroadcast(client, broadcast) {
                   else if(broadcastType === "catalyst") { BroadcastMessage = broadcast.broadcast; sendCatalystBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "triumph") { BroadcastMessage = broadcast.broadcast; sendTriumphBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "other") { BroadcastMessage = broadcast.broadcast; sendOtherBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
-                  else { Log.SaveError(`New broadcast type found, but we are unsure of what to do with it. Type: ${ broadcastType }`); }
+                  else { Log.SaveLog("Frontend", "Error", `New broadcast type found, but we are unsure of what to do with it. Type: ${ broadcastType }`); }
                 }
               }
               else { ErrorHandler("Low", `No guild with the ID: ${ broadcast.guildID } found. Did not send broadcast.`) }
@@ -229,9 +229,9 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
           try {
             if(guild.broadcasts.channel === "0") { getDefaultChannel(client.guilds.cache.get(guild.guildID)).send({ embed }); }
             else { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed }); }
-            Log.SaveLog("Clans", `Informed ${ guild.guildID } that the clan ${ clan.clanID } has finished loading.`);
+            Log.SaveLog("Frontend", "Clans", `Informed ${ guild.guildID } that the clan ${ clan.clanID } has finished loading.`);
           }
-          catch(err) { Log.SaveError(`Failed to inform ${ guild.guildID } that the clan ${ clan.clanID } has finished loading. Error: ${ err }`); }
+          catch(err) { Log.SaveLog("Frontend", "Error", `Failed to inform ${ guild.guildID } that the clan ${ clan.clanID } has finished loading. Error: ${ err }`); }
         }
       }
       else { ErrorHandler("Med", `Failed to sent finished loading broadcast due to there being no guilds with the clanID: ${ clan.clanID }.`); }

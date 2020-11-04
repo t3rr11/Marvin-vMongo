@@ -31,7 +31,7 @@ async function UpdateClan(clan, season, callback) {
                   for(let i in players) {
                     if(!members.find(e => e.destinyUserInfo.membershipId === players[i].membershipID)) {
                       Database.removeClanFromPlayer(players[i].membershipID);
-                      Log.SaveLog("Clan", `${ players[i].displayName } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
+                      Log.SaveLog("Backend", "Clan", `${ players[i].displayName } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
                     }
                   }
                 }
@@ -120,7 +120,7 @@ async function UpdateClan(clan, season, callback) {
       else {
         if(clanData.ErrorCode === 686) {
           //Update clan details as clan no longer exists.
-          Log.SaveLog("Info", `${ clan.clanName } no longer exists. Rip clan.`);
+          Log.SaveLog("Backend", "Info", `${ clan.clanName } no longer exists. Rip clan.`);
           Database.updateClanByID(clan.clanID, {
             clanName: `${ clan.clanName } (Deleted)`,
             firstScan: true,
@@ -252,7 +252,7 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
       }
     }
   }
-  else { console.log(`Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
+  else { Log.SaveLog("Backend", "Error", `Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
 
 async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {

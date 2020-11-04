@@ -23,7 +23,7 @@ let startupCheck = setInterval(async function Startup() {
   if(!isConnecting) { isConnecting = true; Database.GlobalsConnect(); }
   if(Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     clearInterval(startupCheck);
-    app.listen(3000, function () { Log.SaveLog("Normal", "Globals is listening on port 3000...") });
+    app.listen(3000, function () { Log.SaveLog("Globals", "Startup", "Globals is listening on port 3000...") });
     Logger();
   }
 }, 1000);

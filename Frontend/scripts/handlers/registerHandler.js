@@ -21,7 +21,7 @@ async function Register(prefix, message, command, users, registeredUser) {
             if(data.Response) {
               if(data.Response.destinyMemberships.length === 0) {
                 message.channel.send(`Could not find a user with that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
-                Log.SaveError(`Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
+                Log.SaveLog("Frontend", "Error", `Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
               }
               else {
                 for(var i in data.Response.destinyMemberships) {
@@ -33,7 +33,7 @@ async function Register(prefix, message, command, users, registeredUser) {
             }
             else {
               message.channel.send(`Could not find a user with that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
-              Log.SaveError(`Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
+              Log.SaveLog("Frontend", "Error", `Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
             }
           }
           else { ErrorHandler("Med", data); message.channel.send(`There was an issue getting data for the requested user. Please try again, if it persits please report with \`${prefix}request\``); }
@@ -80,11 +80,11 @@ async function Register(prefix, message, command, users, registeredUser) {
 async function FinishRegistration(message, command, users, registeredUser, data) {
   Database.addRegisteredUser({ discordID: message.author.id, username: data.displayName, membershipID: data.membershipId, platform: data.membershipType }, function(isError, isAdded, isUpdated) {
     if(!isError) {
-      if(isAdded) { Log.SaveLog("Account", `${ data.displayName } has just registered!`); message.reply(`Your username has been set to: ${ data.displayName }. This takes a few seconds to update.`); }
-      if(isUpdated) { Log.SaveLog("Account", `${ data.displayName } has updated their details!`); message.reply(`Your username has been updated to: ${ data.displayName }. This takes a few seconds to update.`); }
+      if(isAdded) { Log.SaveLog("Frontend", "Account", `${ data.displayName } has just registered!`); message.reply(`Your username has been set to: ${ data.displayName }. This takes a few seconds to update.`); }
+      if(isUpdated) { Log.SaveLog("Frontend", "Account", `${ data.displayName } has updated their details!`); message.reply(`Your username has been updated to: ${ data.displayName }. This takes a few seconds to update.`); }
     }
     else {
-      Log.SaveError(`Failed to set username for: ${ data.displayName }, Discord: ${ message.author.name } (${ message.author.id })`);
+      Log.SaveLog("Frontend", "Error", `Failed to set username for: ${ data.displayName }, Discord: ${ message.author.name } (${ message.author.id })`);
       message.reply(`Failed to set your username to: ${ data.displayName } this has been logged.`);
     }
   });

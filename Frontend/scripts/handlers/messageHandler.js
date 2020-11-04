@@ -272,7 +272,7 @@ function ChangePrefix(prefix, message, command, guild) {
             if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
             else {
               message.channel.send(`Too easy Marvin will only react to your new prefix \`${newPrefix}\`, Example: \`${newPrefix}help\`.`);
-              Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+              Log.SaveLog("Frontend", "Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
             }
           }
         );
@@ -285,7 +285,7 @@ function ChangePrefix(prefix, message, command, guild) {
             if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
             else {
               message.channel.send(`Too easy in a few seconds Marvin will only react to the prefix \`${newPrefix}\`, Example: \`${newPrefix}help\``);
-              Log.SaveLog("Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
+              Log.SaveLog("Frontend", "Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
             }
           }
         );
@@ -307,7 +307,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
                 if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the broadcasts channel. Please try again.`); }
                 else {
                   embed.setDescription(`Successfully set <#${ message.mentions.channels.first().id }> as the broadcasts channel!`);
-                  Log.SaveLog("Info", `${ message.guild.id } has set a broadcasts channel: ${ message.mentions.channels.first().id }`);
+                  Log.SaveLog("Frontend", "Info", `${ message.guild.id } has set a broadcasts channel: ${ message.mentions.channels.first().id }`);
                 }
                 message.channel.send({embed});
               }
@@ -325,7 +325,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
               if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the broadcasts channel. Please try again.`); }
               else {
                 embed.setDescription(`Successfully removed the broadcasts channel!`);
-                Log.SaveLog("Info", `${ message.guild.id } has removed the broadcasts channel.`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has removed the broadcasts channel.`);
               }
               message.channel.send({embed});
             }
@@ -343,11 +343,11 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
             else {
               if(guild.broadcasts[`${ toggle }s`]) {
                 embed.setDescription(`Successfully enabled ${ toggle } broadcasts!`);
-                Log.SaveLog("Info", `${ message.guild.id } has enabled ${ toggle } broadcasts.`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has enabled ${ toggle } broadcasts.`);
               }
               else {
                 embed.setDescription(`Successfully disabled ${ toggle } broadcasts!`);
-                Log.SaveLog("Info", `${ message.guild.id } has disabled ${ toggle } broadcasts.`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has disabled ${ toggle } broadcasts.`);
               }
               message.channel.send({embed});
             }
@@ -494,7 +494,7 @@ async function GetHelp(prefix, message, command) {
 
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { console.log(err); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
 async function GetLeaderboard(prefix, message, command, users, registeredUser) {
@@ -769,7 +769,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
       }
       else {
         if(leaderboardData.code === "ECONNREFUSED") { message.channel.send(`The server that processes this information is offline. Feel free to let me know using \`${prefix}request\``); }
-        else { console.log(leaderboardData); message.channel.send(`Failed to generate global leaderboards... Uhh report using: \`${prefix}request\``); }
+        else { Log.SaveLog("Frontend", "Error", leaderboardData); message.channel.send(`Failed to generate global leaderboards... Uhh report using: \`${prefix}request\``); }
       }
     });
   }
@@ -829,7 +829,6 @@ async function GetDrystreak(prefix, message, command) {
       let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash)).state;
       let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
       let completions = 0;
-      console.log(user.raids.scourge);
       if(collectibleHash === 199171385) { completions = user.raids.lastWish }
       else if(collectibleHash === 2220014607) { completions = user.raids.scourge }
       else if(collectibleHash === 1903459810) { completions = user.raids.scourge }
@@ -1449,7 +1448,6 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.Titles.titles.length) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      console.log(leaderboard.first.toString().length);
       embed.setAuthor("Top 10 Total Titles");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Total", leaderboard.first, true);
@@ -1466,7 +1464,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
 
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { console.log(err); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item) {
@@ -1531,7 +1529,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(Math.round(clan.data.timePlayed/60)) } Hrs`);
       }
@@ -1547,7 +1544,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.triumphScore) }`);
       }
@@ -1563,7 +1559,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.leviCompletions) }`);
       }
@@ -1579,7 +1574,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.eowCompletions) }`);
       }
@@ -1595,7 +1589,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.sosCompletions) }`);
       }
@@ -1611,7 +1604,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.lwCompletions) }`);
       }
@@ -1627,7 +1619,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.scourgeCompletions) }`);
       }
@@ -1643,7 +1634,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.sorrowsCompletions) }`);
       }
@@ -1659,7 +1649,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.gardenCompletions) }`);
       }
@@ -1675,7 +1664,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.totalRaids) }`);
       }
@@ -1691,7 +1679,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       if(registeredPlayer) {
         var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
         var rank = clanData.indexOf(clan);
-        console.log(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.data.seasonRanks) }`);
       }
@@ -1705,7 +1692,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
   
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { console.log(err); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
 function SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, leaderboardLength) {
@@ -1911,7 +1898,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
   
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { console.log(err); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
 function SendGlobalLeaderboard(prefix, message, command, registeredUser, registeredPlayer, leaderboardData) {
@@ -2189,7 +2176,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
 
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { console.log(err); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
 function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts, drystreaks) {

@@ -38,7 +38,7 @@ let startupCheck = setInterval(async function Startup() {
 //Startup
 async function init() {
   //Start Up Console Log
-  Log.SaveLog("Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
+  Log.SaveLog("Frontend", "Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
   setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
 
@@ -107,16 +107,16 @@ async function update() {
 
 //Check if discord bot is ready and shard info
 client.on("ready", async () => { DiscordReady = true; });
-client.on('shardDisconnect', (event, id) => { Log.SaveError(`Shard has disconnected and will no longer reconnect: ${ id }`); });
-client.on('shardError', (error, shardID) => { Log.SaveError(`Shard encounted an error: ${ id }, ${ error }`); });
-client.on('shardReady', (id, unavailableGuilds) => { Log.SaveLog("Info", `Shard is ready: ${ id }`); });
-client.on('shardReconnecting', (id) => { Log.SaveLog("Warning", `Shard is attempting to reconnect: ${ id }`); });
-client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Info", `Shard has been resumed: ${ id }`); });
+client.on('shardDisconnect', (event, id) => { Log.SaveLog("Frontend", "Error", `Shard has disconnected and will no longer reconnect: ${ id }`); });
+client.on('shardError', (error, shardID) => { Log.SaveLog("Frontend", "Error", `Shard encounted an error: ${ id }, ${ error }`); });
+client.on('shardReady', (id, unavailableGuilds) => { Log.SaveLog("Frontend", "Info", `Shard is ready: ${ id }`); });
+client.on('shardReconnecting', (id) => { Log.SaveLog("Frontend", "Warning", `Shard is attempting to reconnect: ${ id }`); });
+client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Frontend", "Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
 client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled); });
 
 //On Error
-client.on('error', async error => { console.log(error); });
+client.on('error', async error => { Log.SaveLog("Frontend", "Error", error) });
 
 client.login(DiscordConfig.token);

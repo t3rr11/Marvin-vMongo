@@ -1,32 +1,16 @@
 //Required Libraraies
 const fs = require('fs');
 var Misc = require("./misc.js");
-
-//Variables
-var LogTime = Misc.GetDateString();
-var TotalLogData = [];
-
-var ShardErrors = 0;
-var OtherErrors = 0;
+var Database = require("./database.js");
+var { ErrorHandler } = require("./handlers/errorHandler.js");
 
 //Exports
-module.exports = { SaveLog, SaveError, SaveBackendStatus, SaveErrorCounter };
+module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus };
 
 //Functions
-function SaveLog(type, log) {
-  console.log(Misc.GetReadableDateTime() + " - " + log);
-  var dateTime = Misc.GetReadableDateTime();
-  var dataToSave = [{'DateTime': dateTime, 'Type': type, 'Log': log}];
-  TotalLogData.push(dataToSave[0]);
-  fs.writeFile('./data/logs/backend_' + LogTime + '.json', JSON.stringify(TotalLogData), (err) => {  });
-}
-
-function SaveError(log) {
-  console.log(log);
-  var dateTime = Misc.GetReadableDateTime();
-  var dataToSave = [{'DateTime': dateTime, 'Type': 'Error', 'Log': log}];
-  TotalLogData.push(dataToSave[0]);
-  fs.writeFile('./data/logs/backend_' + LogTime + '.json', JSON.stringify(TotalLogData), (err) => {  });
+function SaveLog(location, type, log) {
+  if(location !== "ErrorHandler") { console.log(Misc.GetReadableDateTime() + " - " + log); }
+  Database.addLog({ location, type, log }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
 function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, Processing) {
@@ -45,14 +29,12 @@ function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastSc
   fs.writeFile('./data/backend_status.json', JSON.stringify(status), (err) => {  });
 }
 
-function SaveErrorCounter(type) {
-  if(type !== null) {
-    if(type === "DestinyShardRelayProxyTimeout") { ShardErrors++; }
-    else { OtherErrors++; }
-  }
-  var errors = {
-    "shardErrors": ShardErrors,
-    "otherErrors": OtherErrors
-  }
-  fs.writeFile('./data/errors.json', JSON.stringify(errors), (err) => {  });
+function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_processing, uptime, speed, APIStatus) {
+  Database.addBackendStatusLog({
+    index, rt_index,
+    clans, rt_clans,
+    processing, rt_processing,
+    uptime, speed, APIStatus,
+  },
+  function AddBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }

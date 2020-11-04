@@ -11,13 +11,13 @@ async function CheckMaintenance(APIDisabled, callback) {
     //Check if response is the maintenance error code.
     if(data.isError && data.ErrorCode === 5) {
       if(APIDisabled === false) {
-        Log.SaveError("The Bungie API is temporarily disabled for maintenance.");
+        Log.SaveLog("Database", "Error", "The Bungie API is temporarily disabled for maintenance.");
         callback(true);
       }
     }
     else {
       if(APIDisabled === true) {
-        Log.SaveError("The Bungie API is back online!");
+        Log.SaveLog("Database", "Error", "The Bungie API is back online!");
         callback(false);
       }
     }
@@ -47,7 +47,7 @@ async function UpdateSeason(currentSeason, callback) {
             NConfig.newSeasonDate = new Date(new Date(NConfig.newSeasonDate).getTime() + 7776000000).toISOString();
             NConfig.currentSeason = NConfig.currentSeason + 1;
             fs.writeFile('../Shared/configs/Config.json', JSON.stringify(NConfig), (err) => { if (err) console.error(err) });
-            console.log(`A new season is upon us. The current season has been changed from ${ NConfig.currentSeason-1 } to ${ NConfig.currentSeason }`);
+            Log.SaveLog("Database", "Info", `A new season is upon us. The current season has been changed from ${ NConfig.currentSeason-1 } to ${ NConfig.currentSeason }`);
             callback(NConfig.currentSeason);
           }
           else { callback(NConfig.currentSeason); }
