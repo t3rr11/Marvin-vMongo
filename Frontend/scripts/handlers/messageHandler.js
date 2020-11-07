@@ -23,6 +23,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
     const command = args.toString().toLowerCase();
     let registeredUser = null;
 
+    Log.SaveLog("Frontend", "Command", `User: ${ message.member.user.tag }, Command: ${ message.content.slice(0, 100) }`);
+
     if(message.mentions.users.first()) {
       if(users.find(e => e.discordID === message.mentions.users.first().id)) { registeredUser = (users.find(e => e.discordID === message.mentions.users.first().id)) }
       else { registeredUser = "NoUser"; }

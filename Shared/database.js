@@ -508,9 +508,9 @@ const getClanUsers = async (clanID, callback) => {
     }
   });
 }
-const getBackendLogs = async (data, callback) => {
+const getBackendLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await BackendStatusLog.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+  await BackendStatusLog.find().sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -518,9 +518,9 @@ const getBackendLogs = async (data, callback) => {
     }
   });
 }
-const getFrontendLogs = async (data, callback) => {
+const getFrontendLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await FrontendStatusLog.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+  await FrontendStatusLog.find().sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -528,9 +528,9 @@ const getFrontendLogs = async (data, callback) => {
     }
   });
 }
-const getLogs = async (data, callback) => {
+const getBroadcastLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await LogItem.find().sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+  await BroadcastLog.find(data).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -538,9 +538,19 @@ const getLogs = async (data, callback) => {
     }
   });
 }
-const getAPIStatus = async (data, callback) => {
+const getLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await BackendStatusLog.find({}, { _id: 0, APIStatus: 1, date: 1 }).sort({ _id: -1 }).limit(data.amount).exec(function (err, array) {
+  await LogItem.find(data).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getAPIStatus = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await BackendStatusLog.find({}, { _id: 0, APIStatus: 1, date: 1 }).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -638,7 +648,7 @@ module.exports = {
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getLogs, getAPIStatus,
+  getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan
 }

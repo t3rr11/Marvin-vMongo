@@ -27,17 +27,27 @@ let startupCheck = setInterval(async function Startup() {
 app.get("/Test", async function(req, res) { res.status(200).send("Hello World"); });
 app.get("/GetBackendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 1 }); });
 app.get("/GetFrontendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 1 }); });
-app.get("/GetLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }); });
 app.get("/GetBackendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 300 }); });
 app.get("/GetFrontendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 300 }); });
-app.get("/GetLogHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }); });
+app.get("/GetLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs" }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetDailyAPIStatus", async function (req, res) { await DatabaseFunction(req, res, { func: "getAPIStatus", amount: 86400 }); });
+app.get("/GetLogHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }); });
+app.get("/GetFrontendStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Frontend", type: "Startup" }); });
+app.get("/GetBackendStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Backend", type: "Startup" }); });
+app.get("/GetGlobalsStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Globals", type: "Startup" }); });
+app.get("/GetExpressStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Express", type: "Startup" }); });
+app.get("/GetFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Frontend", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetBackendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Backend", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetExpressLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Express", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetDatabaseLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Database", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetBroadcastLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getBroadcastLogs", amount: 300 }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 
-async function DatabaseFunction(req, res, data) {
+async function DatabaseFunction(req, res, options, data) {
   try {
-    Database[data.func](data, (isError, isFound, data) => {
+    Database[options.func](options, data, (isError, isFound, response) => {
       if(!isError) {
-        if(isFound) { res.status(200).send({ "isError": false, "message": "Success", "code": 200, data: data }); }
+        if(isFound) { res.status(200).send({ "isError": false, "message": "Success", "code": 200, data: response }); }
         else { res.status(200).send({ "isError": false, "message": "Not Found", "code": 404, data: [] }); }
       }
       else {
@@ -47,7 +57,7 @@ async function DatabaseFunction(req, res, data) {
     });
   }
   catch (err) {
-    res.status(200).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ data.func }()`, "code": 500 }); 
-    ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ data.func }()`);
+    res.status(200).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
+    ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`);
   }
 }

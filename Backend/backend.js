@@ -82,7 +82,7 @@ async function init() {
   setInterval(() => { Log.LogBackendStatus(index, rt_index, allClans.length, rt_allClans.length, processing.length, rt_processing.length, (new Date().getTime() - InitializationTime), ScanSpeed, !APIDisabled); }, 1000); // 1 Second Interval
 
   //Console Log
-  Log.SaveLog("Backend", "Info", `Backend server has started.`);
+  Log.SaveLog("Backend", "Startup", `Backend server has started.`);
   Log.SaveLog("Backend", "Info", `Tracking ${ Config.enableTracking ? "Enabled." : "Disabled." }`);
 
   //Clan scanner function, this is the main heart of the backend. It will scan for clan members, then update them or add them accordingly.

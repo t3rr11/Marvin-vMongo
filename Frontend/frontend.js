@@ -40,7 +40,7 @@ let startupCheck = setInterval(async function Startup() {
 //Startup
 async function init() {
   //Start Up Console Log
-  Log.SaveLog("Frontend", "Info", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
+  Log.SaveLog("Frontend", "Startup", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
   setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
   setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
