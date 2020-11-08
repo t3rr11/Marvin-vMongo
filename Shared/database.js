@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const ssh = require('tunnel-ssh');
 const Config = require('./configs/Config.json');
 const SSHConfig = require(`./configs/${ Config.isLocal ? 'local' : 'live' }/SSHConfig.js`).Config;
+const { ErrorHandler } = require('./handlers/errorHandler');
 
 //Schemas
 const Guild = require('./models/guild_model');
@@ -37,12 +38,7 @@ function GlobalsConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig
 function StartConnection(system, mongoConfig) {
   if(Config.isLocal) {
     var server = ssh(mongoConfig, (err, server) => {
-      if(!err) {
-        SSHConnected = true;
-        console.log("Connected to SSH");
-        console.log(server);
-        StartMongoConnection();
-      }
+      if(!err) { SSHConnected = true; console.log("Connected to SSH"); StartMongoConnection(); }
       else { console.log(err); }
     });
     server.on('error', (err) => {
@@ -54,7 +50,7 @@ function StartConnection(system, mongoConfig) {
           case "globals": { GlobalsConnect(); break; }
           default: {
             addLog({ location: "Database", type: "Error", log: `Database Connection Error: ${ JSON.stringify(err) }` },
-              function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+              function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err); }
             });
           }
         }

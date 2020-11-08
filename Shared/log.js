@@ -1,13 +1,13 @@
 //Required Libraraies
 const fs = require('fs');
-var Misc = require("./misc.js");
-var Database = require("./database.js");
+const Misc = require("./misc");
 
 //Exports
 module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogFrontendStatus };
 
 //Functions
 function SaveLog(location, type, log) {
+  const Database = require("./database");
   if(location !== "ErrorHandler") { console.log(Misc.GetReadableDateTime() + " - " + log); }
   Database.addLog({ location, type, log }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
@@ -29,6 +29,7 @@ function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastSc
 }
 
 function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_processing, uptime, speed, APIStatus) {
+  const Database = require("./database");
   Database.addBackendStatusLog({
     index, rt_index,
     clans, rt_clans,
@@ -39,6 +40,7 @@ function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_proce
 }
 
 function LogFrontendStatus(users, servers, commandsInput, uptime) {
+  const Database = require("./database");
   Database.addFrontendStatusLog({ users, servers, commandsInput, uptime },
   function AddFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }

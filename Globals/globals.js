@@ -52,11 +52,13 @@ app.get("/GetGlobalHighestPowerLeadboard", async function(req, res) { res.status
 async function Logger() {
   //Interval for 10 minute status logging.
   var logged = false;
+  var lastLog = 0;
   setInterval(async () => {
-    var numbers = [0,1,2,3,4,5,6]
-    if(numbers.includes(new Date().getMinutes() / 10)) {
+    var numbers = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+    if(numbers.includes(new Date().getHours()) && lastLog !== new Date().getHours()) {
       if(logged === false) {
         logged = true;
+        lastLog = new Date().getHours();
         await UpdateLeaderboards();
       }
     }
