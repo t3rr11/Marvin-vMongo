@@ -30,13 +30,21 @@ const checkDBConnection = () => { return DBConnected }
 
 //SSH and Connect to Mongo
 function FrontendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("frontend", mongoConfig); }
-function BackendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; StartConnection("backend", mongoConfig); }
+function BackendConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("backend", mongoConfig); }
 function ExpressConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("express", mongoConfig); }
-function GlobalsConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[1]; StartConnection("globals", mongoConfig); }
+function GlobalsConnect() { var mongoConfig = SSHConfig.mongoConfig; mongoConfig.dstPort = mongoConfig.dstPorts[0]; StartConnection("globals", mongoConfig); }
 
 function StartConnection(system, mongoConfig) {
   if(Config.isLocal) {
-    var server = ssh(mongoConfig, (err) => { if(!err) { SSHConnected = true; console.log("Connected to SSH"); StartMongoConnection(); } });
+    var server = ssh(mongoConfig, (err, server) => {
+      if(!err) {
+        SSHConnected = true;
+        console.log("Connected to SSH");
+        console.log(server);
+        StartMongoConnection();
+      }
+      else { console.log(err); }
+    });
     server.on('error', (err) => {
       if(err.code === "ECONNRESET" || err.code === "CONNECT_FAILED") {
         switch(system) {
@@ -335,6 +343,16 @@ const getAllTrackedUsers = async (callback) => {
     }
   });
 }
+const getUsersByClanIDArrayList = async (clanIDs, callback) => {
+  //Callback fields { isError, isFound, data }
+  await User.find({ clanID: { $in: clanIDs } }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getAllRegisteredUsers = async (callback) => {
   //Callback fields { isError, isFound, data }
   await RegisteredUser.find({}, (err, array) => {
@@ -358,16 +376,6 @@ const getTrackedGuilds = async (callback) => {
 const getTrackedClans = async (callback) => {
   //Callback fields { isError, isFound, data }
   await Clan.find({ isTracking: true }, (err, array) => {
-    if(err) { callback(true, false, err); }
-    else {
-      if(array.length > 0) { callback(false, true, array); }
-      else { callback(false, false, null); }
-    }
-  });
-}
-const getTrackedUsers = async (callback) => {
-  //Callback fields { isError, isFound, data }
-  await User.find({ isTracking: true }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -646,7 +654,7 @@ module.exports = {
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
-  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getTrackedUsers, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
+  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
