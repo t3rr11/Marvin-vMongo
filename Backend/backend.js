@@ -90,36 +90,43 @@ async function init() {
 
   //Clan scanner function, this is the main heart of the backend. It will scan for clan members, then update them or add them accordingly.
   clanScanner = async ()  => {
-    //Set loop speed to 100ms
-    setTimeout(clanScanner, 100);
+    //Check if the API is disabled or not
+    if(!APIDisabled) {
+      //Set loop speed to 100ms
+      setTimeout(clanScanner, 100);
 
-    //Check if the max amount of clans are being scanned or if there is room for another.
-    if(processing.length < ScanSpeed) {
-      //Start data grabbing.
-      if(index <= clans.length-1) {
-        //Add clan to processing queue.
-        processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
+      //Check if the max amount of clans are being scanned or if there is room for another.
+      if(processing.length < ScanSpeed) {
+        //Start data grabbing.
+        if(index <= clans.length-1) {
+          //Add clan to processing queue.
+          processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
 
-        //Get clan members
-        Tracking.UpdateClan(clans[index], Season, function UpdateClan(clan, isError, severity, err) {
-          if(isError) { ErrorHandler(severity, err); }
-          //Remove it from queue as clan update has finished.
-          processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
-        });
-      }
-      else {
-        //Restart when processing length is lower than scanspeed. Allow 10 seconds for restart.
-        if(!APIDisabled && !Restarting) {
-          //If there are only a few clans left, restart the scanning.
-          if(processing.length <= Math.round(ScanSpeed * 0.6)) {
-            Restarting = true;
-            restartTracking();
-          }
-          else { processing = processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 15)); }
+          //Get clan members
+          Tracking.UpdateClan(clans[index], Season, function UpdateClan(clan, isError, severity, err) {
+            if(isError) { ErrorHandler(severity, err); }
+            //Remove it from queue as clan update has finished.
+            processing.splice(processing.indexOf(processing.find(e => e.clanID === clan.clanID)), 1);
+          });
         }
-      }
+        else {
+          //Restart when processing length is lower than scanspeed. Allow 10 seconds for restart.
+          if(!APIDisabled && !Restarting) {
+            //If there are only a few clans left, restart the scanning.
+            if(processing.length <= Math.round(ScanSpeed * 0.6)) {
+              Restarting = true;
+              restartTracking();
+            }
+            else { processing = processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 15)); }
+          }
+        }
 
-      index++;
+        index++;
+      }
+    }
+    else {
+      //If the API is down, there is no need to scan at such a fast rate, retry every minute.
+      setTimeout(clanScanner, (1000 * 60));
     }
   };
 
@@ -151,36 +158,42 @@ async function init() {
   }
 
   //Realtime Clan scanner, this tracks clans that pay for the quicker broadcasts. Basically a smaller pool of clans = quicker broadcasts.
-  rt_clanScanner = async ()  => {
-    //Set loop speed to rt_tempSpeed
-    setTimeout(rt_clanScanner, rt_tempSpeed);
+  rt_clanScanner = async ()  => {//Check if the API is disabled or not
+    if(!APIDisabled) {
+      //Set loop speed to rt_tempSpeed
+      setTimeout(rt_clanScanner, rt_tempSpeed);
 
-    //Check if the max amount of clans are being scanned or if there is room for another.
-    if(rt_processing.length < rt_scanSpeed) {
-      //Start data grabbing.
-      if(rt_index <= rt_clans.length-1) {
-        //Add clan to realtimeProcessing queue.
-        rt_processing.push({ "clanID": rt_clans[rt_index].clanID, "added": new Date().getTime() });
+      //Check if the max amount of clans are being scanned or if there is room for another.
+      if(rt_processing.length < rt_scanSpeed) {
+        //Start data grabbing.
+        if(rt_index <= rt_clans.length-1) {
+          //Add clan to realtimeProcessing queue.
+          rt_processing.push({ "clanID": rt_clans[rt_index].clanID, "added": new Date().getTime() });
 
-        //Get clan members
-        Tracking.UpdateClan(rt_clans[rt_index], Season, function UpdateClan(clan, isError, severity, err) {
-          if(isError) { Log.SaveLog("Backend", "Error", err); ErrorHandler(severity, err); }
-          //Remove it from queue as clan update has finished.
-          rt_processing.splice(rt_processing.indexOf(rt_processing.find(e => e.clanID === clan.clanID)), 1);
-        });
-      }
-      else {
-        if(!APIDisabled && !RT_Restarting) {
-          //If there are no clans left, restart the scanning.
-          if(rt_processing.length <= 2) {
-            RT_Restarting = true;
-            rt_restart();
-          }
-          else { rt_processing = rt_processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 5)); }
+          //Get clan members
+          Tracking.UpdateClan(rt_clans[rt_index], Season, function UpdateClan(clan, isError, severity, err) {
+            if(isError) { Log.SaveLog("Backend", "Error", err); ErrorHandler(severity, err); }
+            //Remove it from queue as clan update has finished.
+            rt_processing.splice(rt_processing.indexOf(rt_processing.find(e => e.clanID === clan.clanID)), 1);
+          });
         }
-      }
+        else {
+          if(!APIDisabled && !RT_Restarting) {
+            //If there are no clans left, restart the scanning.
+            if(rt_processing.length <= 2) {
+              RT_Restarting = true;
+              rt_restart();
+            }
+            else { rt_processing = rt_processing.filter(e => (new Date().getTime() - e.added) < (1000 * 60 * 5)); }
+          }
+        }
 
-      rt_index++;
+        rt_index++;
+      }
+    }
+    else {
+      //If the API is down, there is no need to scan at such a fast rate, retry every minute.
+      setTimeout(rt_clanScanner, (1000 * 60));
     }
   }
 
