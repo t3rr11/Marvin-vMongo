@@ -23,8 +23,10 @@ let ScanSpeed = 10;
 let ClanScans = 0;
 let ScanLength = 0;
 let isConnecting = false;
+let ran = false;
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
+
 let startupCheck = setInterval(async function Startup() {
   if(!isConnecting) { isConnecting = true; Database.BackendConnect(); }
   if(Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
@@ -36,7 +38,8 @@ let startupCheck = setInterval(async function Startup() {
     //Test.getClanInfo();
     //Merge.addNewGuilds();
     //Merge.addNewClans();
-    //Merge.addRegisteredUsers();
+    //Merge.addNewRegisteredUsers();
+    //Merge.addNewBroadcasts();
   }
 }, 1000);
 
@@ -211,7 +214,7 @@ async function init() {
         //Initialize the clan scanner.
         clearInterval(clansEmptyCheck);
         clanScanner();
-        rt_clanScanner();
+        //rt_clanScanner();
       }
     }, 1000);
   }

@@ -505,13 +505,13 @@ async function GetLeaderboard(prefix, message, command, users, registeredUser) {
   let registeredPlayer;
 
   //Get players
-  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } }
     resolve(true);
   }));
 
   //Get registered user info
-  var GetRegisteredUserInfo = new Promise(resolve =>
+  var GetRegisteredUserInfo = () => new Promise(resolve =>
     Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
       if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
       resolve(true);
@@ -519,8 +519,8 @@ async function GetLeaderboard(prefix, message, command, users, registeredUser) {
   );
 
   //Promise all
-  if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetRegisteredUserInfo]); }
-  else { await Promise.all([await GetGuildPlayers]); }
+  if(registeredUser && registeredUser !== "NoUser") { console.log("Check"); await Promise.all([await GetGuildPlayers(), await GetRegisteredUserInfo()]); }
+  else { await Promise.all([await GetGuildPlayers()]); }
 
   SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer);
 }
@@ -532,19 +532,19 @@ async function GetTitleLeaderboard(prefix, message, command, users, registeredUs
   let registeredPlayerTitles;
 
   //Get players
-  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); privatePlayers = data.filter(e => e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player titles
-  var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+  var GetGuildTitles = () => new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
     if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
   //Get registered user info
-  var GetRegisteredUserInfo = new Promise(resolve =>
+  var GetRegisteredUserInfo = () => new Promise(resolve =>
     Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
       if(!isError) { if(isFound) { if(!players.find(e => e.membershipID === registeredUser.membershipID)) { players.push(data.User); } registeredPlayer = data; } }
       resolve(true);
@@ -552,8 +552,8 @@ async function GetTitleLeaderboard(prefix, message, command, users, registeredUs
   );
 
   //Promise all
-  if(registeredUser !== null || registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers, await GetGuildTitles, await GetRegisteredUserInfo]); }
-  else { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
+  if(registeredUser && registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
+  else { await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]); }
 
   SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
 }
@@ -573,20 +573,20 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   }
 
   //Get players
-  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player items
-  var GetGuildItems = new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
+  var GetGuildItems = () => new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
     if(!isError) { if(isFound) { playerItems = data; } }
     resolve(true);
   }));
 
   //Promise all
   if(item) {
-    await Promise.all([await GetGuildPlayers, await GetGuildItems]);
+    await Promise.all([await GetGuildPlayers(), await GetGuildItems()]);
 
     for(var i in playerItems) {
       let user = players.find(e => e.membershipID === playerItems[i].membershipID);
@@ -609,20 +609,20 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
   var title = ManifestHandler.getManifestTitleByName(requestedTitleName);
 
   //Get players
-  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player items
-  var GetGuildTitles = new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+  var GetGuildTitles = () => new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
     if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
   //Promise all
   if(title) {
-    await Promise.all([await GetGuildPlayers, await GetGuildTitles]);
+    await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]);
 
     for(var i in playerTitles) {
       let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
@@ -641,19 +641,19 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
   let registeredPlayerBroadcasts = [];
 
   //Get players
-  var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+  var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
     if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
     resolve(true);
   }));
 
   //Get player titles
-  var GetGuildTitles = await new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
+  var GetGuildTitles = () => new Promise(resolve => Database.getGuildTitles(message.guild.id, function GetGuildTitles(isError, isFound, data) {
     if(!isError) { if(isFound) { playerTitles = data; } }
     resolve(true);
   }));
 
   //Get registered user info
-  var GetRegisteredUserInfo = await new Promise(resolve =>
+  var GetRegisteredUserInfo = () => new Promise(resolve =>
     Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
       if(!isError) {
         if(isFound) {
@@ -689,7 +689,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
   );
 
   //Get broadcasts for user
-  var GetUserBroadcasts = await new Promise(resolve => 
+  var GetUserBroadcasts = () => new Promise(resolve => 
     Database.getUserBroadcasts(registeredUser.membershipID, function GetUserBroadcasts(isError, isFound, data) {
       if(!isError) { if(isFound) { registeredPlayerBroadcasts = data; } }
       resolve(true);
@@ -697,12 +697,12 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
   );
 
   //Promise all
-  if(registeredUser !== null || registeredUser !== "NoUser") {
-    if(type === "profile") { await Promise.all([await GetGuildPlayers, await GetGuildTitles]); }
+  if(registeredUser && registeredUser !== "NoUser") {
+    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]); }
   }
   else {
-    if(type === "profile") { await Promise.all([await GetGuildPlayers, await GetGuildTitles, await GetRegisteredUserInfo, await GetUserBroadcasts]); }
-    else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo]); }
+    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo(), await GetUserBroadcasts()]); }
+    else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo()]); }
   }
 
   SendProfile(prefix, message, command, registeredUser, registeredPlayer, registeredPlayerStats, registeredPlayerBroadcasts, players.length);
@@ -713,7 +713,7 @@ async function GetClanWars(prefix, message, command, users, registeredUser) {
       let registeredPlayer;
 
       //Add registered user to players if not there already
-      if(registeredUser !== null || registeredUser !== "NoUser") {
+      if(registeredUser && registeredUser !== "NoUser") {
         await new Promise(resolve =>
           Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
             if(!isError) { if(isFound) { registeredPlayer = data; } }
@@ -758,7 +758,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
         let registeredPlayer;
   
         //Add registered user to players if not there already
-        if(registeredUser !== null || registeredUser !== "NoUser") {
+        if(registeredUser && registeredUser !== "NoUser") {
           await new Promise(resolve =>
             Database.findUserByID(registeredUser.membershipID, function LeaderboardFindUserByID(isError, isFound, data) {
               if(!isError) { if(isFound) { registeredPlayer = data; } }
@@ -798,25 +798,25 @@ async function GetDrystreak(prefix, message, command) {
     let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
     //Get players
-    var GetGuildPlayers = new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+    var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
       if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
       resolve(true);
     }));
 
     //Get player items
-    var GetGuildItems = new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
+    var GetGuildItems = () => new Promise(resolve => Database.getGuildItems(message.guild.id, function GetGuildItems(isError, isFound, data) {
       if(!isError) { if(isFound) { playerItems = data; } }
       resolve(true);
     }));
 
     //Get broadcasts
-    var GetGuildBroadcasts = new Promise(resolve => Database.getGuildBroadcasts(message.guild.id, function GetGuildBroadcasts(isError, isFound, data) {
+    var GetGuildBroadcasts = () => new Promise(resolve => Database.getGuildBroadcasts(message.guild.id, function GetGuildBroadcasts(isError, isFound, data) {
       if(!isError) { if(isFound) { broadcasts = data; } }
       resolve(true);
     }));
 
     //Promise all
-    await Promise.all([await GetGuildPlayers, await GetGuildItems, await GetGuildBroadcasts]);
+    await Promise.all([await GetGuildPlayers(), await GetGuildItems(), await GetGuildBroadcasts()]);
 
     //Since broadcasts are logged as they come in, we need to make sure we are filtering out users who have since left the clan(s).
     broadcasts = broadcasts.filter(e => players.find(f => f.membershipID === e.membershipID));

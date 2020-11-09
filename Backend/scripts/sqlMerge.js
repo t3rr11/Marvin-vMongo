@@ -4,6 +4,7 @@ const Guilds = require('../data/guilds.json').guilds;
 const Clans = require('../data/clans.json').clans;
 const Definitions = require('../data/definitions.json').definitions;
 const RegisteredUsers = require('../data/regUsers.json').users;
+const Broadcasts = require('../data/broadcasts.json').broadcasts;
 
 async function addNewGuilds() {
   for(let i in Guilds) {
@@ -31,7 +32,6 @@ async function addNewGuilds() {
     }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
   }
 }
-
 async function addNewClans() {
   for(let i in Clans) {
     let clan = Clans[i];
@@ -50,11 +50,10 @@ async function addNewClans() {
     }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
   }
 }
-
 async function addNewDefintions() {
   for(let i in Definitions) {
     let definition = Definitions[i];
-    Database.addDefinition({
+    Database.addGlobalItem({
       name: definition.name,
       fname: definition.fname,
       type: definition.type,
@@ -65,11 +64,10 @@ async function addNewDefintions() {
       hash: definition.hash,
       trackingEnabled: definition.tracking_enabled,
       broadcastEnabled: definition.broadcast_enabled
-    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } else { console.log(`Added: ${ Definitions[i].name }`); } });
   }
 }
-
-async function addRegisteredUsers() {
+async function addNewRegisteredUsers() {
   for(let i in RegisteredUsers) {
     let user = RegisteredUsers[i];
     Database.addRegisteredUser({
@@ -80,6 +78,24 @@ async function addRegisteredUsers() {
     }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
   }
 }
+async function addNewBroadcasts() {
+  console.log(Broadcasts.length);
+  for(let i in Broadcasts) {
+    let bc = Broadcasts[i];
+    Database.addBroadcast({
+      clanID: bc.clanId,
+      guildID: "0",
+      displayName: bc.displayName,
+      membershipID: bc.membershipId,
+      season: bc.season,
+      type: bc.type,
+      broadcast: bc.broadcast,
+      hash: bc.hash,
+      count: bc.count,
+      date: new Date(JSON.parse(bc.date))
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
 
 
-module.exports = { addNewGuilds, addNewClans, addNewDefintions, addRegisteredUsers }
+module.exports = { addNewGuilds, addNewClans, addNewDefintions, addNewRegisteredUsers, addNewBroadcasts }
