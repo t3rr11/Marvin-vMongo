@@ -69,7 +69,7 @@ async function update() {
     if(!isError) {
       if(isFound) {
         for(var i in clans) {
-          Clans = data.filter(e => e.isTracking);
+          Clans = clans.filter(e => e.isTracking);
           if(clans[i].firstScan) {
             //Found new clan, added.
             if(!NewClans.find(e => e === clans[i].clanID)) { NewClans.push(clans[i].clanID); }
