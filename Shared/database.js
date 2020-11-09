@@ -291,7 +291,7 @@ const getAllGuilds = async (callback) => {
 }
 const getClanGuilds = async (clanID, callback) => {
   //Callback fields { isError, isFound, data }
-  await Guild.find({ clans: clanID.toString() }, (err, array) => {
+  await Guild.find({ clans: clanID.toString(), isTracking: true }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -593,7 +593,7 @@ const updatePrivacyByID = async (membershipID, data, callback) => {
   else { callback(true, "Low", `NoUser`); }
 }
 const updateClanByID = async (clanID, data, callback) => {
-  Clan.updateOne({ clanID }, data, { }, (err, numAffected) => {
+  Clan.updateOne({ clanID, isTracking: true }, data, { }, (err, numAffected) => {
     if(err || numAffected < 1) { callback(true, "Med", err); }
     else { callback(false); }
   });
@@ -644,6 +644,78 @@ const removeClanFromPlayer = async (membershipID) => {
   UserTitles.updateOne({ membershipID }, { clanID: 0 }, (err) => { if(err) { } });
 }
 
+//Toggles
+const enableGuildTracking = async (guildID, callback) => {
+  await Guild.find({ guildID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) {
+        Guild.updateOne({ guildID }, { isTracking: true }, { }, (err, numAffected) => {
+          if(err || numAffected < 1) { callback(true, false, err); }
+          else {
+            for(let i in array[0].clans) {
+              let clanID = array[0].clans[i];
+              Clan.find({ clanID }, (err, clan) => {
+                if(err) { callback(true, false, err); }
+                else {
+                  if(clan.length > 0) {
+                    if(!clan[0].isTracking) {
+                      Clan.updateOne({ clanID }, { isTracking: true, firstScan: false }, { }, (err, numAffected) => {
+                        if(err || numAffected < 1) { callback(true, false, `Failed to re-enable tracking for clan: ${ clanID }, ${ err }`); }
+                        else {
+                          addLog({ location: "Frontend", type: "Clan", log: `Clan: ${ clanID } is now being tracked once again as a tracked guild was found to have it.` },
+                            function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+                          });
+                        }
+                      });
+                    }
+                  }
+                }
+              });
+            }
+            callback(false, true, guildID);
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const disableGuildTracking = async (guildID, callback) => {
+  await Guild.find({ guildID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) {
+        Guild.updateOne({ guildID }, { isTracking: false }, { }, async (err, numAffected) => {
+          if(err || numAffected < 1) { callback(true, false, err); }
+          else {
+            for(let i in array[0].clans) {
+              let clanID = array[0].clans[i];
+              await Guild.find({ clans: clanID.toString(), isTracking: true }, (err, guilds) => {
+                if(err) { callback(true, false, err); }
+                else {
+                  if(guilds.length === 0) {
+                    Clan.updateOne({ clanID }, { firstScan: true, isTracking: false, clanLevel: 1, memberCount: 0, onlineMembers: 0, lastScan: new Date() }, { }, (err, numAffected) => {
+                      if(err || numAffected < 1) { callback(true, false, `Failed to remove tracking from clan: ${ clanID }, ${ err }`); }
+                      else {
+                        addLog({ location: "Frontend", type: "Clan", log: `Clan: ${ clanID } has been removed from tracking as there are no more guilds tracking it.` },
+                          function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) }
+                        });
+                      }
+                    });
+                  }
+                }
+              });
+            }
+            callback(false, true, array[0]);
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+
 module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
@@ -654,5 +726,6 @@ module.exports = {
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
-  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan
+  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
+  enableGuildTracking, disableGuildTracking
 }

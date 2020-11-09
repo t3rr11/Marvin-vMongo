@@ -42,6 +42,7 @@ app.get("/GetExpressLogs", async function(req, res) { await DatabaseFunction(req
 app.get("/GetDatabaseLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Database", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetBroadcastLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getBroadcastLogs", amount: 300 }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "ErrorHandler", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 
 async function DatabaseFunction(req, res, options, data) {
   try {

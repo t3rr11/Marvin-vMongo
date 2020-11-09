@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJSON, GetClassName, AddCommas,
-  GetClanID, GetMembershipID, cleanString, addOrdinal, GetItemState, capitalize
+  cleanString, addOrdinal, GetItemState, capitalize
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -90,8 +90,6 @@ function formatTime(type, TimeinSeconds) {
   if (TimeinSeconds >= 2624832 && TimeinSeconds !== Infinity) { return MDisplay + wDisplay + dDisplay; }
   return YDisplay + MDisplay + wDisplay + dDisplay + hDisplay + mDisplay + sDisplay;
 }
-function GetClanID(Clans, guild_id) { for(var i in Clans) { if(Clans[i].guild_id === guild_id) { return Clans[i].clan_id; } } return false; }
-function GetMembershipID(Players, discord_id) { for(var i in Players) { if(Players[i].discord_id === discord_id) { return Players[i].membershipId; } } return false; }
 function cleanString(input) {
   var output = "";
   for(var i=0; i<input.length; i++) { if (input.charCodeAt(i) <= 127) { output += input.charAt(i); } }

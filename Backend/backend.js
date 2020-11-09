@@ -93,7 +93,7 @@ async function init() {
     //Check if the max amount of clans are being scanned or if there is room for another.
     if(processing.length < ScanSpeed) {
       //Start data grabbing.
-      if(index < clans.length-1) {
+      if(index <= clans.length-1) {
         //Add clan to processing queue.
         processing.push({ "clanID": clans[index].clanID, "added": new Date().getTime() });
 
@@ -155,7 +155,7 @@ async function init() {
     //Check if the max amount of clans are being scanned or if there is room for another.
     if(rt_processing.length < rt_scanSpeed) {
       //Start data grabbing.
-      if(rt_index < rt_clans.length-1) {
+      if(rt_index <= rt_clans.length-1) {
         //Add clan to realtimeProcessing queue.
         rt_processing.push({ "clanID": rt_clans[rt_index].clanID, "added": new Date().getTime() });
 
@@ -169,7 +169,7 @@ async function init() {
       else {
         if(!APIDisabled && !RT_Restarting) {
           //If there are no clans left, restart the scanning.
-          if(rt_processing.length === 0) {
+          if(rt_processing.length <= 2) {
             RT_Restarting = true;
             rt_restart();
           }

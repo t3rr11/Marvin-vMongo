@@ -103,7 +103,13 @@ async function UpdateClan(clan, season, callback) {
                   //Now that all users in the clan have been scanned, process clan data and look for changes then save the data.
                   await ProcessClanData(clan, guilds, season, clanData, onlineMembers);
                 }
-                else { ErrorHandler("Med", `Failed to find any guilds for clan ${ clan.clanID }`); }
+                else {
+                  Database.updateClanByID(clan.clanID, { firstScan: true, isTracking: false, clanLevel: 1, memberCount: 0, onlineMembers: 0, lastScan: new Date() },
+                  function UpdateClanByID(isError, severity, err) {
+                    if(isError) { ErrorHandler(severity, err) }
+                    else { Log.SaveLog("Backend", "Clan", `Failed to find any guilds for clan ${ clan.clanID } so it has had it's tracking disabled.`); }
+                  });
+                }
               }
               else { ErrorHandler("Med", `Failed to get guilds for clan ${ clan.clanID }`); }
 
@@ -125,6 +131,9 @@ async function UpdateClan(clan, season, callback) {
             clanName: `${ clan.clanName } (Deleted)`,
             firstScan: true,
             isTracking: false,
+            clanLevel: 1,
+            memberCount: 0,
+            onlineMembers: 0,
             lastScan: new Date()
           }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
         }

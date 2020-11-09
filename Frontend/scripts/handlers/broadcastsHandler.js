@@ -228,8 +228,11 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
           .setTimestamp();
           try {
             if(guild.broadcasts.channel === "0") { getDefaultChannel(client.guilds.cache.get(guild.guildID)).send({ embed }); }
-            else { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed }); }
-            Log.SaveLog("Frontend", "Clans", `Informed ${ guild.guildID } that the clan ${ clan.clanID } has finished loading.`);
+            else {
+              console.log(client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel));
+              client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed });
+              Log.SaveLog("Frontend", "Clans", `Informed ${ guild.guildID } that the clan ${ clan.clanID } has finished loading.`);
+            }
           }
           catch(err) { Log.SaveLog("Frontend", "Error", `Failed to inform ${ guild.guildID } that the clan ${ clan.clanID } has finished loading. Error: ${ err }`); }
         }
