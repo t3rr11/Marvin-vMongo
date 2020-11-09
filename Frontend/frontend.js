@@ -106,7 +106,7 @@ async function update() {
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
   
   //Check for broadcasts
-  BroadcastHandler.checkForBroadcasts(client);
+  if(!Config.isLocal) { BroadcastHandler.checkForBroadcasts(client); }
 }
 
 //Joined a server

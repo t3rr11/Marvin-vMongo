@@ -183,17 +183,19 @@ const addRegisteredUser = async (userData, callback) => {
   });
 }
 const addLog = async (logData, callback) => {
-  if(logData.type === "Broadcast") {
-    await new BroadcastLog(logData).save((err, doc) => {
-      if(err) { callback(true, "High", err) }
-      else { callback(false); }
-    });
-  }
-  else {
-    await new LogItem(logData).save((err, doc) => {
-      if(err) { callback(true, "High", err) }
-      else { callback(false); }
-    });
+  if(!Config.isLocal) {
+    if(logData.type === "Broadcast") {
+      await new BroadcastLog(logData).save((err, doc) => {
+        if(err) { callback(true, "High", err) }
+        else { callback(false); }
+      });
+    }
+    else {
+      await new LogItem(logData).save((err, doc) => {
+        if(err) { callback(true, "High", err) }
+        else { callback(false); }
+      });
+    }
   }
 }
 const addBackendStatusLog = async (logData, callback) => {

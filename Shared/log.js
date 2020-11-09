@@ -1,6 +1,7 @@
 //Required Libraraies
 const fs = require('fs');
 const Misc = require("./misc");
+const Config = require("./configs/Config.json");
 
 //Exports
 module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogFrontendStatus };
@@ -9,7 +10,7 @@ module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogFrontendStat
 function SaveLog(location, type, log) {
   const Database = require("./database");
   if(location !== "ErrorHandler") { console.log(Misc.GetReadableDateTime() + " - " + log); }
-  Database.addLog({ location, type, log }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  if(!Config.isLocal) { Database.addLog({ location, type, log }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } }); }
 }
 
 function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, Processing) {
@@ -29,20 +30,24 @@ function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastSc
 }
 
 function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_processing, uptime, speed, APIStatus) {
-  const Database = require("./database");
-  Database.addBackendStatusLog({
-    index, rt_index,
-    clans, rt_clans,
-    processing, rt_processing,
-    uptime, speed, APIStatus,
-  },
-  function AddBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  if(!Config.isLocal) { 
+    const Database = require("./database");
+    Database.addBackendStatusLog({
+      index, rt_index,
+      clans, rt_clans,
+      processing, rt_processing,
+      uptime, speed, APIStatus,
+    },
+    function AddBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
 }
 
 function LogFrontendStatus(users, servers, commandsInput, uptime) {
-  const Database = require("./database");
-  Database.addFrontendStatusLog({ users, servers, commandsInput, uptime },
-  function AddFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  if(!Config.isLocal) { 
+    const Database = require("./database");
+    Database.addFrontendStatusLog({ users, servers, commandsInput, uptime },
+    function AddFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
 }
 
 function ErrorHandler(severity, error) {

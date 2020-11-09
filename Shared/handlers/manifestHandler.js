@@ -22,11 +22,11 @@ getManifestTitleByName = (name) => {
   const sealsCompletionHashes = sealsParents.map(e => { return Manifest.DestinyPresentationNodeDefinition[e].completionRecordHash });
   const seals = sealsCompletionHashes.map(e => Manifest.DestinyRecordDefinition[e]);
 
-  if(name === "conquorer s10") { return seals.find(e => e.hash === 1983630873); }
-  else if(name === "conquorer s11") { return seals.find(e => e.hash === 4081738395); }
-  else if(name === "flawless s10") { return seals.find(e => e.hash === 2945528800); }
-  else if(name === "flawless s11") { return seals.find(e => e.hash === 1547272082); }
-  else { return seals.find(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
+  if(name === "conqueror s10") { return seals.filter(e => e.hash === 1983630873); }
+  else if(name === "conqueror s11") { return seals.filter(e => e.hash === 4081738395); }
+  else if(name === "flawless s10") { return seals.filter(e => e.hash === 2945528800); }
+  else if(name === "flawless s11") { return seals.filter(e => e.hash === 1547272082); }
+  else { return seals.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
 }
 
 

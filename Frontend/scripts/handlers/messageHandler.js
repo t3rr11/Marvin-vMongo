@@ -17,7 +17,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
     var prefix = guild ? guild.prefix : "~";
     if(message.guild.id === "110373943822540800" || message.guild.id === "264445053596991498") return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('SEND_MESSAGES')) return;
-    if(!message.content.startsWith(prefix) || message.author.bot) { return; }
+    if(!message.content.startsWith(prefix) || message.author.bot) return;
+    if(message.content.startsWith("~~")) return;
 
     const args = message.content.slice(prefix.length);
     const command = args.toString().toLowerCase();
@@ -370,7 +371,6 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
   else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
 }
 async function ClanInfo(prefix, message, command, guild) {
-  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   let clanData = [];
   for(let i in guild.clans) {
     await new Promise(resolve =>
@@ -387,7 +387,7 @@ async function ClanInfo(prefix, message, command, guild) {
   for(let i in clanData) {
     if(!clanData[i].isError) {
       if(clanData[i].isFound) {
-        const timeOptions = { weekday: "long", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
+        let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         embed.setAuthor(`${ clanData[i].data.clanName } (${ clanData[i].data.clanID })`);
         embed.setDescription(`We have been tracking this clan for: ${ Misc.formatTime("big", (new Date() - clanData[i].data.joinedOn) / 1000) }.\nThe last time we scanned this clan was: ${ Misc.formatTime("small", (new Date() - clanData[i].data.lastScan) / 1000) } ago.`);
         embed.addField("Clan Level", clanData[i].data.clanLevel, true);
@@ -425,7 +425,7 @@ async function GetHelp(prefix, message, command) {
     }
     case "help items": case "items": {
       embed.setAuthor("Items Help Menu");
-      embed.setDescription(`The way to use the item command has recently changed. You can now use it on any collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or to see who is missing the item use: \n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\``);
+      embed.setDescription(`The way to use the item command has recently changed. You can now use it on any profile collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or to see who is missing the item use: \n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\` \n\nIt's a little funky as things are split between profile collectibles and character collectibles. It's alot of data and i only store profile collectibles so not all armors will work unfortunately.`);
       break;
     }
     case "help titles": case "titles": {
@@ -561,6 +561,7 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   let players = [];
   let playerItems = [];
   let obtained = [];
+  let isProfileCollectible = true;
   let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
   //Get item
@@ -585,18 +586,27 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   }));
 
   //Promise all
-  if(item) {
+  if(item && item.collectibleHash) {
     await Promise.all([await GetGuildPlayers(), await GetGuildItems()]);
 
     for(var i in playerItems) {
       let user = players.find(e => e.membershipID === playerItems[i].membershipID);
-      let itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state;
-      if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
-      else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+      let itemState = null; try { itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state } catch (err) { }
+      if(itemState === null) { isProfileCollectible = false; }
+      else {
+        if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+        else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+      }
     }
   }
 
-  SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item);
+  if(isProfileCollectible) { SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item); }
+  else {
+    let errorEmbed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setDescription(`Could not find the item requested. Its more than likely a character collectible and not something i can track sorry!`);
+    msg.edit(errorEmbed);
+  }
 }
 async function GetObtainedTitles(prefix, message, command, type, users, registeredUser) {
   let players = [];
@@ -624,10 +634,21 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
   if(title) {
     await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]);
 
-    for(var i in playerTitles) {
-      let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
-      if(type === "obtained") { if(playerTitles[i].titles.find(e => e === title.hash.toString())) { obtained.push(user.displayName); } }
-      else { if(!playerTitles[i].titles.find(e => e === title.hash)) { obtained.push(user.displayName); } }
+    if(title.length === 1) {
+      for(var i in playerTitles) {
+        let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
+        if(type === "obtained") { if(playerTitles[i].titles.find(e => e === title[0].hash)) { obtained.push(user.displayName); } }
+        else { if(!playerTitles[i].titles.find(e => e === title[0].hash)) { obtained.push(user.displayName); } }
+      }
+    }
+    else {
+      for(let i in title) {
+        for(var j in playerTitles) {
+          let user = players.find(e => e.membershipID === playerTitles[j].membershipID);
+          if(type === "obtained") { if(playerTitles[j].titles.find(e => e === title[i].hash)) { obtained.push(user.displayName); } }
+          else { if(!playerTitles[j].titles.find(e => e === title[i].hash)) { obtained.push(user.displayName); } }
+        }
+      }
     }
   }
 
@@ -1483,9 +1504,16 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
     if(playerItems.length > 0) {
       embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
+      if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
       for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
     }
-    else { embed.setAuthor(`Nobody has it yet.`); }
+    else {
+      if(item.collectibleHash) { embed.setAuthor(`Nobody has it yet.`); }
+      else {
+        embed.setAuthor("Can not track item.");
+        embed.setDescription(`This item does not have an associated collectible hash to it, which means i cannot track it. Sorry!`);
+      }
+    }
   }
   else {
     embed.setAuthor("Uhh oh...");
@@ -1506,7 +1534,7 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
 
   if(title) {
     if(playerTitles.length > 0) {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title.titleInfo.titlesByGender.Male }`);
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
       for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
     }
