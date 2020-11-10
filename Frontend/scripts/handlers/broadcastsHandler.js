@@ -104,8 +104,8 @@ async function processBroadcast(client, broadcast) {
   });
 }
 async function sendItemBroadcast(client, guild, message, broadcast, clan) {
-  let embed = null;
-
+  let embed = new Discord.MessageEmbed().setTitle(`Clan Broadcast - ${ clan.clanName }`).setDescription(message).setColor(0xFFE000).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let sendBroadcast = true;
   //Check to see if item broadcasts are enabled.
   if(guild.broadcasts.items) {
 
@@ -115,34 +115,25 @@ async function sendItemBroadcast(client, guild, message, broadcast, clan) {
     if(manifestItem) {
       //Change the embed based on the type of item
       if(itemDef && itemDef.advanced_type === "emblem") {
-        embed = new Discord.MessageEmbed()
-        .setColor(0xFFE000)
-        .setTitle(`Clan Broadcast - ${ clan.clanName }`)
-        .setDescription(message)
-        .setImage(encodeURI(`https://bungie.net${ manifestItem.secondaryIcon }`))
-        .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
-        .setTimestamp();
+        embed.setImage(encodeURI(`https://bungie.net${ manifestItem.secondaryIcon }`));
       }
       else {
-        embed = new Discord.MessageEmbed()
-        .setColor(0xFFE000)
-        .setTitle(`Clan Broadcast - ${ clan.clanName }`)
-        .setDescription(message)
-        .setThumbnail(encodeURI(`https://bungie.net${ manifestItem.displayProperties.icon }`))
-        .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
-        .setTimestamp();
+        embed.setThumbnail(encodeURI(`https://bungie.net${ manifestItem.displayProperties.icon }`));
       }
   
       if(itemDef && itemDef.description.length > 0) { embed.addField("How to obtain:", itemDef.description); }
   
       //Try send broadcast
-      try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
-      catch(err) { console.log(`Failed to send item broadcast to ${ guild.guildID } because of ${ err }`); }
+      if(itemDef && !itemDef.broadcastEnabled) { sendBroadcast = false; }
+      if(sendBroadcast) {
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+        catch(err) { console.log(`Failed to send item broadcast to ${ guild.guildID } because of ${ err }`); }
+      }
     }
   }
 }
 async function sendTitleBroadcast(client, guild, message, broadcast, clan) {
-  let embed = null;
+  let embed = new Discord.MessageEmbed().setColor(0xFFE000).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   //Check to see if item broadcasts are enabled.
   if(guild.broadcasts.titles) {
@@ -150,15 +141,11 @@ async function sendTitleBroadcast(client, guild, message, broadcast, clan) {
     var manifestRecord = ManifestHandler.getManifest().DestinyRecordDefinition[broadcast.hash];
     
     if(manifestRecord) {
-      embed = new Discord.MessageEmbed()
-      .setColor(0xFFE000)
-      .setTitle(`Clan Broadcast - ${ clan.clanName }`)
-      .setDescription(message)
-      .addField("Obtained by:", manifestRecord.displayProperties.description)
-      .setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`))
-      .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
-      .setTimestamp();
-  
+      embed.setTitle(`Clan Broadcast - ${ clan.clanName }`);
+      embed.setDescription(message)
+      embed.addField("Obtained by:", manifestRecord.displayProperties.description)
+      embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`))
+      
       try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
       catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }
     }

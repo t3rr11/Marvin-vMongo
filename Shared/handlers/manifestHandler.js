@@ -13,9 +13,9 @@ function checkManifestMounted() {
 
 getManifest = () => { return Manifest; }
 getManifestVersion = () => { return ManifestVersion; }
-getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemLiteDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
-getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemLiteDefinition[hash] }
-getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemLiteDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
+getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
+getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemDefinition[hash] }
+getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
 getManifestTitleByName = (name) => {
   const sealsNode = Manifest.DestinyPresentationNodeDefinition[1652422747];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
@@ -42,7 +42,7 @@ storeManifest = async function StoreManifest() {
           DestinyCollectibleDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyCollectibleDefinition.json')),
           DestinyPresentationNodeDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyPresentationNodeDefinition.json')),
           DestinyRecordDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyRecordDefinition.json')),
-          DestinyInventoryItemLiteDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyInventoryItemLiteDefinition.json')),
+          DestinyInventoryItemDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyInventoryItemDefinition.json')),
           DestinyInventoryBucketDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyInventoryBucketDefinition.json')),
           DestinyObjectiveDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyObjectiveDefinition.json')),
           DestinyProgressionDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyProgressionDefinition.json')),
@@ -88,7 +88,7 @@ updateManifest = async function UpdateManifest() {
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyCollectibleDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyPresentationNodeDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyRecordDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryItemLiteDefinition),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryItemDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryBucketDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyObjectiveDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyProgressionDefinition),
@@ -103,7 +103,7 @@ updateManifest = async function UpdateManifest() {
         fs.writeFile('../Shared/manifest/DestinyCollectibleDefinition.json', JSON.stringify(values[3].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyPresentationNodeDefinition.json', JSON.stringify(values[4].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyRecordDefinition.json', JSON.stringify(values[5].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyInventoryItemLiteDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyInventoryItemDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyInventoryBucketDefinition.json', JSON.stringify(values[7].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyObjectiveDefinition.json', JSON.stringify(values[8].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyProgressionDefinition.json', JSON.stringify(values[9].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });

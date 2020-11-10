@@ -9,16 +9,18 @@ module.exports = { CheckMaintenance, UpdateScanSpeed, UpdateSeason }
 async function CheckMaintenance(APIDisabled, callback) {
   await APIRequest.GetSettings((isError, data) => {
     //Check if response is the maintenance error code.
-    if(data.isError && data.ErrorCode === 5) {
+    if(data.isError && data.ErrorCode === 5 || !data.Response?.systems?.D2Profiles?.enabled) {
       if(APIDisabled === false) {
         Log.SaveLog("Database", "Error", "The Bungie API is temporarily disabled for maintenance.");
         callback(true);
       }
     }
     else {
-      if(APIDisabled === true) {
-        Log.SaveLog("Database", "Error", "The Bungie API is back online!");
-        callback(false);
+      if(!data.isError && data.ErrorCode === 1 || data.Response.systems.D2Profiles.enabled) {
+        if(APIDisabled === true) {
+          Log.SaveLog("Database", "Error", "The Bungie API is back online!");
+          callback(false);
+        }
       }
     }
   });

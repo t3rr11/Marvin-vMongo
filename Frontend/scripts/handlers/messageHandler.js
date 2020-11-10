@@ -81,6 +81,9 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("toggle item broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle title broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle clan broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
+        case command.startsWith("add item "): { message.channel.send("Nice find, but this feature is still in development. Check back soon!"); break; }
+        case command.startsWith("remove item "): { message.channel.send("Nice find, but this feature is still in development. Check back soon!"); break; }
         case command === "claninfo": { ClanInfo(prefix, message, command, guild); break; }
 
         //Rankings
@@ -400,6 +403,39 @@ async function ClanInfo(prefix, message, command, guild) {
     else { embed.setDescription(`Failed to find information on clan due to an error, please try again. Clan ID: (${ clanData[i].clanID })`); message.channel.send({embed}); }
   }
 }
+async function ItemInfo(prefix, message, command) {
+  //Get item
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  let requestedItemName = command.substr("data ".length);
+  let item;
+  if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
+  else {
+    item = ManifestHandler.getManifestItemByHash(requestedItemName);
+    if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+  }
+
+  //See if an item was found
+  if(item) {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+    embed.setAuthor(`${ item.displayProperties.name }`);
+    if(item.displayProperties.description) { embed.setDescription(`${ item.displayProperties.description }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}add item ${ item.hash }\`` : "" }`); }
+    else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}add item ${ item.hash }\`` : "" }`); }
+    embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
+    embed.addField(`Collectible Hash`, item.collectibleHash ? item.collectibleHash : "None", true);
+    embed.addField(`Trackable`, item.collectibleHash ? "Yes" : "No", true);
+    embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`);
+    if(item.screenshot) { embed.setImage(`https://bungie.net${ item.screenshot }`); }
+
+    msg.edit(embed);
+  }
+  else {
+    let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
+    msg.edit(errorEmbed);
+  }
+}
 
 async function GetHelp(prefix, message, command) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -586,19 +622,22 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   }));
 
   //Promise all
-  if(item && item.collectibleHash) {
-    await Promise.all([await GetGuildPlayers(), await GetGuildItems()]);
-
-    for(var i in playerItems) {
-      let user = players.find(e => e.membershipID === playerItems[i].membershipID);
-      let itemState = null; try { itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state } catch (err) { }
-      if(itemState === null) { isProfileCollectible = false; }
-      else {
-        if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
-        else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+  if(item) {
+    if(item.collectibleHash) {
+      await Promise.all([await GetGuildPlayers(), await GetGuildItems()]);
+      for(var i in playerItems) {
+        let user = players.find(e => e.membershipID === playerItems[i].membershipID);
+        if(user) {
+          let itemState = null; try { itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state } catch (err) { }
+          if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+          else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+        }
       }
     }
+    else { isProfileCollectible = false; }
   }
+
+  console.log(isProfileCollectible);
 
   if(isProfileCollectible) { SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item); }
   else {

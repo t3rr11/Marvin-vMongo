@@ -472,11 +472,15 @@ const getGuildTitles = async (guildID, callback) => {
   });
 }
 const getGuildItems = async (guildID, callback) => {
+  console.log("Starting...");
+  let start = Date.now();
   await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    console.log(`Took: ${ Date.now() - start }ms to find guild`);
     if(err) { callback(true, false, err); }
     else {
       if(guild) {
         await UserItems.find({ clanID: guild.clans }, (err, users) => {
+          console.log(`Took: ${ Date.now() - start }ms to get user items`);
           if(err) { callback(true, false, err); }
           else {
             if(users.length > 0) { callback(false, true, users); }
@@ -536,7 +540,7 @@ const getFrontendLogs = async (options, data, callback) => {
 }
 const getBroadcastLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await BroadcastLog.find(data).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+  await BroadcastLog.find(data).limit(options.amount).sort({ _id: -1 }).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }

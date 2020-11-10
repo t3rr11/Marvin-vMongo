@@ -47,7 +47,7 @@ async function getUserInfo() {
   console.log(await APIRequest.GetProfile("3", "4611686018471334813", "100"));
 }
 async function getManifest() {
-  const url = (await APIRequest.GetManifestVersion()).Data.Response.jsonWorldComponentContentPaths['en'].DestinyInventoryItemLiteDefinition;
+  const url = (await APIRequest.GetManifestVersion()).Data.Response.jsonWorldComponentContentPaths['en'].DestinyInventoryItemDefinition;
   const inventoryItemManifest = await APIRequest.GetManifest(url);
 }
 async function getClanInfo() {
