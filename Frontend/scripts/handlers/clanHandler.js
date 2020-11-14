@@ -32,6 +32,7 @@ async function RegisterClan(prefix, message, command) {
                       else {
                         Log.SaveLog("Frontend", "Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
                         message.channel.send(`${ clan.name } has been successfully registered to this server! If this is the first time registering it may take a few minutes to grab your clans data for the first time.`);
+                        CheckIfNewClan(clan.groupId, clan); //Check if it is a new clan.
                       }
                     });
                   }
@@ -51,6 +52,7 @@ async function RegisterClan(prefix, message, command) {
                         else {
                           Log.SaveLog("Frontend", "Clans", `Clan Added: ${ clan.name } (${ clan.groupId })`);
                           message.channel.send(`${ clan.name } has been successfully registered to this server! If this is the first time registering it may take a few minutes to grab your clans data for the first time.`);
+                          CheckIfNewClan(clan.groupId, clan); //Check if it is a new clan.
                         }
                       });
                     }

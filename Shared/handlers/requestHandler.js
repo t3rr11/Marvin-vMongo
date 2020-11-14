@@ -75,6 +75,7 @@ const GetGlobalSorrowsLeadboard = async (callback) => { const { isError, Data } 
 const GetGlobalGardenLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalGardenLeadboard`); callback(isError, Data); }
 const GetGlobalTotalRaidsLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTotalRaidsLeadboard`); callback(isError, Data); }
 const GetGlobalHighestPowerLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerLeadboard`); callback(isError, Data); }
+const GetGlobalHighestPowerMinusArtifactLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerMinusArtifactLeadboard`); callback(isError, Data); }
 const GetMembershipsById = async (membershipId, callback) => { const { isError, Data } = await BungieReq(`/Platform/User/GetMembershipsById/${membershipId}/1/`); callback(isError, Data); }
 const SearchDestinyPlayer = async (username, callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/SearchDestinyPlayer/-1/${username}/`); callback(isError, Data); }
 
@@ -83,6 +84,6 @@ module.exports = {
   GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers, GetSettings, GetClanWars, GetMembershipsById, SearchDestinyPlayer,
   GetGlobalTimePlayedLeadboard, GetGlobalSeasonRankLeadboard, GetGlobalTriumphScoreLeadboard, GetGlobalValorLeadboard, GetGlobalInfamyLeadboard, GetGlobalLeviLeadboard,
   GetGlobalEoWLeadboard, GetGlobalSoSLeadboard, GetGlobalLeviPrestigeLeadboard, GetGlobalEoWPrestigeLeadboard, GetGlobalSoSPrestigeLeadboard,
-  GetGlobalLastWishLeadboard, GetGlobalScourgeLeadboard, GetGlobalSorrowsLeadboard, GetGlobalGardenLeadboard, GetGlobalTotalRaidsLeadboard, GetGlobalHighestPowerLeadboard
-
+  GetGlobalLastWishLeadboard, GetGlobalScourgeLeadboard, GetGlobalSorrowsLeadboard, GetGlobalGardenLeadboard, GetGlobalTotalRaidsLeadboard, GetGlobalHighestPowerLeadboard,
+  GetGlobalHighestPowerMinusArtifactLeadboard
 }

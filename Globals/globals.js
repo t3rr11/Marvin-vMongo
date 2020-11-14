@@ -48,6 +48,7 @@ app.get("/GetGlobalSorrowsLeadboard", async function(req, res) { res.status(200)
 app.get("/GetGlobalGardenLeadboard", async function(req, res) { res.status(200).send(GetGlobalGardenLeadboard()); });
 app.get("/GetGlobalTotalRaidsLeadboard", async function(req, res) { res.status(200).send(GetGlobalTotalRaidsLeadboard()); });
 app.get("/GetGlobalHighestPowerLeadboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerLeadboard()); });
+app.get("/GetGlobalHighestPowerMinusArtifactLeadboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerMinusArtifactLeadboard()); })
 
 async function Logger() {
   //Interval for 10 minute status logging.
@@ -115,6 +116,7 @@ function ProcessClanLeaderboards(clans, users) {
       garden: users[i].raids.garden,
       totalRaids: users[i].totalRaids,
       highestPower: users[i].highestPower,
+      powerBonus: users[i].powerBonus
     }
 
     //Add players stats to Clans array
@@ -238,6 +240,11 @@ function GetGlobalTotalRaidsLeadboard() {
 }
 function GetGlobalHighestPowerLeadboard() {
   return [...Object.values(Players).sort((a,b) => { return b.highestPower - a.highestPower })].map((e, index) => {
-    return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, rank: index }
+    return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, powerBonus: e.powerBonus, rank: index }
+  });
+}
+function GetGlobalHighestPowerMinusArtifactLeadboard() {
+  return [...Object.values(Players).sort((a,b) => { return (b.highestPower-b.powerBonus) - (a.highestPower-a.powerBonus) })].map((e, index) => {
+    return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower-e.powerBonus, rank: index }
   });
 }

@@ -196,47 +196,53 @@ async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
 async function CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds) {
   var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
   var previousRecentItems = oldPlayerData.Items.recentItems;
-  var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
+  if(previousRecentItems) {
+    var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
 
-  if(differences.length > 0) {
-    for(let i in guilds) {
-      //Get mode, global items and extra items.
-      let broadcastMode = guilds[i].broadcasts.mode;
-      let globalItems = (GlobalItemsHandler.getGlobalItems()).map(e => { return e.hash });
-      let extraItems = guilds[i].broadcasts.extraItems.map(e => { if(e.enabled) return e.hash });
-      let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
-      let itemsToLookFor = [];
-
-      if(broadcastMode === "Auto") {
-        itemsToLookFor = globalItems;
-      }
-      else if(broadcastMode === "Semi-Auto") {
-        itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))];
-      }
-      else if(broadcastMode === "Manual") {
-        itemsToLookFor = extraItems;
-      }
-
-      //Find items that match in differences and send broadcast
-      for(let j in differences) {
-        if(itemsToLookFor.find(e => e == differences[j])) {
-          BroadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
+    if(differences.length > 0) {
+      for(let i in guilds) {
+        //Get mode, global items and extra items.
+        let broadcastMode = guilds[i].broadcasts.mode;
+        let globalItems = (GlobalItemsHandler.getGlobalItems()).map(e => { return e.hash });
+        let extraItems = guilds[i].broadcasts.extraItems.map(e => { if(e.enabled) return e.hash });
+        let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
+        let itemsToLookFor = [];
+  
+        if(broadcastMode === "Auto") {
+          itemsToLookFor = globalItems;
+        }
+        else if(broadcastMode === "Semi-Auto") {
+          itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))];
+        }
+        else if(broadcastMode === "Manual") {
+          itemsToLookFor = extraItems;
+        }
+  
+        //Find items that match in differences and send broadcast
+        for(let j in differences) {
+          if(itemsToLookFor.find(e => e == differences[j])) {
+            BroadcastHandler.sendItemBroadcast(clan, guilds[i], differences[j], oldPlayerData, season);
+          }
         }
       }
     }
+  
+    //Log found items
+    //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
   }
-
-  //Log found items
-  //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
 }
 async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds) {
-  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1652422747];
+  const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
+  const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
+  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[616318467];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
-  const seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let allSeals = seals.concat(legacySeals);
 
   if(oldPlayerData.Titles.titles) {
     let previousTitles = oldPlayerData.Titles.titles;
-    let newTitles = seals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
+    let newTitles = allSeals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
     var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
   
     if(differences.length > 0) {
@@ -344,6 +350,9 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
   //Get users highest light character
   for(let i in lightLevels) { if(lightLevels[i].light > highestPower) { highestPower = lightLevels[i].light; } }
 
+  //Check if max power is higher than previously recorded max power. If the record exists that is.
+  if(oldPlayerData?.User) { highestPower = highestPower > oldPlayerData.User.highestPower ? highestPower : oldPlayerData.User.highestPower; }
+
   return {
     "clanId": clan.clanID,
     "isOnline": isOnline,
@@ -361,33 +370,29 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
   var valor = 0; try { valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress; } catch (err) { }
   var glory = 0; try { glory = playerData.characterProgressions.data[characterIds[0]].progressions["2679551909"].currentProgress; } catch (err) { }
-  var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["2023796284"].intervalObjectives[2].progress; }
-  catch (err) {
-    console.log(`Failed to find ibKills: (2023796284) for ${ memberData.destinyUserInfo.membershipId }`);
-    console.log(`Records: ${ playerData.profileRecords.data.records.length }`);
-  }
+  var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["2023796284"].intervalObjectives[2].progress; } catch (err) { }
   var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["759958308"].intervalObjectives[2].progress; } catch (err) { }
 
   //Trials
-  var overall_trialsWins = playerData.metrics.data.metrics["1365664208"].objectiveProgress.progress;
-  var overall_flawlessTickets = playerData.metrics.data.metrics["1765255052"].objectiveProgress.progress;
-  var overall_finalblows = playerData.metrics.data.metrics["2082314848"].objectiveProgress.progress;
-  var overall_postFlawlessWins = playerData.metrics.data.metrics["1082901574"].objectiveProgress.progress;
-  var overall_lighthouseCarries = playerData.metrics.data.metrics["301249970"].objectiveProgress.progress;
+  var overall_trialsWins = 0; try { overall_trialsWins = playerData.metrics.data.metrics["1365664208"].objectiveProgress.progress; } catch (err) { }
+  var overall_flawlessTickets = 0; try { overall_flawlessTickets = playerData.metrics.data.metrics["1765255052"].objectiveProgress.progress; } catch (err) { }
+  var overall_finalblows = 0; try { overall_finalblows = playerData.metrics.data.metrics["2082314848"].objectiveProgress.progress; } catch (err) { }
+  var overall_postFlawlessWins = 0; try { overall_postFlawlessWins = playerData.metrics.data.metrics["1082901574"].objectiveProgress.progress; } catch (err) { }
+  var overall_lighthouseCarries = 0; try { overall_lighthouseCarries = playerData.metrics.data.metrics["301249970"].objectiveProgress.progress; } catch (err) { }
 
-  var weekly_trialsWins = playerData.metrics.data.metrics["3046315288"].objectiveProgress.progress;
-  var weekly_trialsWinStreak = playerData.metrics.data.metrics["3787323274"].objectiveProgress.progress;
-  var weekly_flawlessTickets = playerData.metrics.data.metrics["122451876"].objectiveProgress.progress;
-  var weekly_finalblows = playerData.metrics.data.metrics["2091173752"].objectiveProgress.progress;
-  var weekly_postFlawlessWins = playerData.metrics.data.metrics["2771330814"].objectiveProgress.progress;
-  var weekly_lighthouseCarries = playerData.metrics.data.metrics["1155098170"].objectiveProgress.progress;
+  var weekly_trialsWins = 0; try { weekly_trialsWins = playerData.metrics.data.metrics["3046315288"].objectiveProgress.progress; } catch (err) { }
+  var weekly_trialsWinStreak = 0; try { weekly_trialsWinStreak = playerData.metrics.data.metrics["3787323274"].objectiveProgress.progress; } catch (err) { }
+  var weekly_flawlessTickets = 0; try { weekly_flawlessTickets = playerData.metrics.data.metrics["122451876"].objectiveProgress.progress; } catch (err) { }
+  var weekly_finalblows = 0; try { weekly_finalblows = playerData.metrics.data.metrics["2091173752"].objectiveProgress.progress; } catch (err) { }
+  var weekly_postFlawlessWins = 0; try { weekly_postFlawlessWins = playerData.metrics.data.metrics["2771330814"].objectiveProgress.progress; } catch (err) { }
+  var weekly_lighthouseCarries = 0; try { weekly_lighthouseCarries = playerData.metrics.data.metrics["1155098170"].objectiveProgress.progress; } catch (err) { }
 
-  var seasonal_trialsWins = playerData.metrics.data.metrics["2367472811"].objectiveProgress.progress;
-  var seasonal_trialsWinStreak = playerData.metrics.data.metrics["957196641"].objectiveProgress.progress;
-  var seasonal_flawlessTickets = playerData.metrics.data.metrics["1114483243"].objectiveProgress.progress;
-  var seasonal_finalblows = playerData.metrics.data.metrics["3481560625"].objectiveProgress.progress;
-  var seasonal_postFlawlessWins = playerData.metrics.data.metrics["128083325"].objectiveProgress.progress;
-  var seasonal_lighthouseCarries = playerData.metrics.data.metrics["610393611"].objectiveProgress.progress;
+  var seasonal_trialsWins = 0; try { seasonal_trialsWins = playerData.metrics.data.metrics["2367472811"].objectiveProgress.progress; } catch (err) { }
+  var seasonal_trialsWinStreak = 0; try { seasonal_trialsWinStreak = playerData.metrics.data.metrics["957196641"].objectiveProgress.progress; } catch (err) { }
+  var seasonal_flawlessTickets = 0; try { seasonal_flawlessTickets = playerData.metrics.data.metrics["1114483243"].objectiveProgress.progress; } catch (err) { }
+  var seasonal_finalblows = 0; try { seasonal_finalblows = playerData.metrics.data.metrics["3481560625"].objectiveProgress.progress; } catch (err) { }
+  var seasonal_postFlawlessWins = 0; try { seasonal_postFlawlessWins = playerData.metrics.data.metrics["128083325"].objectiveProgress.progress; } catch (err) { }
+  var seasonal_lighthouseCarries = 0; try { seasonal_lighthouseCarries = playerData.metrics.data.metrics["610393611"].objectiveProgress.progress; } catch (err) { }
 
   return {
     "infamy": infamy,
@@ -425,18 +430,18 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatRaids(clan, memberData, playerData, oldPlayerData) {
-  var leviCompletions = playerData.profileRecords.data.records["3420353827"].objectives[0].progress;
-  var eowCompletions = playerData.profileRecords.data.records["2602370549"].objectives[0].progress;
-  var sosCompletions = playerData.profileRecords.data.records["1742345588"].objectives[0].progress;
+  var leviCompletions = 0; try { leviCompletions = playerData.profileRecords.data.records["3420353827"].objectives[0].progress; } catch (err) { }
+  var eowCompletions = 0; try { eowCompletions = playerData.profileRecords.data.records["2602370549"].objectives[0].progress; } catch (err) { }
+  var sosCompletions = 0; try { sosCompletions = playerData.profileRecords.data.records["1742345588"].objectives[0].progress; } catch (err) { }
 
-  var leviPresCompletions = playerData.profileRecords.data.records["940998165"].objectives[0].progress;
-  var eowPresCompletions = playerData.profileRecords.data.records["3861076347"].objectives[0].progress;
-  var sosPresCompletions = playerData.profileRecords.data.records["2923250426"].objectives[0].progress;
+  var leviPresCompletions = 0; try { leviPresCompletions = playerData.profileRecords.data.records["940998165"].objectives[0].progress; } catch (err) { }
+  var eowPresCompletions = 0; try { eowPresCompletions = playerData.profileRecords.data.records["3861076347"].objectives[0].progress; } catch (err) { }
+  var sosPresCompletions = 0; try { sosPresCompletions = playerData.profileRecords.data.records["2923250426"].objectives[0].progress; } catch (err) { }
 
-  var lastWishCompletions = playerData.profileRecords.data.records["2195455623"].objectives[0].progress;
-  var scourgeCompletions = playerData.profileRecords.data.records["4060320345"].objectives[0].progress;
-  var sorrowsCompletions = playerData.profileRecords.data.records["1558682421"].objectives[0].progress;
-  var gardenCompletions = playerData.profileRecords.data.records["1120290476"].objectives[0].progress;
+  var lastWishCompletions = 0; try { lastWishCompletions = playerData.profileRecords.data.records["2195455623"].objectives[0].progress; } catch (err) { }
+  var scourgeCompletions = 0; try { scourgeCompletions = playerData.profileRecords.data.records["4060320345"].objectives[0].progress; } catch (err) { }
+  var sorrowsCompletions = 0; try { sorrowsCompletions = playerData.profileRecords.data.records["1558682421"].objectives[0].progress; } catch (err) { }
+  var gardenCompletions = 0; try { gardenCompletions = playerData.profileRecords.data.records["1120290476"].objectives[0].progress; } catch (err) { }
 
   //For some reason leviCompetions also count prestige completions, they need to be removed;
   leviCompletions = leviCompletions - leviPresCompletions;
@@ -462,15 +467,19 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
 }
 function FormatTitles(clan, memberData, playerData, oldPlayerData) {
   //TODO
-  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1652422747];
+  const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
+  const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
+  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[616318467];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
-  const seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let allSeals = seals.concat(legacySeals);
 
   var titles = [];
-  for(var i in seals) {
-    if(playerData.profileRecords.data.records[seals[i]]) {
-      if(playerData.profileRecords.data.records[seals[i]].objectives[0].complete) {
-        titles.push(seals[i]);
+  for(var i in allSeals) {
+    if(playerData.profileRecords.data.records[allSeals[i]]) {
+      if(playerData.profileRecords.data.records[allSeals[i]].objectives[0].complete) {
+        titles.push(allSeals[i]);
       }
     }
   }
@@ -495,19 +504,16 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var season9Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["3256821400"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2140885848"].level; season9Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season10Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2926321498"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1470619782"].level; season10Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season11Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["1627914615"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["4021269753"].level; season11Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
-  var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["3810510634"].dailyProgress; } catch (err) { }
-  var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["3810510634"].weeklyProgress; } catch (err) { }
-  var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["3810510634"].currentProgress; } catch (err) { }
-  var powerBonus = "0"; try { powerBonus = playerData.characterProgressions.data[characterIds[0]].progressions["3810510634"].level; } catch (err) { }
-
-  //Sundial
-  var sundialCompletions = playerData.profileRecords.data.records["3801239892"].objectives[0].progress;
+  var season12Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["477676543"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2304468497"].level; season12Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
+  var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
+  var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
+  var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
+  var powerBonus = "0"; try { powerBonus = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].level; } catch (err) { }
 
   return {
-    "seasonRank": season11Rank,
+    "seasonRank": season12Rank,
     "xp": { "dailyXP": dailyXP, "weeklyXP": weeklyXP, "overallXP": overallXP },
     "powerBonus": powerBonus,
-    "sundial": sundialCompletions
   }
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
@@ -535,18 +541,6 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var prophecy_completions = 0; try { prophecy_completions = playerData.metrics.data.metrics["3719033237"].objectiveProgress.progress; } catch (err) { }
   var prophecy_flawless_completions = 0; try { prophecy_flawless_completions = playerData.metrics.data.metrics["146137481"].objectiveProgress.progress; } catch (err) { }
 
-  //Guardian Games
-  var GG_Laurels = 0; try { GG_Laurels = playerData.profileRecords.data.records["379624208"].objectives[0].progress; } catch (err) { }
-  var GG_Medals = 0; try { GG_Medals = playerData.profileRecords.data.records["3800989613"].objectives[0].progress; } catch (err) { }
-  var GG_RumbleSupers = 0; try { GG_RumbleSupers = playerData.profileRecords.data.records["3672040342"].objectives[0].progress; } catch (err) { }
-  var GG_Triumphs = 0; try { GG_Triumphs = playerData.profileRecords.data.records["3199735617"].objectives[0].progress; } catch (err) { }
-
-  //Lie Quest
-  var lieCommQuest = { "EDZ": 0, "MOON": 0, "IO": 0 };
-  try { lieCommQuest.EDZ = playerData.characterProgressions.data[characterIds[0]].uninstancedItemObjectives[1797229574][0].progress; } catch (err) { }
-  try { lieCommQuest.MOON = playerData.characterProgressions.data[characterIds[0]].uninstancedItemObjectives[1797229574][1].progress; } catch (err) { }
-  try { lieCommQuest.IO = playerData.characterProgressions.data[characterIds[0]].uninstancedItemObjectives[1797229574][2].progress; } catch (err) { }
-
   return {
     "menageire": menageire,
     "runes": runes,
@@ -558,8 +552,6 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
       "pitOfHeresy": { "completions": pit_completions, "flawless": pit_flawless_completions },
       "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions }
     },
-    "guardianGames": { "laurels": GG_Laurels, "medals": GG_Medals, "rumble_super_kills": GG_RumbleSupers, "triumphs": GG_Triumphs },
-    "lieCommQuest": { "EDZ": lieCommQuest.EDZ, "MOON": lieCommQuest.MOON, "IO": lieCommQuest.IO }
   }
 }
 

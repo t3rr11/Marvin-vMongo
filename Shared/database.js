@@ -343,7 +343,7 @@ const getAllTrackedUsers = async (callback) => {
 }
 const getUsersByClanIDArrayList = async (clanIDs, callback) => {
   //Callback fields { isError, isFound, data }
-  await User.find({ clanID: { $in: clanIDs } }, (err, array) => {
+  await User.find({ clanID: { $in: clanIDs }, firstLoad: false }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }

@@ -17,16 +17,19 @@ getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInvento
 getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemDefinition[hash] }
 getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
 getManifestTitleByName = (name) => {
-  const sealsNode = Manifest.DestinyPresentationNodeDefinition[1652422747];
+  const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
+  const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
+  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[616318467];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
-  const sealsCompletionHashes = sealsParents.map(e => { return Manifest.DestinyPresentationNodeDefinition[e].completionRecordHash });
-  const seals = sealsCompletionHashes.map(e => Manifest.DestinyRecordDefinition[e]);
+  let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let allSeals = seals.concat(legacySeals);
 
-  if(name === "conqueror s10") { return seals.filter(e => e.hash === 1983630873); }
-  else if(name === "conqueror s11") { return seals.filter(e => e.hash === 4081738395); }
-  else if(name === "flawless s10") { return seals.filter(e => e.hash === 2945528800); }
-  else if(name === "flawless s11") { return seals.filter(e => e.hash === 1547272082); }
-  else { return seals.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
+  if(name === "conqueror s10") { return allSeals.filter(e => e.hash === 1983630873); }
+  else if(name === "conqueror s11") { return allSeals.filter(e => e.hash === 4081738395); }
+  else if(name === "flawless s10") { return allSeals.filter(e => e.hash === 2945528800); }
+  else if(name === "flawless s11") { return allSeals.filter(e => e.hash === 1547272082); }
+  else { return allSeals.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
 }
 
 
@@ -56,7 +59,7 @@ storeManifest = async function StoreManifest() {
   });
 }
 //Backend manages this check, it runs every 10 minutes. Neither frontend nor Express should interact with this function to avoid multiple updates.
-checkManifestUpdate = async function CheckManifestUpdate() {
+checkManifestUpdate = async function CheckManifestUpdate(location) {
   await Database.getManifestVersion(function GetOldManifestVersion(isError, isFound, version) {
     if(!isError) {
       if(isFound) {
@@ -64,7 +67,8 @@ checkManifestUpdate = async function CheckManifestUpdate() {
           if(!isError) {
             if(version[0].version !== newVersion.Response.version) {
               console.log("Manifest is different updating...");
-              updateManifest();
+              if(location === "frontend") { storeManifest(); }
+              else { updateManifest(); }
             }
             else { if(!checkManifestMounted()) { storeManifest(); } }
           }

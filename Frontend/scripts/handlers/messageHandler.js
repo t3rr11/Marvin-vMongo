@@ -67,7 +67,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command === "drystreaks": { GetHelp(prefix, message, command); break; }
         
         //Management
-        case command.startsWith("current season"): case command.startsWith("season"): case command.startsWith("next season"): { GetSeason(message); break; }
+        case command === "current season": case command === "season": case command === "next season": { GetSeason(message); break; }
         case command.startsWith("register"): { Register(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("request"): { Request(client, message, command); break; }
         case command.startsWith("set clan"): { ClanHandler.RegisterClan(prefix, message, command); break; }
@@ -809,7 +809,11 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
     case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): { globalReq = "GetGlobalSorrowsLeadboard"; break; }
     case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): { globalReq = "GetGlobalGardenLeadboard"; break; }
     case command.startsWith("global total raids"): case command.startsWith("global raids total"): { globalReq = "GetGlobalTotalRaidsLeadboard"; break; }
-    case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): { globalReq = "GetGlobalHighestPowerLeadboard"; break; }
+    case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): {
+      if(command.startsWith("global highest power -a") || command.startsWith("global power -a") || command.startsWith("global max power -a") || command.startsWith("global max light -a")) { globalReq = "GetGlobalHighestPowerMinusArtifactLeadboard"; }
+      else { globalReq = "GetGlobalHighestPowerLeadboard"; }
+      break;
+    }
     default: break;
   }
   if(globalReq) {
@@ -1124,18 +1128,36 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       break;
     }
     case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"): {
-      let top = players.sort((a, b) => { return b.highestPower - a.highestPower }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
+      if(command.startsWith("power -a") || command.startsWith("light -a") || command.startsWith("highest power -a") || command.startsWith("max power -a") || command.startsWith("max light -a")) {
+        let top = players.sort((a, b) => { return (b.highestPower-b.powerBonus) - (a.highestPower-a.powerBonus) }).slice(0, 10);
+        leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower-e.powerBonus) }` });
+        if(registeredPlayer) {
+          var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+          leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) }`);
+        }
+        else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+        embed.setAuthor("Top 10 Highest Base Power");
+        embed.setDescription("This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.");
+        embed.addField("Name", leaderboard.names, true);
+        embed.addField("Highest Base", leaderboard.first, true);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Highest Power");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Highest Power", leaderboard.first, true);
+      else {
+        let top = players.sort((a, b) => { return b.highestPower - a.highestPower }).slice(0, 10);
+        leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) } (${ Misc.AddCommas(e.highestPower-e.powerBonus) } + ${ Misc.AddCommas(e.powerBonus) })` });
+        if(registeredPlayer) {
+          var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+          leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
+        }
+        else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+        embed.setAuthor("Top 10 Highest Power");
+        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.\n\n To see a base power leaderboard use: \`${prefix}power -a\``);
+        embed.addField("Name", leaderboard.names, true);
+        embed.addField("Highest Power", leaderboard.first, true);
+      }
       break;
     }
     //Dungeons - shatteredThrone, pitOfHeresy, prophecy
@@ -2182,18 +2204,36 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
 
     //Others
     case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): {
-      let top = leaderboardData.slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) }` });
-      if(registeredPlayer) {
-        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
+      if(command.startsWith("global highest power -a") || command.startsWith("global power -a") || command.startsWith("global max power -a") || command.startsWith("global max light -a")) {
+        let top = leaderboardData.slice(0, 10);
+        leaderboard.names = top.map((e, index) => { return `${ parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) }` });
+        if(registeredPlayer) {
+          var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+          leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) }`);
+        }
+        else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+        embed.setAuthor("Top 10 Global Highest Base Power");
+        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.`);
+        embed.addField("Name", leaderboard.names, true);
+        embed.addField("Power", leaderboard.first, true);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Highest Power");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Power", leaderboard.first, true);
+      else {
+        let top = leaderboardData.slice(0, 10);
+        leaderboard.names = top.map((e, index) => { return `${ parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) } (${ Misc.AddCommas(e.highestPower-e.powerBonus) } + ${ Misc.AddCommas(e.powerBonus) })` });
+        if(registeredPlayer) {
+          var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+          leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
+        }
+        else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+        embed.setAuthor("Top 10 Global Highest Power");
+        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.\n\n To see global highest base power use: \`${prefix}global power -a\``);
+        embed.addField("Name", leaderboard.names, true);
+        embed.addField("Power", leaderboard.first, true);
+      }
       break;
     }
     case command.startsWith("global time played"): case command.startsWith("global time"): {

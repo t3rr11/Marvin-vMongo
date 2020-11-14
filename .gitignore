@@ -8,6 +8,7 @@
 /Globals/node_modules
 /Shared/node_modules
 /Shared/manifest
+/Shared/manifest_
 
 #configs
 /Shared/configs

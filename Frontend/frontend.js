@@ -44,6 +44,7 @@ async function init() {
   setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
   setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
+  setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 }
 
 //Functions
