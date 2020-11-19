@@ -99,9 +99,9 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("eow"): case command.startsWith("eater of worlds"):
         case command.startsWith("sos"): case command.startsWith("spire of stars"):
         case command.startsWith("lw"): case command.startsWith("last wish"):
-        case command.startsWith("scourge"): case command.startsWith("scourge of the past"):
-        case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"):
-        case command.startsWith("garden"): case command.startsWith("garden of salvation"):
+        case command.startsWith("sotp"): case command.startsWith("scourge"): case command.startsWith("scourge of the past"):
+        case command.startsWith("cos"): case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"):
+        case command.startsWith("gos"): case command.startsWith("garden"): case command.startsWith("garden of salvation"):
         case command.startsWith("sr"): case command.startsWith("season rank"):
         case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"):
         case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
@@ -597,7 +597,7 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   let players = [];
   let playerItems = [];
   let obtained = [];
-  let isProfileCollectible = true;
+  let dataType;
   let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
   //Get item
@@ -624,6 +624,7 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   //Promise all
   if(item) {
     if(item.collectibleHash) {
+      dataType = "item";
       await Promise.all([await GetGuildPlayers(), await GetGuildItems()]);
       for(var i in playerItems) {
         let user = players.find(e => e.membershipID === playerItems[i].membershipID);
@@ -634,12 +635,10 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
         }
       }
     }
-    else { isProfileCollectible = false; }
+    else { dataType = "collectible"; }
   }
 
-  console.log(isProfileCollectible);
-
-  if(isProfileCollectible) { SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item); }
+  if(dataType) { SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item, dataType); }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     errorEmbed.setAuthor("Uhh oh...");
@@ -758,7 +757,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
 
   //Promise all
   if(registeredUser && registeredUser !== "NoUser") {
-    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]); }
+    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
   }
   else {
     if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo(), await GetUserBroadcasts()]); }
@@ -1062,7 +1061,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       embed.addField("Completions", leaderboard.first, true);
       break;
     }
-    case command.startsWith("scourge"): case command.startsWith("scourge of the past"): {
+    case command.startsWith("sotp"): case command.startsWith("scourge"): case command.startsWith("scourge of the past"): {
       let top = players.sort((a, b) => { return b.raids.scourge - a.raids.scourge }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.scourge) }` });
@@ -1077,7 +1076,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       embed.addField("Completions", leaderboard.first, true);
       break;
     }
-    case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"): {
+    case command.startsWith("cos"): case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"): {
       let top = players.sort((a, b) => { return b.raids.sorrows - a.raids.sorrows }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.sorrows) }` });
@@ -1092,7 +1091,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       embed.addField("Completions", leaderboard.first, true);
       break;
     }
-    case command.startsWith("garden"): case command.startsWith("garden of salvation"): {
+    case command.startsWith("gos"): case command.startsWith("garden"): case command.startsWith("garden of salvation"): {
       let top = players.sort((a, b) => { return b.raids.garden - a.raids.garden }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.garden) }` });
@@ -1139,7 +1138,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Highest Base Power");
-        embed.setDescription("This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.");
+        embed.setDescription("As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.");
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Highest Base", leaderboard.first, true);
       }
@@ -1154,7 +1153,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Highest Power");
-        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.\n\n To see a base power leaderboard use: \`${prefix}power -a\``);
+        embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.\n\n To see a base power leaderboard use: \`${prefix}power -a\``);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Highest Power", leaderboard.first, true);
       }
@@ -1551,7 +1550,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
 }
-function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item) {
+function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
   var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
@@ -1561,7 +1560,7 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
     return resultArray
   }, []);
 
-  if(item) {
+  if(dataType === "item") {
     if(playerItems.length > 0) {
       embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
@@ -1569,7 +1568,11 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
       for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
     }
     else {
-      if(item.collectibleHash) { embed.setAuthor(`Nobody has it yet.`); }
+      if(item.collectibleHash) {
+        embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+        embed.setDescription(`Nobody has it yet.`);
+        if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
+      }
       else {
         embed.setAuthor("Can not track item.");
         embed.setDescription(`This item does not have an associated collectible hash to it, which means i cannot track it. Sorry!`);
@@ -1577,8 +1580,17 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
     }
   }
   else {
-    embed.setAuthor("Uhh oh...");
-    embed.setDescription(`Could not find the item requested.`);
+    if(playerItems.length > 0) {
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
+      if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
+      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+    }
+    else {
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setDescription(`Nobody has it yet.`);
+      if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
+    }
   }
 
   message.edit(embed);
@@ -1599,7 +1611,11 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
       for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
     }
-    else { embed.setAuthor(`Nobody has it yet.`); }
+    else {
+      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
+      embed.setDescription(`Nobody has it yet.`);
+      if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
+    }
   }
   else {
     embed.setAuthor("Uhh oh...");
@@ -1795,6 +1811,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("profile -r"): case command.startsWith("profile -raids"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
+              console.log(registeredPlayer);
               embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
               embed.addField("Leviathan", `${ Misc.AddCommas(registeredPlayerStats.levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.levi.rank) })*`, true);
@@ -2215,7 +2232,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Global Highest Base Power");
-        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.`);
+        embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.`);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Power", leaderboard.first, true);
       }
@@ -2226,11 +2243,11 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         if(registeredPlayer) {
           var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Global Highest Power");
-        embed.setDescription(`This is based on snapshot intervals. As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times.\n\n To see global highest base power use: \`${prefix}global power -a\``);
+        embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.\n\n To see global highest base power use: \`${prefix}global power -a\``);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Power", leaderboard.first, true);
       }

@@ -15,7 +15,11 @@ getManifest = () => { return Manifest; }
 getManifestVersion = () => { return ManifestVersion; }
 getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
 getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemDefinition[hash] }
-getManifestItemByCollectibleHash = (collectibleHash) => { return Manifest.DestinyInventoryItemDefinition[Manifest.DestinyCollectibleDefinition[collectibleHash]?.itemHash]; }
+getManifestItemByCollectibleHash = (collectibleHash) => {
+  let collectible = Manifest.DestinyCollectibleDefinition[collectibleHash];
+  let item = Manifest.DestinyInventoryItemDefinition[collectible?.itemHash]
+  return item ? item : collectible;
+}
 getManifestTitleByName = (name) => {
   const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
   const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });

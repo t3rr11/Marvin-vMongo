@@ -430,18 +430,18 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatRaids(clan, memberData, playerData, oldPlayerData) {
-  var leviCompletions = 0; try { leviCompletions = playerData.profileRecords.data.records["3420353827"].objectives[0].progress; } catch (err) { }
-  var eowCompletions = 0; try { eowCompletions = playerData.profileRecords.data.records["2602370549"].objectives[0].progress; } catch (err) { }
-  var sosCompletions = 0; try { sosCompletions = playerData.profileRecords.data.records["1742345588"].objectives[0].progress; } catch (err) { }
+  var leviCompletions = 0; try { leviCompletions = playerData.metrics.data.metrics["2486745106"].objectiveProgress.progress; } catch (err) { }
+  var eowCompletions = 0; try { eowCompletions = playerData.metrics.data.metrics["2659534585"].objectiveProgress.progress; } catch (err) { }
+  var sosCompletions = 0; try { sosCompletions = playerData.metrics.data.metrics["700051716"].objectiveProgress.progress; } catch (err) { }
 
-  var leviPresCompletions = 0; try { leviPresCompletions = playerData.profileRecords.data.records["940998165"].objectives[0].progress; } catch (err) { }
-  var eowPresCompletions = 0; try { eowPresCompletions = playerData.profileRecords.data.records["3861076347"].objectives[0].progress; } catch (err) { }
-  var sosPresCompletions = 0; try { sosPresCompletions = playerData.profileRecords.data.records["2923250426"].objectives[0].progress; } catch (err) { }
+  var leviPresCompletions = 0; try { leviPresCompletions = playerData.metrics.data.metrics["1130423918"].objectiveProgress.progress; } catch (err) { }
+  var eowPresCompletions = 0; try { eowPresCompletions = playerData.metrics.data.metrics["3284024615"].objectiveProgress.progress; } catch (err) { }
+  var sosPresCompletions = 0; try { sosPresCompletions = playerData.metrics.data.metrics["3070318724"].objectiveProgress.progress; } catch (err) { }
 
-  var lastWishCompletions = 0; try { lastWishCompletions = playerData.profileRecords.data.records["2195455623"].objectives[0].progress; } catch (err) { }
-  var scourgeCompletions = 0; try { scourgeCompletions = playerData.profileRecords.data.records["4060320345"].objectives[0].progress; } catch (err) { }
-  var sorrowsCompletions = 0; try { sorrowsCompletions = playerData.profileRecords.data.records["1558682421"].objectives[0].progress; } catch (err) { }
-  var gardenCompletions = 0; try { gardenCompletions = playerData.profileRecords.data.records["1120290476"].objectives[0].progress; } catch (err) { }
+  var lastWishCompletions = 0; try { lastWishCompletions = playerData.metrics.data.metrics["905240985"].objectiveProgress.progress; } catch (err) { }
+  var scourgeCompletions = 0; try { scourgeCompletions = playerData.metrics.data.metrics["1201631538"].objectiveProgress.progress; } catch (err) { }
+  var sorrowsCompletions = 0; try { sorrowsCompletions = playerData.metrics.data.metrics["1815425870"].objectiveProgress.progress; } catch (err) { }
+  var gardenCompletions = 0; try { gardenCompletions = playerData.metrics.data.metrics["1168279855"].objectiveProgress.progress; } catch (err) { }
 
   //For some reason leviCompetions also count prestige completions, they need to be removed;
   leviCompletions = leviCompletions - leviPresCompletions;

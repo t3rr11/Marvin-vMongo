@@ -160,8 +160,8 @@ async function init() {
   //Realtime Clan scanner, this tracks clans that pay for the quicker broadcasts. Basically a smaller pool of clans = quicker broadcasts.
   rt_clanScanner = async ()  => {//Check if the API is disabled or not
     if(!APIDisabled) {
-      //Set loop speed to rt_tempSpeed
-      setTimeout(rt_clanScanner, rt_tempSpeed);
+      //Set loop speed to 100ms
+      setTimeout(rt_clanScanner, 1000);
 
       //Check if the max amount of clans are being scanned or if there is room for another.
       if(rt_processing.length < rt_scanSpeed) {
@@ -227,7 +227,7 @@ async function init() {
         //Initialize the clan scanner.
         clearInterval(clansEmptyCheck);
         clanScanner();
-        //rt_clanScanner();
+        rt_clanScanner();
       }
     }, 1000);
   }
