@@ -39,10 +39,7 @@ function sendClanBroadcast(clan, guild, clanDetails, type, season) {
 function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   let itemDef = ManifestHandler.getManifest().DestinyCollectibleDefinition[itemHash];
   let count = -1;
-  if(itemHash === "199171385") { count = Data.Raids.lastWish; } // 1000 Voices
-  else if(itemHash === "2220014607") { count = Data.Raids.scourge; } // Anarchy
-  else if(itemHash === "1903459810") { count = Data.Raids.scourge; } // Always On Time
-  else if(itemHash === "2329697053") { count = Data.Raids.sorrows; } // Tarrabah
+  if(itemHash === "199171385") { count = playerData.User.raids.lastWish; } // 1000 Voices
   Database.addAwaitingBroadcast({
     clanID: clan.clanID,
     guildID: guild.guildID,
