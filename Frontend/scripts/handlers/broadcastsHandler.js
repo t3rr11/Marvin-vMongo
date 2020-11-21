@@ -142,9 +142,9 @@ async function sendTitleBroadcast(client, guild, message, broadcast, clan) {
     
     if(manifestRecord) {
       embed.setTitle(`Clan Broadcast - ${ clan.clanName }`);
-      embed.setDescription(message)
-      embed.addField("Obtained by:", manifestRecord.displayProperties.description)
-      embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`))
+      embed.setDescription(message);
+      if(manifestRecord?.displayProperties?.description) { embed.addField("Obtained by:", manifestRecord.displayProperties.description); }
+      embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`));
       
       try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
       catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }

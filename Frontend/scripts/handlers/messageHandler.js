@@ -126,7 +126,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("trials profile overall"): { GetProfile(prefix, message, command, "trials", users, registeredUser); break; }
 
         //Others
-        case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { message.channel.send("Want to help support future updates or bots? Visit my Patreon! https://www.patreon.com/Terrii"); break; }
+        case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { Donate(client, message); break; }
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); }
         
@@ -136,6 +136,16 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
     }
     catch (err) { ErrorHandler("High", err); message.channel.send("Uhh something went really wrong... Sorry about that."); }
   }
+}
+async function Donate(client, message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  embed.setThumbnail(DiscordConfig.defaultLogoURL);
+  embed.setAuthor("Want to help support future updates?");
+  embed.setDescription(`By becoming a Patreon for $2.50 USD/month, Your clan will be scanned by a more powerful version of Marvin.\n\nThis means leaderboards and broadcasts will update anywhere from instant to ~30 seconds rather than the usual scan times between 5-10 minutes.`);
+  embed.addField("Patreon <:patreon:779549421851377665>", "https://www.patreon.com/Terrii");
+  embed.addField("Ko-fi <:kofi:779548939975131157>", "https://ko-fi.com/terrii_dev");
+  embed.addField("Paypal <:paypal:779549835522080768>", "https://paypal.me/guardianstats");
+  message.channel.send(embed);
 }
 async function Request(client, message, command) {
   const request = command.substr("request ".length);
