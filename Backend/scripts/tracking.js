@@ -445,12 +445,13 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   var scourgeCompletions = 0; try { scourgeCompletions = playerData.metrics.data.metrics["1201631538"].objectiveProgress.progress; } catch (err) { }
   var sorrowsCompletions = 0; try { sorrowsCompletions = playerData.metrics.data.metrics["1815425870"].objectiveProgress.progress; } catch (err) { }
   var gardenCompletions = 0; try { gardenCompletions = playerData.metrics.data.metrics["1168279855"].objectiveProgress.progress; } catch (err) { }
+  var dscCompletions = 0; try { dscCompletions = playerData.metrics.data.metrics["954805812"].objectiveProgress.progress; } catch (err) { }
 
   //For some reason leviCompetions also count prestige completions, they need to be removed;
   leviCompletions = leviCompletions - leviPresCompletions;
 
   //Calulate total raids
-  var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions;
+  var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions + dscCompletions;
 
   return {
     "raids": {
@@ -463,7 +464,8 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
       "lastWish": lastWishCompletions,
       "scourge": scourgeCompletions,
       "sorrows": sorrowsCompletions,
-      "garden": gardenCompletions
+      "garden": gardenCompletions,
+      "dsc": dscCompletions
     },
     "totalRaids": totalRaids
   }

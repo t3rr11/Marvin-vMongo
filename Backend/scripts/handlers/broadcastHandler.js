@@ -40,17 +40,20 @@ function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   let itemDef = ManifestHandler.getManifest().DestinyCollectibleDefinition[itemHash];
   let count = -1;
   if(itemHash === "199171385") { count = playerData.User.raids.lastWish; } // 1000 Voices
-  Database.addAwaitingBroadcast({
-    clanID: clan.clanID,
-    guildID: guild.guildID,
-    displayName: playerData.User.displayName,
-    membershipID: playerData.User.membershipID,
-    season: season,
-    type: "item",
-    broadcast: itemDef.displayProperties.name,
-    hash: itemHash,
-    count: count,
-  }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  if(itemDef) {
+    Database.addAwaitingBroadcast({
+      clanID: clan.clanID,
+      guildID: guild.guildID,
+      displayName: playerData.User.displayName,
+      membershipID: playerData.User.membershipID,
+      season: season,
+      type: "item",
+      broadcast: itemDef.displayProperties.name,
+      hash: itemHash,
+      count: count,
+    }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
+  else { ErrorHandler("Med", `ItemDef not found: ${ itemHash }`) }
 }
 
 function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {

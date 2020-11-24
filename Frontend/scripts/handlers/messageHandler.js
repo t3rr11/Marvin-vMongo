@@ -42,6 +42,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case message.author.id === "194972321168097280" && command.startsWith("view mbans"): { ViewBans(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(); message.channel.send("Manifest Update Forced"); break; }
         case message.author.id === "194972321168097280" && command === "force rescan": {
           Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); message.channel.send("Failed to force a full rescan."); }
@@ -101,6 +102,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("lw"): case command.startsWith("last wish"):
         case command.startsWith("sotp"): case command.startsWith("scourge"): case command.startsWith("scourge of the past"):
         case command.startsWith("cos"): case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"):
+        case command.startsWith("dsc"): case command.startsWith("deep stone crypt"):
         case command.startsWith("gos"): case command.startsWith("garden"): case command.startsWith("garden of salvation"):
         case command.startsWith("sr"): case command.startsWith("season rank"):
         case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"):
@@ -802,25 +804,25 @@ async function GetClanWars(prefix, message, command, users, registeredUser) {
 async function GetGlobal(prefix, message, command, users, registeredUser) {
   let globalReq;
   switch(true) {
-    case command.startsWith("global time played"): case command.startsWith("global time"): { globalReq = "GetGlobalTimePlayedLeadboard"; break; }
-    case command.startsWith("global sr"): case command.startsWith("global season rank"): { globalReq = "GetGlobalSeasonRankLeadboard"; break; }
-    case command.startsWith("global triumph score"): case command.startsWith("global triumph"): case command.startsWith("global triumphs"): { globalReq = "GetGlobalTriumphScoreLeadboard"; break; }
-    case command.startsWith("global valor"): { globalReq = "GetGlobalValorLeadboard"; break; }
-    case command.startsWith("global infamy"): { globalReq = "GetGlobalInfamyLeadboard"; break; }
-    case command.startsWith("global levi"): case command.startsWith("global leviathan"): { globalReq = "GetGlobalLeviLeadboard"; break; }
-    case command.startsWith("global eow"): case command.startsWith("global eater of worlds"): { globalReq = "GetGlobalEoWLeadboard"; break; }
-    case command.startsWith("global sos"): case command.startsWith("global spire of stars"): { globalReq = "GetGlobalSoSLeadboard"; break; }
-    case command.startsWith("global prestige levi"): case command.startsWith("global prestige leviathan"): { globalReq = "GetGlobalLeviPrestigeLeadboard"; break; }
-    case command.startsWith("global prestige eow"): case command.startsWith("global prestige eater of worlds"): { globalReq = "GetGlobalEoWPrestigeLeadboard"; break; }
-    case command.startsWith("global prestige sos"): case command.startsWith("global prestige spire of stars"): { globalReq = "GetGlobalSoSPrestigeLeadboard"; break; }
-    case command.startsWith("global last wish"): case command.startsWith("global lw"): { globalReq = "GetGlobalLastWishLeadboard"; break; }
-    case command.startsWith("global scourge"): case command.startsWith("global scourge of the past"): case command.startsWith("global sotp"): { globalReq = "GetGlobalScourgeLeadboard"; break; }
-    case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): { globalReq = "GetGlobalSorrowsLeadboard"; break; }
-    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): { globalReq = "GetGlobalGardenLeadboard"; break; }
-    case command.startsWith("global total raids"): case command.startsWith("global raids total"): { globalReq = "GetGlobalTotalRaidsLeadboard"; break; }
+    case command.startsWith("global time played"): case command.startsWith("global time"): { globalReq = "GetGlobalTimePlayedLeaderboard"; break; }
+    case command.startsWith("global sr"): case command.startsWith("global season rank"): { globalReq = "GetGlobalSeasonRankLeaderboard"; break; }
+    case command.startsWith("global triumph score"): case command.startsWith("global triumph"): case command.startsWith("global triumphs"): { globalReq = "GetGlobalTriumphScoreLeaderboard"; break; }
+    case command.startsWith("global valor"): { globalReq = "GetGlobalValorLeaderboard"; break; }
+    case command.startsWith("global infamy"): { globalReq = "GetGlobalInfamyLeaderboard"; break; }
+    case command.startsWith("global levi"): case command.startsWith("global leviathan"): { globalReq = "GetGlobalLeviLeaderboard"; break; }
+    case command.startsWith("global eow"): case command.startsWith("global eater of worlds"): { globalReq = "GetGlobalEoWLeaderboard"; break; }
+    case command.startsWith("global sos"): case command.startsWith("global spire of stars"): { globalReq = "GetGlobalSoSLeaderboard"; break; }
+    case command.startsWith("global prestige levi"): case command.startsWith("global prestige leviathan"): { globalReq = "GetGlobalLeviPrestigeLeaderboard"; break; }
+    case command.startsWith("global prestige eow"): case command.startsWith("global prestige eater of worlds"): { globalReq = "GetGlobalEoWPrestigeLeaderboard"; break; }
+    case command.startsWith("global prestige sos"): case command.startsWith("global prestige spire of stars"): { globalReq = "GetGlobalSoSPrestigeLeaderboard"; break; }
+    case command.startsWith("global last wish"): case command.startsWith("global lw"): { globalReq = "GetGlobalLastWishLeaderboard"; break; }
+    case command.startsWith("global scourge"): case command.startsWith("global scourge of the past"): case command.startsWith("global sotp"): { globalReq = "GetGlobalScourgeLeaderboard"; break; }
+    case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): { globalReq = "GetGlobalSorrowsLeaderboard"; break; }
+    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): { globalReq = "GetGlobalGardenLeaderboard"; break; }
+    case command.startsWith("global total raids"): case command.startsWith("global raids total"): { globalReq = "GetGlobalTotalRaidsLeaderboard"; break; }
     case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): {
-      if(command.startsWith("global highest power -a") || command.startsWith("global power -a") || command.startsWith("global max power -a") || command.startsWith("global max light -a")) { globalReq = "GetGlobalHighestPowerMinusArtifactLeadboard"; }
-      else { globalReq = "GetGlobalHighestPowerLeadboard"; }
+      if(command.startsWith("global highest power -a") || command.startsWith("global power -a") || command.startsWith("global max power -a") || command.startsWith("global max light -a")) { globalReq = "GetGlobalHighestPowerMinusArtifactLeaderboard"; }
+      else { globalReq = "GetGlobalHighestPowerLeaderboard"; }
       break;
     }
     default: break;
@@ -1112,6 +1114,22 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Garden of Salvation Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("dsc"): case command.startsWith("deep stone crypt"): {
+      let top = players.sort((a, b) => { return b.raids.dsc - a.raids.dsc }).slice(0, 10);
+      console.log(top[0]);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.dsc) }` });
+      if(registeredPlayer) {
+        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.dsc) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Deep Stone Crypt Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2198,7 +2216,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
       embed.addField("Completions", leaderboard.first, true);
       break;
     }
-    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"):  case command.startsWith("global gos"): {
+    case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): {
       let top = leaderboardData.slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.garden) }` });
@@ -2209,6 +2227,21 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Global Garden of Salvation Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global dsc"): case command.startsWith("global deep stone crypt"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.dsc) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.dsc) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Deep Stone Crypt Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;

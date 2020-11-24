@@ -25,30 +25,30 @@ let startupCheck = setInterval(async function Startup() {
   if(Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     clearInterval(startupCheck);
     app.listen(3000, function () { Log.SaveLog("Globals", "Startup", "Globals is listening on port 3000...") });
-    await UpdateLeaderboards();
     Logger();
   }
 }, 1000);
 
 app.get("/GetClanLeaderboards", async function(req, res) { res.status(200).send(Clans); });
-app.get("/GetGlobalTimePlayedLeadboard", async function(req, res) { res.status(200).send(GetGlobalTimePlayedLeadboard()); });
-app.get("/GetGlobalSeasonRankLeadboard", async function(req, res) { res.status(200).send(GetGlobalSeasonRankLeadboard()); });
-app.get("/GetGlobalTriumphScoreLeadboard", async function(req, res) { res.status(200).send(GetGlobalTriumphScoreLeadboard()); });
-app.get("/GetGlobalValorLeadboard", async function(req, res) { res.status(200).send(GetGlobalValorLeadboard()); });
-app.get("/GetGlobalInfamyLeadboard", async function(req, res) { res.status(200).send(GetGlobalInfamyLeadboard()); });
-app.get("/GetGlobalLeviLeadboard", async function(req, res) { res.status(200).send(GetGlobalLeviLeadboard()); });
-app.get("/GetGlobalEoWLeadboard", async function(req, res) { res.status(200).send(GetGlobalEoWLeadboard()); });
-app.get("/GetGlobalSoSLeadboard", async function(req, res) { res.status(200).send(GetGlobalSoSLeadboard()); });
-app.get("/GetGlobalLeviPrestigeLeadboard", async function(req, res) { res.status(200).send(GetGlobalLeviPrestigeLeadboard()); });
-app.get("/GetGlobalEoWPrestigeLeadboard", async function(req, res) { res.status(200).send(GetGlobalEoWPrestigeLeadboard()); });
-app.get("/GetGlobalSoSPrestigeLeadboard", async function(req, res) { res.status(200).send(GetGlobalSoSPrestigeLeadboard()); });
-app.get("/GetGlobalLastWishLeadboard", async function(req, res) { res.status(200).send(GetGlobalLastWishLeadboard()); });
-app.get("/GetGlobalScourgeLeadboard", async function(req, res) { res.status(200).send(GetGlobalScourgeLeadboard()); });
-app.get("/GetGlobalSorrowsLeadboard", async function(req, res) { res.status(200).send(GetGlobalSorrowsLeadboard()); });
-app.get("/GetGlobalGardenLeadboard", async function(req, res) { res.status(200).send(GetGlobalGardenLeadboard()); });
-app.get("/GetGlobalTotalRaidsLeadboard", async function(req, res) { res.status(200).send(GetGlobalTotalRaidsLeadboard()); });
-app.get("/GetGlobalHighestPowerLeadboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerLeadboard()); });
-app.get("/GetGlobalHighestPowerMinusArtifactLeadboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerMinusArtifactLeadboard()); })
+app.get("/GetGlobalTimePlayedLeaderboard", async function(req, res) { res.status(200).send(GetGlobalTimePlayedLeaderboard()); });
+app.get("/GetGlobalSeasonRankLeaderboard", async function(req, res) { res.status(200).send(GetGlobalSeasonRankLeaderboard()); });
+app.get("/GetGlobalTriumphScoreLeaderboard", async function(req, res) { res.status(200).send(GetGlobalTriumphScoreLeaderboard()); });
+app.get("/GetGlobalValorLeaderboard", async function(req, res) { res.status(200).send(GetGlobalValorLeaderboard()); });
+app.get("/GetGlobalInfamyLeaderboard", async function(req, res) { res.status(200).send(GetGlobalInfamyLeaderboard()); });
+app.get("/GetGlobalLeviLeaderboard", async function(req, res) { res.status(200).send(GetGlobalLeviLeaderboard()); });
+app.get("/GetGlobalEoWLeaderboard", async function(req, res) { res.status(200).send(GetGlobalEoWLeaderboard()); });
+app.get("/GetGlobalSoSLeaderboard", async function(req, res) { res.status(200).send(GetGlobalSoSLeaderboard()); });
+app.get("/GetGlobalLeviPrestigeLeaderboard", async function(req, res) { res.status(200).send(GetGlobalLeviPrestigeLeaderboard()); });
+app.get("/GetGlobalEoWPrestigeLeaderboard", async function(req, res) { res.status(200).send(GetGlobalEoWPrestigeLeaderboard()); });
+app.get("/GetGlobalSoSPrestigeLeaderboard", async function(req, res) { res.status(200).send(GetGlobalSoSPrestigeLeaderboard()); });
+app.get("/GetGlobalLastWishLeaderboard", async function(req, res) { res.status(200).send(GetGlobalLastWishLeaderboard()); });
+app.get("/GetGlobalScourgeLeaderboard", async function(req, res) { res.status(200).send(GetGlobalScourgeLeaderboard()); });
+app.get("/GetGlobalSorrowsLeaderboard", async function(req, res) { res.status(200).send(GetGlobalSorrowsLeaderboard()); });
+app.get("/GetGlobalGardenLeaderboard", async function(req, res) { res.status(200).send(GetGlobalGardenLeaderboard()); });
+app.get("/GetGlobalDSCLeaderboard", async function(req, res) { res.status(200).send(GetGlobalDSCLeaderboard()); });
+app.get("/GetGlobalTotalRaidsLeaderboard", async function(req, res) { res.status(200).send(GetGlobalTotalRaidsLeaderboard()); });
+app.get("/GetGlobalHighestPowerLeaderboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerLeaderboard()); });
+app.get("/GetGlobalHighestPowerMinusArtifactLeaderboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerMinusArtifactLeaderboard()); })
 
 async function Logger() {
   //Interval for 10 minute status logging.
@@ -114,6 +114,7 @@ function ProcessClanLeaderboards(clans, users) {
       scourge: users[i].raids.scourge,
       sorrows: users[i].raids.sorrows,
       garden: users[i].raids.garden,
+      dsc: users[i].raids.dsc,
       totalRaids: users[i].totalRaids,
       highestPower: users[i].highestPower,
       powerBonus: users[i].powerBonus
@@ -135,6 +136,7 @@ function ProcessClanLeaderboards(clans, users) {
         scourge: users[i].raids.scourge,
         sorrows: users[i].raids.sorrows,
         garden: users[i].raids.garden,
+        dsc: users[i].raids.dsc,
         totalRaids: users[i].totalRaids
       }
     }
@@ -151,6 +153,7 @@ function ProcessClanLeaderboards(clans, users) {
       TempClans[users[i].clanID].scourge += users[i].raids.scourge;
       TempClans[users[i].clanID].sorrows += users[i].raids.sorrows;
       TempClans[users[i].clanID].garden += users[i].raids.garden;
+      TempClans[users[i].clanID].dsc += users[i].raids.dsc;
       TempClans[users[i].clanID].totalRaids += users[i].totalRaids;
     }
   }
@@ -158,92 +161,97 @@ function ProcessClanLeaderboards(clans, users) {
   console.log(`Step 3: Finished Processing: ${ Date.now() - start }ms`);
 }
 
-function GetGlobalTimePlayedLeadboard() {
+function GetGlobalTimePlayedLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.timePlayed - a.timePlayed })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, timePlayed: e.timePlayed, rank: index }
   });
 }
-function GetGlobalSeasonRankLeadboard() {
+function GetGlobalSeasonRankLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.seasonRank - a.seasonRank })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, seasonRank: e.seasonRank, rank: index }
   });
 }
-function GetGlobalTriumphScoreLeadboard() {
+function GetGlobalTriumphScoreLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.triumphScore - a.triumphScore })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, triumphScore: e.triumphScore, rank: index }
   });
 }
-function GetGlobalValorLeadboard() {
+function GetGlobalValorLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.valor - a.valor })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, valor: e.valor, rank: index }
   });
 }
-function GetGlobalInfamyLeadboard() {
+function GetGlobalInfamyLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.infamy - a.infamy })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, infamy: e.infamy, rank: index }
   });
 }
-function GetGlobalLeviLeadboard() {
+function GetGlobalLeviLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.levi.normal - a.levi.normal })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, levi: e.levi.normal, rank: index }
   });
 }
-function GetGlobalEoWLeadboard() {
+function GetGlobalEoWLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.eow.normal - a.eow.normal })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, eow: e.eow.normal, rank: index }
   });
 }
-function GetGlobalSoSLeadboard() {
+function GetGlobalSoSLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.sos.normal - a.sos.normal })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, sos: e.sos.normal, rank: index }
   });
 }
-function GetGlobalLeviPrestigeLeadboard() {
+function GetGlobalLeviPrestigeLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.levi.prestige - a.levi.prestige })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, prestige_levi: e.levi.prestige, rank: index }
   });
 }
-function GetGlobalEoWPrestigeLeadboard() {
+function GetGlobalEoWPrestigeLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.eow.prestige - a.eow.prestige })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, prestige_eow: e.eow.prestige, rank: index }
   });
 }
-function GetGlobalSoSPrestigeLeadboard() {
+function GetGlobalSoSPrestigeLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.sos.prestige - a.sos.prestige })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, prestige_sos: e.sos.prestige, rank: index }
   });
 }
-function GetGlobalLastWishLeadboard() {
+function GetGlobalLastWishLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.lastWish - a.lastWish })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, lastWish: e.lastWish, rank: index }
   });
 }
-function GetGlobalScourgeLeadboard() {
+function GetGlobalScourgeLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.scourge - a.scourge })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, scourge: e.scourge, rank: index }
   });
 }
-function GetGlobalSorrowsLeadboard() {
+function GetGlobalSorrowsLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.sorrows - a.sorrows })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, sorrows: e.sorrows, rank: index }
   });
 }
-function GetGlobalGardenLeadboard() {
+function GetGlobalGardenLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.garden - a.garden })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, garden: e.garden, rank: index }
   });
 }
-function GetGlobalTotalRaidsLeadboard() {
+function GetGlobalDSCLeaderboard() {
+  return [...Object.values(Players).sort((a,b) => { return b.dsc - a.dsc })].map((e, index) => {
+    return { membershipID: e.membershipID, displayName: e.displayName, dsc: e.dsc, rank: index }
+  });
+}
+function GetGlobalTotalRaidsLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.totalRaids - a.totalRaids })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, totalRaids: e.totalRaids, rank: index }
   });
 }
-function GetGlobalHighestPowerLeadboard() {
+function GetGlobalHighestPowerLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.highestPower - a.highestPower })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, powerBonus: e.powerBonus, rank: index }
   });
 }
-function GetGlobalHighestPowerMinusArtifactLeadboard() {
+function GetGlobalHighestPowerMinusArtifactLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return (b.highestPower-b.powerBonus) - (a.highestPower-a.powerBonus) })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower-e.powerBonus, rank: index }
   });
