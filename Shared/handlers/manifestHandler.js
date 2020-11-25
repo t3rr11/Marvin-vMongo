@@ -21,12 +21,12 @@ getManifestItemByCollectibleHash = (collectibleHash) => {
   return item ? item : collectible;
 }
 getManifestTitleByName = (name) => {
-  const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
+  const legacySealsNode = getManifest().DestinyPresentationNodeDefinition[1881970629];
   const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
-  const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[616318467];
+  const sealsNode = getManifest().DestinyPresentationNodeDefinition[616318467];
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
-  let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
-  let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let seals = sealsParents.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash] });
+  let legacySeals = legacysealsParents.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash] });
   let allSeals = seals.concat(legacySeals);
 
   if(name === "conqueror s10") { return allSeals.filter(e => e.hash === 1983630873); }

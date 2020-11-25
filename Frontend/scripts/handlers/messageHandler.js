@@ -1121,7 +1121,6 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
     }
     case command.startsWith("dsc"): case command.startsWith("deep stone crypt"): {
       let top = players.sort((a, b) => { return b.raids.dsc - a.raids.dsc }).slice(0, 10);
-      console.log(top[0]);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.dsc) }` });
       if(registeredPlayer) {
@@ -1638,12 +1637,13 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
     if(playerTitles.length > 0) {
       embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
+      if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
       for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
     }
     else {
       embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
       embed.setDescription(`Nobody has it yet.`);
-      if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
+      if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
     }
   }
   else {
