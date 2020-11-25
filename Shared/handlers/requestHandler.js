@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const Config = require('../configs/Config.json');
 const Misc = require('../misc');
-const expressHost = Config.isLocal ? "localhost" : "61.245.158.188";
+const expressHost = Config.isLocal ? "10.1.1.14" : "61.245.158.188";
 const http = require('http');
 const https = require('https');
 
@@ -58,32 +58,33 @@ const GetClanMembers = async (clan, callback) => { const { isError, Data } = awa
 const GetSettings = async (callback) => { const { isError, Data } = await BungieReq(`/Platform/Settings`); callback(isError, Data); }
 const GetManifestVersion = async (callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/Manifest/`); callback(isError, Data); }
 const GetClanWars = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetClanLeaderboards`); callback(isError, Data); }
-const GetGlobalTimePlayedLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTimePlayedLeadboard`); callback(isError, Data); }
-const GetGlobalSeasonRankLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSeasonRankLeadboard`); callback(isError, Data); }
-const GetGlobalTriumphScoreLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTriumphScoreLeadboard`); callback(isError, Data); }
-const GetGlobalValorLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalValorLeadboard`); callback(isError, Data); }
-const GetGlobalInfamyLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalInfamyLeadboard`); callback(isError, Data); }
-const GetGlobalLeviLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLeviLeadboard`); callback(isError, Data); }
-const GetGlobalEoWLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalEoWLeadboard`); callback(isError, Data); }
-const GetGlobalSoSLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSoSLeadboard`); callback(isError, Data); }
-const GetGlobalLeviPrestigeLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLeviPrestigeLeadboard`); callback(isError, Data); }
-const GetGlobalEoWPrestigeLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalEoWPrestigeLeadboard`); callback(isError, Data); }
-const GetGlobalSoSPrestigeLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSoSPrestigeLeadboard`); callback(isError, Data); }
-const GetGlobalLastWishLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLastWishLeadboard`); callback(isError, Data); }
-const GetGlobalScourgeLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalScourgeLeadboard`); callback(isError, Data); }
-const GetGlobalSorrowsLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSorrowsLeadboard`); callback(isError, Data); }
-const GetGlobalGardenLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalGardenLeadboard`); callback(isError, Data); }
-const GetGlobalTotalRaidsLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTotalRaidsLeadboard`); callback(isError, Data); }
-const GetGlobalHighestPowerLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerLeadboard`); callback(isError, Data); }
-const GetGlobalHighestPowerMinusArtifactLeadboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerMinusArtifactLeadboard`); callback(isError, Data); }
+const GetGlobalTimePlayedLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTimePlayedLeaderboard`); callback(isError, Data); }
+const GetGlobalSeasonRankLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSeasonRankLeaderboard`); callback(isError, Data); }
+const GetGlobalTriumphScoreLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTriumphScoreLeaderboard`); callback(isError, Data); }
+const GetGlobalValorLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalValorLeaderboard`); callback(isError, Data); }
+const GetGlobalInfamyLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalInfamyLeaderboard`); callback(isError, Data); }
+const GetGlobalLeviLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLeviLeaderboard`); callback(isError, Data); }
+const GetGlobalEoWLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalEoWLeaderboard`); callback(isError, Data); }
+const GetGlobalSoSLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSoSLeaderboard`); callback(isError, Data); }
+const GetGlobalLeviPrestigeLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLeviPrestigeLeaderboard`); callback(isError, Data); }
+const GetGlobalEoWPrestigeLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalEoWPrestigeLeaderboard`); callback(isError, Data); }
+const GetGlobalSoSPrestigeLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSoSPrestigeLeaderboard`); callback(isError, Data); }
+const GetGlobalLastWishLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalLastWishLeaderboard`); callback(isError, Data); }
+const GetGlobalScourgeLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalScourgeLeaderboard`); callback(isError, Data); }
+const GetGlobalSorrowsLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalSorrowsLeaderboard`); callback(isError, Data); }
+const GetGlobalGardenLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalGardenLeaderboard`); callback(isError, Data); }
+const GetGlobalDSCLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalDSCLeaderboard`); callback(isError, Data); }
+const GetGlobalTotalRaidsLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalTotalRaidsLeaderboard`); callback(isError, Data); }
+const GetGlobalHighestPowerLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerLeaderboard`); callback(isError, Data); }
+const GetGlobalHighestPowerMinusArtifactLeaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalHighestPowerMinusArtifactLeaderboard`); callback(isError, Data); }
 const GetMembershipsById = async (membershipId, callback) => { const { isError, Data } = await BungieReq(`/Platform/User/GetMembershipsById/${membershipId}/1/`); callback(isError, Data); }
 const SearchDestinyPlayer = async (username, callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/SearchDestinyPlayer/-1/${username}/`); callback(isError, Data); }
 
 module.exports = {
   GetProfile, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, GetMembershipsForCurrentUser,
   GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers, GetSettings, GetClanWars, GetMembershipsById, SearchDestinyPlayer,
-  GetGlobalTimePlayedLeadboard, GetGlobalSeasonRankLeadboard, GetGlobalTriumphScoreLeadboard, GetGlobalValorLeadboard, GetGlobalInfamyLeadboard, GetGlobalLeviLeadboard,
-  GetGlobalEoWLeadboard, GetGlobalSoSLeadboard, GetGlobalLeviPrestigeLeadboard, GetGlobalEoWPrestigeLeadboard, GetGlobalSoSPrestigeLeadboard,
-  GetGlobalLastWishLeadboard, GetGlobalScourgeLeadboard, GetGlobalSorrowsLeadboard, GetGlobalGardenLeadboard, GetGlobalTotalRaidsLeadboard, GetGlobalHighestPowerLeadboard,
-  GetGlobalHighestPowerMinusArtifactLeadboard
+  GetGlobalTimePlayedLeaderboard, GetGlobalSeasonRankLeaderboard, GetGlobalTriumphScoreLeaderboard, GetGlobalValorLeaderboard, GetGlobalInfamyLeaderboard, GetGlobalLeviLeaderboard,
+  GetGlobalEoWLeaderboard, GetGlobalSoSLeaderboard, GetGlobalLeviPrestigeLeaderboard, GetGlobalEoWPrestigeLeaderboard, GetGlobalSoSPrestigeLeaderboard,
+  GetGlobalLastWishLeaderboard, GetGlobalScourgeLeaderboard, GetGlobalSorrowsLeaderboard, GetGlobalGardenLeaderboard, GetGlobalDSCLeaderboard, GetGlobalTotalRaidsLeaderboard, GetGlobalHighestPowerLeaderboard,
+  GetGlobalHighestPowerMinusArtifactLeaderboard
 }

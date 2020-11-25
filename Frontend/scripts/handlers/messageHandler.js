@@ -468,7 +468,7 @@ async function GetHelp(prefix, message, command) {
     case "help raids": case "raids": {
       embed.setAuthor("Raids Help Menu");
       embed.setDescription(`Here is a list of raid commands! Example: \`${prefix}LW\``);
-      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\``);
+      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\``);
       break;
     }
     case "help items": case "items": {
@@ -819,6 +819,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
     case command.startsWith("global scourge"): case command.startsWith("global scourge of the past"): case command.startsWith("global sotp"): { globalReq = "GetGlobalScourgeLeaderboard"; break; }
     case command.startsWith("global sorrows"): case command.startsWith("global crown of sorrows"): case command.startsWith("global crown"): case command.startsWith("global cos"): { globalReq = "GetGlobalSorrowsLeaderboard"; break; }
     case command.startsWith("global garden"): case command.startsWith("global garden of salvation"): case command.startsWith("global gos"): { globalReq = "GetGlobalGardenLeaderboard"; break; }
+    case command.startsWith("global dsc"): case command.startsWith("global deep stone crypt"): { globalReq = "GetGlobalDSCLeaderboard"; break; }
     case command.startsWith("global total raids"): case command.startsWith("global raids total"): { globalReq = "GetGlobalTotalRaidsLeaderboard"; break; }
     case command.startsWith("global highest power"): case command.startsWith("global power"): case command.startsWith("global max power"): case command.startsWith("global max light"): {
       if(command.startsWith("global highest power -a") || command.startsWith("global power -a") || command.startsWith("global max power -a") || command.startsWith("global max light -a")) { globalReq = "GetGlobalHighestPowerMinusArtifactLeaderboard"; }
@@ -2046,8 +2047,8 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
     case command.startsWith("global valor"): {
       let top = leaderboardData.slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.valor.current) }` });
-      leaderboard.second = top.map((e, index) => { return `${ ~~(e.valor.current/2000) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.valor) }` });
+      leaderboard.second = top.map((e, index) => { return `${ ~~(e.valor/2000) }` });
       if(registeredPlayer) {
         var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
