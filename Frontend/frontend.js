@@ -55,6 +55,8 @@ function UpdateActivityList() {
     ActivityList.push(`Serving ${ Users } users`);
     ActivityList.push(`Tracking ${ Clans.length } clans!`);
     ActivityList.push(`Use ~HELP or ~REQUEST for Support`);
+    ActivityList.push(`You can now change your prefix by using: ~set prefix`);
+    ActivityList.push(`Deep stone crypt leaderboards are live use: ~DSC or ~Global DSC`);
     ActivityList.push(`Consider Donating? ~Donate`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
