@@ -35,6 +35,12 @@ var userSchema = new Schema({
     dsc: DefaultNumber
   },
   totalRaids: DefaultNumber,
+  empireHunts: {
+    theDarkPriestess: DefaultNumber,
+    theWarrior: DefaultNumber,
+    theTechnocrat: DefaultNumber,
+    total: DefaultNumber
+  },
   xp: {
     dailyXP: DefaultNumber,
     weeklyXP: DefaultNumber,

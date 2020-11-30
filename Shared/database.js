@@ -509,6 +509,23 @@ const getGuildBroadcasts = async (guildID, callback) => {
     }
   });
 }
+const getGuildItemBroadcasts = async (guildID, hash, callback) => {
+  await Guild.findOne({ guildID, isTracking: true }, async (err, guild) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(guild) {
+        await Broadcast.find({ clanID: guild.clans, hash }, (err, broadcasts) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(broadcasts.length > 0) { callback(false, true, broadcasts); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getClanUsers = async (clanID, callback) => {
   await User.find({ clanID }, (err, players) => {
     if(err) { callback(true, false, err); }
@@ -729,7 +746,7 @@ module.exports = {
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
-  getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getClanUsers,
+  getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,

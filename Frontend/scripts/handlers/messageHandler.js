@@ -8,6 +8,7 @@ const Log = require('../../../Shared/log');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 const RequestHandler = require('../../../Shared/handlers/requestHandler');
+const GlobalItemsHandler = require('../../../Shared/handlers/globalItemsHandler');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
@@ -112,6 +113,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("profile"): { GetProfile(prefix, message, command, "profile", users, registeredUser); break; }
         case command.startsWith("drystreak "): { GetDrystreak(prefix, message, command); break; }
+        case command.startsWith("when "): { GetBroadcastDates(prefix, message, command); break; }
 
         //Trials
         case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
@@ -493,12 +495,7 @@ async function GetHelp(prefix, message, command) {
       embed.addField("Commands", `\`${prefix}Tracked Clans\`\n\`${prefix}Set Clan\`\n\`${prefix}Add Clan\`\n\`${prefix}Remove Clan\``);
       break;
     }
-    case "help broadcasts": case "broadcasts": {
-      embed.setAuthor("Broadcasts Help Menu");
-      embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
-      embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
-      break;
-    }
+    case "help broadcasts": case "broadcasts": { GetBroadcastItems(prefix, message, command); break; }
     case "help globals": case "globals": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription(`Here is a list of global commands! Example: \`${prefix}Global Time Played\``);
@@ -530,7 +527,7 @@ async function GetHelp(prefix, message, command) {
     case "help drystreaks": case "drystreaks": {
       embed.setAuthor("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
-      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Cloudstrike\``);
       break;
     }
     default: {
@@ -542,10 +539,12 @@ async function GetHelp(prefix, message, command) {
     }
   }
 
-  message.channel.send({embed}).catch(err => {
-    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
-  });
+  if(command !== "broadcasts" && command !== "help broadcasts") {
+    message.channel.send({embed}).catch(err => {
+      if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+      else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
+    });
+  }
 }
 async function GetLeaderboard(prefix, message, command, users, registeredUser) {
   let players = [];
@@ -762,7 +761,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
   //Get broadcasts for user
   var GetUserBroadcasts = () => new Promise(resolve => 
     Database.getUserBroadcasts(registeredUser.membershipID, function GetUserBroadcasts(isError, isFound, data) {
-      if(!isError) { if(isFound) { registeredPlayerBroadcasts = data; } }
+      if(!isError) { if(isFound) { registeredPlayerBroadcasts = data.filter(e => e.guildID === message.guild.id || e.guildID === "0"); } }
       resolve(true);
     })
   );
@@ -854,6 +853,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
   else { message.channel.send(`We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: \`${prefix}help globals\``); }
 }
 async function GetDrystreak(prefix, message, command) {
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   let players = [];
   let playerItems = [];
   let broadcasts = [];
@@ -867,12 +867,12 @@ async function GetDrystreak(prefix, message, command) {
     case "ALWAYS ON TIME": case "1903459810": { collectibleHash = 1903459810; isFound = true; break; }
     case "TARRABAH": case "2329697053": { collectibleHash = 2329697053; isFound = true; break; }
     case "LUXURIOUS TOAST": case "1866399776": { collectibleHash = 1866399776; isFound = true; break; }
+    case "CLOUDSTRIKE": case "396432035": { collectibleHash = 396432035; isFound = true; break; }
     default: { break; }
   }
 
-  if(isFound) {
-    let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
+  if(isFound) {
     //Get players
     var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
       if(!isError) { if(isFound) { players = data.filter(e => !e.isPrivate); } }
@@ -904,21 +904,24 @@ async function GetDrystreak(prefix, message, command) {
     //Filter through items looking for people missing the item.
     for(var i in playerItems) {
       let user = players.find(e => e.membershipID === playerItems[i].membershipID);
-      let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash)).state;
-      let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
-      let completions = 0;
-      if(collectibleHash === 199171385) { completions = user.raids.lastWish }
-      else if(collectibleHash === 2220014607) { completions = user.raids.scourge }
-      else if(collectibleHash === 1903459810) { completions = user.raids.scourge }
-      else if(collectibleHash === 2329697053) { completions = user.raids.sorrows }
-      else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
-      if(Misc.GetItemState(itemState).notAcquired) {
-        drystreaks.push({
-          "displayName": user.displayName,
-          "item": item.displayProperties.name,
-          "obtained": false,
-          "completions": completions
-        }); 
+      if(user) {
+        let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash)).state;
+        let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
+        let completions = 0;
+        if(collectibleHash === 199171385) { completions = user.raids.lastWish }
+        else if(collectibleHash === 2220014607) { completions = user.raids.scourge }
+        else if(collectibleHash === 1903459810) { completions = user.raids.scourge }
+        else if(collectibleHash === 2329697053) { completions = user.raids.sorrows }
+        else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
+        else if(collectibleHash === 396432035) { completions = user.empireHunts.total }
+        if(Misc.GetItemState(itemState).notAcquired) {
+          drystreaks.push({
+            "displayName": user.displayName,
+            "item": item.displayProperties.name,
+            "obtained": false,
+            "completions": completions
+          });
+        }
       }
     }
 
@@ -941,9 +944,94 @@ async function GetDrystreak(prefix, message, command) {
   else {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     embed.setAuthor("Drystreaks");
-    embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: ${prefix}help drystreaks`);
+    embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: \`${prefix}help drystreaks\``);
     msg.edit({ embed });
   }
+}
+async function GetBroadcastDates(prefix, message, command) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let guildBroadcasts = [];
+
+  //Get item
+  var requestedItemName = command.substr("test ".length);
+  var item;
+  if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
+  else {
+    item = ManifestHandler.getManifestItemByHash(requestedItemName);
+    if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+  }
+
+  //Get broadcasts for user
+  var GetGuildItemBroadcasts = () => new Promise(resolve => 
+    Database.getGuildItemBroadcasts(message.guild.id, item.collectibleHash, function GetGuildItemBroadcasts(isError, isFound, data) {
+      if(!isError) { if(isFound) { for(let i in data) { if(!guildBroadcasts.find(e => e.membershipID === data[i].membershipID)) { guildBroadcasts.push(data[i]); } } } }
+      resolve(true);
+    })
+  );
+
+  await Promise.all([await GetGuildItemBroadcasts()]);
+
+  if(guildBroadcasts.length > 0) {
+    guildBroadcasts.sort((a, b) => { return a.date - b.date }).slice(0, 100);
+    embed.setAuthor(`Obtained Dates - ${ item.displayProperties.name }`);
+    embed.setDescription(`This is capped at 100, a full leaderboard will be coming soon. Shown: ${ guildBroadcasts.length } / 100`);
+    if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
+    embed.addField("Name", guildBroadcasts.slice(0, guildBroadcasts.length / 2).map(e => { return e.displayName }), true);
+    embed.addField("Date", guildBroadcasts.slice(0, guildBroadcasts.length / 2).map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }), true);
+    embed.addField("\u200B", "\u200B", true);
+    embed.addField("Name", guildBroadcasts.slice(guildBroadcasts.length / 2, guildBroadcasts.length).map(e => { return e.displayName }), true);
+    embed.addField("Date", guildBroadcasts.slice(guildBroadcasts.length / 2, guildBroadcasts.length).map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }), true);
+    embed.addField("\u200B", "\u200B", true);
+  }
+  else {
+    embed.setAuthor("Uhh oh...");
+    embed.setDescription("Could not find any broadcasts for that item in this server. Has this server had any broadcasts since Marvin has started tracking this server/clan?");
+  }
+
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
+  });
+}
+async function GetBroadcastItems(prefix, message, command) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let guild = null;
+  let globals = [];
+
+  //Get Guild Info
+  var GetGuildInfo = () => new Promise(resolve => Database.findGuildByID(message.guild.id, function GetGuildInfo(isError, isFound, data) {
+    if(!isError) { if(isFound) { guild = data; } }
+    resolve(true);
+  }));
+
+  await Promise.all([await GetGuildInfo()]);
+  
+  //Create the help menu
+  embed.setAuthor("Broadcasts Help Menu");
+  embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
+  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
+  
+  //Get mode, global items and extra items.
+  let broadcastMode = guild.broadcasts.mode;
+  let globalItems = (GlobalItemsHandler.getGlobalItems()).filter(e => { if(e.broadcastEnabled) { return e } });
+  let extraItems = guild.broadcasts.extraItems.filter(e => { if(e.enabled) return e });
+  let ignoredItems = guild.broadcasts.extraItems.filter(e => { if(!e.enabled) return e });
+
+  //Check if broadcasts are enabled
+  if(guild && guild?.broadcasts?.channel !== "0") {
+    var chunkyGlobals = MakeItChunky(globalItems, 1000, 25);
+    var chunkyExtras = MakeItChunky(extraItems, 1000, 25);
+    var chunkyIgnored = MakeItChunky(ignoredItems, 1000, 25);
+
+    if(globalItems.length > 0) { for(let i in chunkyGlobals) { embed.addField("Auto Broadcasts", chunkyGlobals[i].map(e => { return e.name }), true); } }
+    if(extraItems.length > 0) { for(let i in chunkyExtras) { embed.addField("Manual Broadcasts", chunkyExtras[i].map(e => { return e.name }), true); } }
+    if(ignoredItems.length > 0) { for(let i in chunkyIgnored) { embed.addField("Ignored Broadcasts", chunkyIgnored[i].map(e => { return e.name }), true); } }
+  }
+
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
+  });
 }
 
 function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
@@ -1580,13 +1668,7 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
 }
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-
-  var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
-    const chunkIndex = Math.floor(index / 15);
-    if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
-    resultArray[chunkIndex].push(item)
-    return resultArray
-  }, []);
+  
 
   if(dataType === "item") {
     if(playerItems.length > 0) {
@@ -2362,6 +2444,15 @@ function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts,
     embed.addField("Completions", leaderboard.first, true);
     message.edit({embed});
   }
+}
+
+function MakeItChunky(array, maxArraySize, chunkSize) {
+  return array.slice(0, maxArraySize).reduce((resultArray, item, index) => { 
+    const chunkIndex = Math.floor(index / chunkSize);
+    if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
+    resultArray[chunkIndex].push(item)
+    return resultArray
+  }, []);
 }
 
 module.exports = { MessageHandler }

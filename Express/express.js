@@ -1,4 +1,5 @@
 //Required Libraries and Files
+const fs = require("fs");
 const cors = require("cors");
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -14,13 +15,20 @@ app.use(bodyParser.json({ extended: true }));
 
 //Global variables
 let isConnecting = false;
+let adminToken = null;
+
+//Set adminToken refresh interval
+async function RefreshAdminToken() { adminToken = fs.readFileSync("../Shared/configs/AdminToken").toString(); }
+setInterval(() => RefreshAdminToken(), 1000 * 60);
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
   if(!isConnecting) { isConnecting = true; Database.ExpressConnect(); }
   if(Database.checkDBConnection()) {
     clearInterval(startupCheck);
+    RefreshAdminToken();
     app.listen(3001, function () { Log.SaveLog("Express", "Startup", "Express is listening on port 3001...") });
+
   }
 }, 1000);
 
@@ -43,6 +51,10 @@ app.get("/GetDatabaseLogs", async function(req, res) { await DatabaseFunction(re
 app.get("/GetBroadcastLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getBroadcastLogs", amount: 300 }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { type: "Error", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/CheckAuthorization", async function(req, res) {
+  if(req.query.token && req.query.token === adminToken) { res.status(200).send({ "isError": false, "message": "Success", "code": 200 }); }
+  else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }
+});
 
 async function DatabaseFunction(req, res, options, data) {
   try {

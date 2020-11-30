@@ -300,6 +300,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       ironBanner: Rankings.ironBanner,
       raids: Raids.raids,
       totalRaids: Raids.totalRaids,
+      empireHunts: Triumphs.empireHunts,
       xp: Seasonal.xp,
       dungeons: Others.dungeons,
       trials: Rankings.trials,
@@ -522,8 +523,16 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
+  var theDarkPriestess = 0; try { darkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
+  var theWarrior = 0; try { theWarrior = playerData.profileRecords.data.records["869599000"].objectives[0].progress; } catch (err) { }
+  var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
   return {
-
+    empireHunts: {
+      theDarkPriestess,
+      theWarrior,
+      theTechnocrat,
+      total: (theDarkPriestess+theWarrior+theTechnocrat)
+    }
   }
 }
 function FormatOthers(clan, memberData, playerData, oldPlayerData) {
