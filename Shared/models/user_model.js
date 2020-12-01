@@ -39,6 +39,7 @@ var userSchema = new Schema({
     theDarkPriestess: DefaultNumber,
     theWarrior: DefaultNumber,
     theTechnocrat: DefaultNumber,
+    masterHunts: DefaultNumber,
     total: DefaultNumber
   },
   xp: {

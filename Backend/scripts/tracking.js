@@ -523,14 +523,16 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
-  var theDarkPriestess = 0; try { darkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
+  var theDarkPriestess = 0; try { theDarkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
   var theWarrior = 0; try { theWarrior = playerData.profileRecords.data.records["869599000"].objectives[0].progress; } catch (err) { }
   var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
+  var masterHunts = 0; try { masterHunts = playerData.profileRecords.data.records["1363459558"].objectives[0].progress; } catch (err) { }
   return {
     empireHunts: {
       theDarkPriestess,
       theWarrior,
       theTechnocrat,
+      masterHunts,
       total: (theDarkPriestess+theWarrior+theTechnocrat)
     }
   }
