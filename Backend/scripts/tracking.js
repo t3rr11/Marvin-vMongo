@@ -352,10 +352,8 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
   }
     
   //Get users highest light character
-  for(let i in lightLevels) { if(lightLevels[i].light > highestPower) { highestPower = lightLevels[i].light; } }
-
-  //Check if max power is higher than previously recorded max power. If the record exists that is.
-  if(oldPlayerData?.User) { highestPower = highestPower > oldPlayerData.User.highestPower ? highestPower : oldPlayerData.User.highestPower; }
+  //for(let i in lightLevels) { if(lightLevels[i].light > highestPower) { highestPower = lightLevels[i].light; } }
+  try { highestPower = playerData.profileRecords.data.records["3241995275"].intervalObjectives[3].progress; } catch (err) {  }
 
   return {
     "clanId": clan.clanID,

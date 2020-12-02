@@ -642,8 +642,8 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
         let user = players.find(e => e.membershipID === playerItems[i].membershipID);
         if(user) {
           let itemState = null; try { itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state } catch (err) { }
-          if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
-          else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName); } }
+          if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
+          else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
         }
       }
     }
@@ -1245,32 +1245,30 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
     }
     case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"): {
       if(command.startsWith("power -a") || command.startsWith("light -a") || command.startsWith("highest power -a") || command.startsWith("max power -a") || command.startsWith("max light -a")) {
-        let top = players.sort((a, b) => { return (b.highestPower-b.powerBonus) - (a.highestPower-a.powerBonus) }).slice(0, 10);
+        let top = players.sort((a, b) => { return (b.highestPower) - (a.highestPower) }).slice(0, 10);
         leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower-e.powerBonus) }` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) }` });
         if(registeredPlayer) {
           var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Highest Base Power");
-        embed.setDescription("As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.");
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Highest Base", leaderboard.first, true);
       }
       else {
-        let top = players.sort((a, b) => { return b.highestPower - a.highestPower }).slice(0, 10);
+        let top = players.sort((a, b) => { return (b.highestPower+b.powerBonus) - (a.highestPower+a.powerBonus) }).slice(0, 10);
         leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) } (${ Misc.AddCommas(e.highestPower-e.powerBonus) } + ${ Misc.AddCommas(e.powerBonus) })` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower+e.powerBonus) } (${ Misc.AddCommas(e.highestPower) } + ${ Misc.AddCommas(e.powerBonus) })` });
         if(registeredPlayer) {
           var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower+registeredPlayer.User.powerBonus) } (${ Misc.AddCommas(registeredPlayer.User.highestPower) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Highest Power");
-        embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.\n\n To see a base power leaderboard use: \`${prefix}power -a\``);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Highest Power", leaderboard.first, true);
       }
@@ -1686,6 +1684,12 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   
+  var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
+    const chunkIndex = Math.floor(index / 15);
+    if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
+    resultArray[chunkIndex].push(item)
+    return resultArray
+  }, []);
 
   if(dataType === "item") {
     if(playerItems.length > 0) {
