@@ -528,7 +528,7 @@ async function GetHelp(prefix, message, command) {
     case "help drystreaks": case "drystreaks": {
       embed.setAuthor("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
-      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Cloudstrike\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\``);
       break;
     }
     default: {
@@ -868,7 +868,7 @@ async function GetDrystreak(prefix, message, command) {
     case "ALWAYS ON TIME": case "1903459810": { collectibleHash = 1903459810; isFound = true; break; }
     case "TARRABAH": case "2329697053": { collectibleHash = 2329697053; isFound = true; break; }
     case "LUXURIOUS TOAST": case "1866399776": { collectibleHash = 1866399776; isFound = true; break; }
-    case "CLOUDSTRIKE": case "396432035": { collectibleHash = 396432035; isFound = true; break; }
+    case "EYES OF TOMORROW": case "753200559": { collectibleHash = 753200559; isFound = true; break; }
     default: { break; }
   }
 
@@ -914,7 +914,7 @@ async function GetDrystreak(prefix, message, command) {
         else if(collectibleHash === 1903459810) { completions = user.raids.scourge }
         else if(collectibleHash === 2329697053) { completions = user.raids.sorrows }
         else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
-        else if(collectibleHash === 396432035) { completions = user.empireHunts.total }
+        else if(collectibleHash === 753200559) { completions = user.raids.dsc }
         if(Misc.GetItemState(itemState).notAcquired) {
           drystreaks.push({
             "displayName": user.displayName,
@@ -2460,7 +2460,7 @@ function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts,
     leaderboard.names = top.map((e, index) => { return `${ e.obtained ? "✓" : "✗"} - ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
     leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.completions) }` });
     embed.setAuthor(`Top 10 Unluckiest People - ${ drystreaks[0].item }`);
-    embed.setDescription(`✓ = Obtained, ✗ = Not Obtained`);
+    embed.setDescription(`These are not all loot runs. I cannot tell the difference between loot runs and non-loot runs. So these are just on what raid completion did they obtain the item on.\n\n✓ = Obtained, ✗ = Not Obtained`);
     embed.addField("Name", leaderboard.names, true);
     embed.addField("Completions", leaderboard.first, true);
     message.edit({embed});

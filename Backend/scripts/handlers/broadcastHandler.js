@@ -37,11 +37,12 @@ function sendClanBroadcast(clan, guild, clanDetails, type, season) {
   }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
-  let itemDef = ManifestHandler.getManifest().DestinyCollectibleDefinition[itemHash];
-  let count = -1;
-  if(itemHash === "199171385") { count = playerData.User.raids.lastWish; } // 1000 Voices
-  else if(itemHash === "396432035") { count = playerData.User.empireHunts.total; } // Cloudstrike
+  var itemDef = ManifestHandler.getManifest().DestinyCollectibleDefinition[itemHash];
+  var count = -1;
+  if(itemHash === 199171385) { count = playerData.User.raids.lastWish; console.log(playerData.User.raids.lastWish); } // 1000 Voices
+  else if(itemHash === 753200559) { count = playerData.User.raids.dsc; console.log(playerData.User.raids.dsc); } // Eyes of Tomorrow
   if(itemDef) {
+    console.log(`itemName: ${ itemDef.displayProperties.name }, itemHash: ${ itemHash }, Count: ${ count }`);
     Database.addAwaitingBroadcast({
       clanID: clan.clanID,
       guildID: guild.guildID,

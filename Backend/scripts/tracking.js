@@ -351,9 +351,11 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     timePlayed = parseInt(timePlayed) + parseInt(characters[characterIds[i]].minutesPlayedTotal);
   }
     
-  //Get users highest light character
-  //for(let i in lightLevels) { if(lightLevels[i].light > highestPower) { highestPower = lightLevels[i].light; } }
+  //Get users highest light from record, this however changed based on character last played. Hence the next check.
   try { highestPower = playerData.profileRecords.data.records["3241995275"].intervalObjectives[3].progress; } catch (err) {  }
+
+  //Check if max power is higher than previously recorded max power. If the record exists that is.
+  if(oldPlayerData?.User) { highestPower = highestPower > oldPlayerData.User.highestPower ? highestPower : oldPlayerData.User.highestPower; }
 
   return {
     "clanId": clan.clanID,
