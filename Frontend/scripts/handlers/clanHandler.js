@@ -118,9 +118,9 @@ function AddClan(prefix, message, command) {
                 }
                 else { message.reply(`Only discord administrators or the one who linked this server can add or remove clans from the server. Get them to use: \`${prefix}add clan\` for you.`); }
               }
-              else { RegisterClan(message, command); }
+              else { RegisterClan(prefix, message, command); }
             }
-            else { RegisterClan(message, command); }
+            else { RegisterClan(prefix, message, command); }
           }
           else { Log.SaveLog("Frontend", "Error", "Failed to find clan."); message.reply("An error has occured... This has been logged, sorry about that!"); }
         });
