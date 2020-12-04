@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const Config = require('../configs/Config.json');
 const Misc = require('../misc');
-const expressHost = Config.isLocal ? "10.1.1.14" : "61.245.158.188";
+const expressHost = Config.isLocal ? Config.localIP : Config.liveIP;
 const http = require('http');
 const https = require('https');
 
