@@ -2,6 +2,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const Register = require('./registerHandler.js');
 const ClanHandler = require('./clanHandler.js');
+const BroadcastHandler = require('./broadcastsHandler.js');
 const Database = require('../../../Shared/database');
 const Misc = require('../../../Shared/misc');
 const Log = require('../../../Shared/log');
@@ -84,8 +85,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("toggle title broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle clan broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
-        case command.startsWith("add item "): { message.channel.send("Nice find, but this feature is still in development. Check back soon!"); break; }
-        case command.startsWith("remove item "): { message.channel.send("Nice find, but this feature is still in development. Check back soon!"); break; }
+        case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
+        case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
         case command === "claninfo": { ClanInfo(prefix, message, command, guild); break; }
 
         //Rankings
@@ -434,8 +435,8 @@ async function ItemInfo(prefix, message, command) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
     embed.setAuthor(`${ item.displayProperties.name }`);
-    if(item.displayProperties.description) { embed.setDescription(`${ item.displayProperties.description }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}add item ${ item.hash }\`` : "" }`); }
-    else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}add item ${ item.hash }\`` : "" }`); }
+    if(item.displayProperties.description) { embed.setDescription(`${ item.displayProperties.description }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
+    else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
     embed.addField(`Collectible Hash`, item.collectibleHash ? item.collectibleHash : "None", true);
     embed.addField(`Trackable`, item.collectibleHash ? "Yes" : "No", true);

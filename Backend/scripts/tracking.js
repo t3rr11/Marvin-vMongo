@@ -209,11 +209,7 @@ async function CheckItems(clan, season, memberData, playerData, oldPlayerData, g
         let itemsToLookFor = [];
   
         if(broadcastMode === "Auto") {
-          //If broadcast mode is automatic, then it will only broadcast those found in the database under the "global_items" collection.
-          itemsToLookFor = globalItems;
-        }
-        else if(broadcastMode === "Semi-Auto") {
-          //If broadcast mode is semi-automatic, then it will broadcast those found in the database under the "global_items" collection and in the extra items node in the seclected guild.
+          //If broadcast mode is automatic, then it will broadcast those found in the database under the "global_items" collection and in the extra items node in the seclected guild.
           itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))];
         }
         else if(broadcastMode === "Manual") {
@@ -257,8 +253,7 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
         let ignoredItems = guilds[i].broadcasts.extraItems.map(e => { if(!e.enabled) return e.hash });
         let itemsToLookFor = [];
   
-        if(broadcastMode === "Auto") { itemsToLookFor = globalItems; }
-        else if(broadcastMode === "Semi-Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
+        if(broadcastMode === "Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
         else if(broadcastMode === "Manual") { itemsToLookFor = extraItems; }
   
         //Find items that match in differences and send broadcast

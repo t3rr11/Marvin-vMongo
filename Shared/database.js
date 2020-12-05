@@ -738,6 +738,26 @@ const disableGuildTracking = async (guildID, callback) => {
     }
   });
 }
+const enableItemBroadcast = async (guild, item, callback) => {
+  if(!guild.broadcasts.extraItems.find(e => e.hash === item.hash)) {
+    guild.broadcasts.extraItems.push({ name: item.displayProperties.name, hash: item.hash, enabled: true });
+    Guild.updateOne({ guildID: guild.guildID }, { broadcasts: guild.broadcasts }, { }, (err, numAffected) => {
+      if(err || numAffected < 1) { callback(true, "Med", err); }
+      else { callback(false); }
+    });
+  }
+  else { callback(true, "low", "This item is already being tracked"); }
+}
+const disableItemBroadcast = async (guild, item, callback) => {
+  if(guild.broadcasts.extraItems.find(e => e.hash === item.hash)) {
+    guild.broadcasts.extraItems.splice(guild.broadcasts.extraItems.indexOf(guild.broadcasts.extraItems.find(e => e.hash === item.hash)), 1);
+    Guild.updateOne({ guildID: guild.guildID }, { broadcasts: guild.broadcasts }, { }, (err, numAffected) => {
+      if(err || numAffected < 1) { callback(true, "Med", err); }
+      else { callback(false); }
+    });
+  }
+  else { callback(true, "low", "This item is not being tracked"); }
+}
 
 module.exports = {
   checkSSHConnection, checkDBConnection,
@@ -750,5 +770,5 @@ module.exports = {
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
-  enableGuildTracking, disableGuildTracking
+  enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast
 }

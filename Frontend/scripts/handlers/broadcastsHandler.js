@@ -229,6 +229,104 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
     else { ErrorHandler("Med", guilds); }
   });
 }
+async function enableItemBroadcast(prefix, message, command, guild) {
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  if(guild) {
+    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
+      //Get item info
+      let requestedItemName = command.substr("track ".length);
+      let item;
+      if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
+      else {
+        item = ManifestHandler.getManifestItemByHash(requestedItemName);
+        if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+      }
+
+      //If item exists add it to tracking
+      if(item) {
+        Database.enableItemBroadcast(guild, item, function enableItemBroadcast(isError, severity, err) {
+          if(isError) {
+            let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+            if(err === "This item is already being tracked") { errorEmbed.setDescription(`This item is already being tracked. To remove use: \`${ prefix }untrack ${ requestedItemName }\``); }
+            else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to track item. Please try again.`); }
+            msg.edit(errorEmbed);
+          }
+          else {
+            Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
+            let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+            embed.setAuthor("Success!");
+            embed.setDescription(`Now tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
+            msg.edit(embed);
+          }
+        });
+      }
+      else {
+        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
+        msg.edit(errorEmbed);
+      }
+    }
+    else {
+      let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+      errorEmbed.setDescription("You do not have permission to use this command, only the person who first setup Marvin or any server Administrator can make changes.");
+      msg.edit(errorEmbed);
+    }
+  }
+  else {
+    let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    errorEmbed.setDescription("Cannot track item because this guild has no registered clans yet.");
+    msg.edit(errorEmbed);
+  }
+}
+async function disableItemBroadcast(prefix, message, command, guild) {
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  if(guild) {
+    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
+      //Get item info
+      let requestedItemName = command.substr("untrack ".length);
+      let item;
+      if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
+      else {
+        item = ManifestHandler.getManifestItemByHash(requestedItemName);
+        if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+      }
+
+      //If item exists add it to tracking
+      if(item) {
+        Database.disableItemBroadcast(guild, item, function disableItemBroadcast(isError, severity, err) {
+          if(isError) {
+            let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+            if(err === "This item is not being tracked") { errorEmbed.setDescription(`This item is not being tracked. To track use: \`${ prefix }track ${ requestedItemName }\``); }
+            else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to untrack item. Please try again.`); }
+            msg.edit(errorEmbed);
+          }
+          else {
+            Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is no longer being tracked by ${ guild.guildName } (${ message.guild.id })`);
+            let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+            embed.setAuthor("Success!");
+            embed.setDescription(`No longer tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
+            msg.edit(embed);
+          }
+        });
+      }
+      else {
+        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
+        msg.edit(errorEmbed);
+      }
+    }
+    else {
+      let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+      errorEmbed.setDescription("You do not have permission to use this command, only the person who first setup Marvin or any server Administrator can make changes.");
+      msg.edit(errorEmbed);
+    }
+  }
+  else {
+    let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    errorEmbed.setDescription("Cannot untrack item because this guild has no registered clans yet.");
+    msg.edit(errorEmbed);
+  }
+}
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { checkForBroadcasts, processBroadcast, sendFinishedLoadingAnnouncement }
+module.exports = { checkForBroadcasts, processBroadcast, enableItemBroadcast, disableItemBroadcast, sendFinishedLoadingAnnouncement }
