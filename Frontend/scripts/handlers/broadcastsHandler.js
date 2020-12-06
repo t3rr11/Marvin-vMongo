@@ -104,7 +104,7 @@ async function processBroadcast(client, broadcast) {
   });
 }
 async function sendItemBroadcast(client, guild, message, broadcast, clan) {
-  let embed = new Discord.MessageEmbed().setTitle(`Clan Broadcast - ${ clan.clanName }`).setDescription(message).setColor(0xFFE000).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let embed = new Discord.MessageEmbed().setTitle(`Clan Broadcast - ${ clan.clanName }`).setDescription(message.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })).setColor(0xFFE000).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   let sendBroadcast = true;
   //Check to see if item broadcasts are enabled.
   if(guild.broadcasts.items) {
