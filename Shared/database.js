@@ -21,6 +21,7 @@ const LogItem = require('./models/log_model');
 const BroadcastLog = require('./models/broadcastLog_model');
 const FrontendStatusLog = require('./models/frontendStatus_model');
 const BackendStatusLog = require('./models/backendStatus_model');
+const GunsmithMods = require('./models/gunsmithMods_model');
 
 //Variables
 let SSHConnected = false;
@@ -206,6 +207,12 @@ const addBackendStatusLog = async (logData, callback) => {
 }
 const addFrontendStatusLog = async (logData, callback) => {
   await new FrontendStatusLog(logData).save((err, doc) => {
+    if(err) { callback(true, "High", err) }
+    else { callback(false); }
+  });
+}
+const addGunsmithMods = async (data, callback) => {
+  await new GunsmithMods(data).save((err, doc) => {
     if(err) { callback(true, "High", err) }
     else { callback(false); }
   });
@@ -585,6 +592,16 @@ const getAPIStatus = async (options, data, callback) => {
     }
   });
 }
+const getGunsmithMods = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await GunsmithMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 //Updates
 const updateUserByID = async (membershipID, data, callback) => {
@@ -763,11 +780,12 @@ module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
+  addGunsmithMods,
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus,
+  getBackendLogs, getFrontendLogs, getBroadcastLogs, getLogs, getAPIStatus, getGunsmithMods,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast

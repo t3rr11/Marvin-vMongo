@@ -457,44 +457,55 @@ async function ItemInfo(prefix, message, command) {
   }
 }
 async function GunsmithMods(guild, message) {
-  var prefix = guild.prefix;
-  var msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Loading Gunsmith").setDescription("Just checking Braytech.org, gimme a sec.").setTimestamp());
+  var prefix = guild?.prefix ? guild?.prefix : "~";
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Vendor - Gunsmith Mods").setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
 
   function GetGunsmithMods() {
-    RequestHandler.GetGunsmithMods(async function(isError, Gunsmith) {    
-      if(!isError) {
-        const gunsmithSales = Gunsmith.Response.sales.data;
-        const mods = Object.values(gunsmithSales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
-        const mod1 = ManifestHandler.getManifestItemByHash(mods[0].itemHash);
-        const mod2 = ManifestHandler.getManifestItemByHash(mods[1].itemHash);
-    
+    Database.getGunsmithMods(async function(isError, isFound, data) {    
+      if(!isError && isFound) {
         //Canvasing the mod images
-        const canvas = Canvas.createCanvas(700, 96);
+        const canvas = Canvas.createCanvas(500, 210);
         const ctx = canvas.getContext('2d');
     
-        const mod1Image = await Canvas.loadImage(`https://bungie.net${ mod1.displayProperties.icon }`);
-        const mod2Image = await Canvas.loadImage(`https://bungie.net${ mod2.displayProperties.icon }`);
+        const background = await Canvas.loadImage(`./images/banshee-44.png`);
+        const mod1Image = await Canvas.loadImage(`https://bungie.net${ data.mods[0].icon }`);
+        const mod2Image = await Canvas.loadImage(`https://bungie.net${ data.mods[1].icon }`);
     
-        ctx.drawImage(mod1Image, 0, 0, 96, 96);
-        ctx.drawImage(mod2Image, 350, 0, 96, 96);
+        //Add Images
+        ctx.drawImage(background, 0, 0, 500, 210);
+        ctx.drawImage(mod1Image, (canvas.width / 2) - 20, 30, 64, 64);
+        ctx.drawImage(mod2Image, (canvas.width / 2) - 20, 114, 64, 64);
+
+        //Add Text Backgrounds
+        ctx.beginPath();
+        ctx.globalAlpha = 0.1;
+        ctx.rect((canvas.width / 2) - 25, 25, (canvas.width / 2) + 10, 74);
+        ctx.fill(0,0,0);
+        ctx.globalAlpha = 0.2;
+        ctx.rect((canvas.width / 2) - 25, 109, (canvas.width / 2) + 10, 74);
+        ctx.fill(0,0,0);
+        ctx.stroke();
     
         //Add Text
-        ctx.font = '24px sans-serif';
+        ctx.globalAlpha = 1;
+        ctx.font = '16px sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(mod1.displayProperties.name, 111, 55);
-        ctx.fillText(mod2.displayProperties.name, 461, 55);
+        ctx.fillText(data.mods[0].name, (canvas.width / 2) + 54, 66);
+        ctx.fillText(data.mods[1].name, (canvas.width / 2) + 54, 150);
     
         //Add Image to Embed
         const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
         embed.attachFiles([attachment]);
         embed.setImage('attachment://mods.png');
-        embed.setDescription(`Too see who needs these mods use: \n\`${ prefix }!item ${ mod1.displayProperties.name }\`\n\`${ prefix }!item ${ mod2.displayProperties.name }\``);
-        
-        msg.delete();
+        embed.setDescription(`Too see who needs these mods use: \n\`${ prefix }!item ${ data.mods[0].name }\`\n\`${ prefix }!item ${ data.mods[1].name }\``);
+
         message.channel.send(embed);
       }
-      else { setTimeout(() => GetGunsmithMods(), 5000); }
+      else {
+        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        errorEmbed.setDescription(`So something went wrong and this command just didn't work. Please report using \`${prefix}request\``);
+        message.channel.send(errorEmbed);
+      }
     });
   }
 

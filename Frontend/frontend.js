@@ -9,6 +9,7 @@ const { MessageHandler } = require('./scripts/handlers/messageHandler');
 const BroadcastHandler = require('./scripts/handlers/broadcastsHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
+const RequestHandler = require('../Shared/handlers/requestHandler');
 const Config = require('../Shared/configs/Config.json');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
@@ -24,6 +25,7 @@ let NewClans = [];
 let RegisteredUsers = [];
 let isConnecting = false;
 let commandsInput = 0;
+let ResetTime = 0;
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
@@ -45,6 +47,16 @@ async function init() {
   setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
+
+  //Get next reset and set timer to update gunsmith mods
+  Database.getGunsmithMods((isError, isFound, data) => {
+    if(!isError && isFound) {
+      ResetTime = data.nextRefreshDate;
+      let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
+      let resetOffset = 1000 * 60 * 5; //This is just to wait a few minutes after reset before grabbing data.
+      setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
+    }
+  });
 }
 
 //Functions
@@ -110,6 +122,33 @@ async function update() {
   
   //Check for broadcasts
   if(!Config.isLocal) { BroadcastHandler.checkForBroadcasts(client); }
+}
+async function updateGunsmithMods() {
+  RequestHandler.GetGunsmithMods(async function(isError, Gunsmith) {    
+    if(!isError && Gunsmith?.Response?.sales?.data) {
+      const gunsmithSales = Gunsmith.Response.sales.data;
+      const refreshDate = Gunsmith.Response.vendor.data.nextRefreshDate;
+      const mods = Object.values(gunsmithSales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
+      Database.addGunsmithMods({
+        mods: Object.values(mods).map(e => {
+          let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
+          return {
+            name: mod.displayProperties.name,
+            icon: mod.displayProperties.icon,
+            description: mod.displayProperties.description,
+            hash: mod.hash,
+            collectibleHash: mod.collectibleHash
+          }
+        }),
+        nextRefreshDate: refreshDate
+      }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+    }
+    else {
+      //If failed for some reason, set a timeout to retry and log error.
+      ErrorHandler("High", `Failed to update Gunsmith mods, retrying in 30 seconds.`);
+      setTimeout(() => { updateGunsmithMods(); }, 30000);
+    }
+  });
 }
 
 //Joined a server
