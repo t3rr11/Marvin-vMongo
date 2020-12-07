@@ -22,7 +22,7 @@ var guildSchema = new Schema({
     triumphs: { type: Boolean, default: true },
     catalysts: { type: Boolean, default: true },
     others: { type: Boolean, default: true },
-    gunsmith: { type: Boolean, default: false }
+    gunsmiths: { type: Boolean, default: false }
   }
 });
 

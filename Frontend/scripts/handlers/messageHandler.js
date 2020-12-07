@@ -85,6 +85,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("toggle item broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle title broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle clan broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle gunsmith broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
@@ -363,6 +364,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
       case "toggle": {
         if(guild) {
           let toggle = command.split('toggle ').pop().split(' broadcasts')[0];
+          console.log(toggle);
           guild.broadcasts[`${ toggle }s`] = !guild.broadcasts[`${ toggle }s`];
           Database.updateGuildByID(message.guild.id, { broadcasts: guild.broadcasts }, function updateGuildByID(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle broadcasts. Please try again.`); }
