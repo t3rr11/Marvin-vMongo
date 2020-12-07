@@ -463,6 +463,18 @@ async function GunsmithMods(guild, message) {
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Vendor - Gunsmith Mods").setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
 
   function GetGunsmithMods() {
+    function FormatText(string) {
+      let name = string;
+      if(string.split(" ").length > 3) {
+        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
+      }
+      return name;
+    }
+    function FormatHeight(string, defaultHeight) {
+      let height = defaultHeight;
+      if(string.split(" ").length > 3) { height = 130; }
+      return height;
+    }
     Database.getGunsmithMods(async function(isError, isFound, data) {    
       if(!isError && isFound) {
         //Canvasing the mod images
@@ -492,14 +504,14 @@ async function GunsmithMods(guild, message) {
         ctx.globalAlpha = 1;
         ctx.font = '16px sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(data.mods[0].name, (canvas.width / 2) + 54, 66);
-        ctx.fillText(data.mods[1].name, (canvas.width / 2) + 54, 150);
+        ctx.fillText(FormatText(data.mods[0].name), (canvas.width / 2) + 54, FormatHeight(data.mods[0].name, 66));
+        ctx.fillText(FormatText(data.mods[1].name), (canvas.width / 2) + 54, FormatHeight(data.mods[1].name, 150));
     
         //Add Image to Embed
         const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
         embed.attachFiles([attachment]);
         embed.setImage('attachment://mods.png');
-        embed.setDescription(`Too see who needs these mods use: \n\`${ prefix }!item ${ data.mods[0].name }\`\n\`${ prefix }!item ${ data.mods[1].name }\``);
+        embed.setDescription(`To see who needs these mods use: \n\`${ prefix }!item ${ data.mods[0].name }\`\n\`${ prefix }!item ${ data.mods[1].name }\``);
 
         message.channel.send(embed);
       }

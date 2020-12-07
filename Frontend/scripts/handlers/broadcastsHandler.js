@@ -245,21 +245,28 @@ async function enableItemBroadcast(prefix, message, command, guild) {
 
       //If item exists add it to tracking
       if(item) {
-        Database.enableItemBroadcast(guild, item, function enableItemBroadcast(isError, severity, err) {
-          if(isError) {
-            let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-            if(err === "This item is already being tracked") { errorEmbed.setDescription(`This item is already being tracked. To remove use: \`${ prefix }untrack ${ requestedItemName }\``); }
-            else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to track item. Please try again.`); }
-            msg.edit(errorEmbed);
-          }
-          else {
-            Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
-            let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-            embed.setAuthor("Success!");
-            embed.setDescription(`Now tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
-            msg.edit(embed);
-          }
-        });
+        if(item.collectibleHash) {
+          Database.enableItemBroadcast(guild, item, function enableItemBroadcast(isError, severity, err) {
+            if(isError) {
+              let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+              if(err === "This item is already being tracked") { errorEmbed.setDescription(`This item is already being tracked. To remove use: \`${ prefix }untrack ${ requestedItemName }\``); }
+              else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to track item. Please try again.`); }
+              msg.edit(errorEmbed);
+            }
+            else {
+              Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
+              let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+              embed.setAuthor("Success!");
+              embed.setDescription(`Now tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
+              msg.edit(embed);
+            }
+          });
+        }
+        else {
+          let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          errorEmbed.setDescription(`This item does not have a collectibleHash meaning i cannot actually track it. Sorry!`);
+          msg.edit(errorEmbed);
+        }
       }
       else {
         let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -330,6 +337,18 @@ async function disableItemBroadcast(prefix, message, command, guild) {
 }
 async function sendGunsmithBroadcasts(client, guilds) {
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - Gunsmith Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+  function FormatText(string) {
+    let name = string;
+    if(string.split(" ").length > 3) {
+      name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
+    }
+    return name;
+  }
+  function FormatHeight(string, defaultHeight) {
+    let height = defaultHeight;
+    if(string.split(" ").length > 3) { height = 130; }
+    return height;
+  }
   Database.getGunsmithMods(async function(isError, isFound, data) {  
     if(!isError && isFound) {
       //Canvasing the mod images
@@ -359,8 +378,8 @@ async function sendGunsmithBroadcasts(client, guilds) {
       ctx.globalAlpha = 1;
       ctx.font = '16px sans-serif';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(data.mods[0].name, (canvas.width / 2) + 54, 66);
-      ctx.fillText(data.mods[1].name, (canvas.width / 2) + 54, 150);
+      ctx.fillText(FormatText(data.mods[0].name), (canvas.width / 2) + 54, FormatHeight(data.mods[0].name, 66));
+      ctx.fillText(FormatText(data.mods[1].name), (canvas.width / 2) + 54, FormatHeight(data.mods[1].name, 150));
   
       //Add Image to Embed
       const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
@@ -369,8 +388,8 @@ async function sendGunsmithBroadcasts(client, guilds) {
 
       for(let i in guilds) {
         let guild = guilds[i];
-        if(guild.broadcasts.gunsmith) {
-          embed.setDescription(`Too see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[1].name }\``);
+        if(guild.broadcasts.gunsmith && guild.broadcasts.channel !== "0") {
+          embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[1].name }\``);
           try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed }); }
           catch(err) { console.log(`Failed to send gunsmith broadcast to ${ guild.guildID } because of ${ err }`); }
         }
