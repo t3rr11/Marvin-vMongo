@@ -388,7 +388,7 @@ async function sendGunsmithBroadcasts(client, guilds) {
 
       for(let i in guilds) {
         let guild = guilds[i];
-        if(guild.broadcasts.gunsmith && guild.broadcasts.channel !== "0") {
+        if(guild.broadcasts.gunsmiths && guild.broadcasts.channel !== "0") {
           embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ data.mods[1].name }\``);
           try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed }); }
           catch(err) { console.log(`Failed to send gunsmith broadcast to ${ guild.guildID } because of ${ err }`); }

@@ -1084,24 +1084,24 @@ async function GetBroadcastItems(prefix, message, command) {
   //Create the help menu
   embed.setAuthor("Broadcasts Help Menu");
   embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
-  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
+  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\`\n\`${prefix}Toggle gunsmith broadcasts\``);
   
-  //Get mode, global items and extra items.
-  let broadcastMode = guild.broadcasts.mode;
-  let globalItems = (GlobalItemsHandler.getGlobalItems()).filter(e => { if(e.broadcastEnabled) { return e } });
-  let extraItems = guild.broadcasts.extraItems.filter(e => { if(e.enabled) return e });
-  let ignoredItems = guild.broadcasts.extraItems.filter(e => { if(!e.enabled) return e });
+  // //Get mode, global items and extra items.
+  // let broadcastMode = guild.broadcasts.mode;
+  // let globalItems = (GlobalItemsHandler.getGlobalItems()).filter(e => { if(e.broadcastEnabled) { return e } });
+  // let extraItems = guild.broadcasts.extraItems.filter(e => { if(e.enabled) return e });
+  // let ignoredItems = guild.broadcasts.extraItems.filter(e => { if(!e.enabled) return e });
 
-  //Check if broadcasts are enabled
-  if(guild && guild?.broadcasts?.channel !== "0") {
-    var chunkyGlobals = MakeItChunky(globalItems, 1000, 25);
-    var chunkyExtras = MakeItChunky(extraItems, 1000, 25);
-    var chunkyIgnored = MakeItChunky(ignoredItems, 1000, 25);
+  // //Check if broadcasts are enabled
+  // if(guild && guild?.broadcasts?.channel !== "0") {
+  //   var chunkyGlobals = MakeItChunky(globalItems, 1000, 25);
+  //   var chunkyExtras = MakeItChunky(extraItems, 1000, 25);
+  //   var chunkyIgnored = MakeItChunky(ignoredItems, 1000, 25);
 
-    if(globalItems.length > 0) { for(let i in chunkyGlobals) { embed.addField("Auto Broadcasts", chunkyGlobals[i].map(e => { return e.name }), true); } }
-    if(extraItems.length > 0) { for(let i in chunkyExtras) { embed.addField("Manual Broadcasts", chunkyExtras[i].map(e => { return e.name }), true); } }
-    if(ignoredItems.length > 0) { for(let i in chunkyIgnored) { embed.addField("Ignored Broadcasts", chunkyIgnored[i].map(e => { return e.name }), true); } }
-  }
+  //   if(globalItems.length > 0) { for(let i in chunkyGlobals) { embed.addField("Auto Broadcasts", chunkyGlobals[i].map(e => { return e.name }), true); } }
+  //   if(extraItems.length > 0) { for(let i in chunkyExtras) { embed.addField("Manual Broadcasts", chunkyExtras[i].map(e => { return e.name }), true); } }
+  //   if(ignoredItems.length > 0) { for(let i in chunkyIgnored) { embed.addField("Ignored Broadcasts", chunkyIgnored[i].map(e => { return e.name }), true); } }
+  // }
 
   message.channel.send({embed}).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
@@ -2449,7 +2449,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         if(registeredPlayer) {
           var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) }`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Global Highest Base Power");
@@ -2460,11 +2460,11 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
       else {
         let top = leaderboardData.slice(0, 10);
         leaderboard.names = top.map((e, index) => { return `${ parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower) } (${ Misc.AddCommas(e.highestPower-e.powerBonus) } + ${ Misc.AddCommas(e.powerBonus) })` });
+        leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.highestPower+e.powerBonus) } (${ Misc.AddCommas(e.highestPower) } + ${ Misc.AddCommas(e.powerBonus) })` });
         if(registeredPlayer) {
           var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) } (${ Misc.AddCommas(registeredPlayer.User.highestPower-registeredPlayer.User.powerBonus) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
+          leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower+registeredPlayer.User.powerBonus) } (${ Misc.AddCommas(registeredPlayer.User.highestPower) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Global Highest Power");

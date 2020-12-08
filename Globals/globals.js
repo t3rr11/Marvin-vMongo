@@ -247,12 +247,12 @@ function GetGlobalTotalRaidsLeaderboard() {
   });
 }
 function GetGlobalHighestPowerLeaderboard() {
-  return [...Object.values(Players).sort((a,b) => { return b.highestPower - a.highestPower })].map((e, index) => {
+  return [...Object.values(Players).sort((a,b) => { return b.highestPower+b.powerBonus - a.highestPower+a.powerBonus })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, powerBonus: e.powerBonus, rank: index }
   });
 }
 function GetGlobalHighestPowerMinusArtifactLeaderboard() {
-  return [...Object.values(Players).sort((a,b) => { return (b.highestPower-b.powerBonus) - (a.highestPower-a.powerBonus) })].map((e, index) => {
-    return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower-e.powerBonus, rank: index }
+  return [...Object.values(Players).sort((a,b) => { return b.highestPower - a.highestPower })].map((e, index) => {
+    return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, rank: index }
   });
 }
