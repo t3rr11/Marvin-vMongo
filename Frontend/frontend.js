@@ -53,7 +53,7 @@ async function init() {
     if(!isError && isFound) {
       ResetTime = data.nextRefreshDate;
       let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
-      let resetOffset = 1000 * 60 * 5; //This is just to wait a few minutes after reset before grabbing data.
+      let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
       setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
     }
   });

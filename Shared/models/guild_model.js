@@ -21,8 +21,12 @@ var guildSchema = new Schema({
     dungeons: { type: Boolean, default: true },
     triumphs: { type: Boolean, default: true },
     catalysts: { type: Boolean, default: true },
-    others: { type: Boolean, default: true },
-    gunsmiths: { type: Boolean, default: false }
+    others: { type: Boolean, default: true }
+  },
+  announcements: {
+    channel: { type: String, default: "0" },
+    updates: { type: Boolean, default: true },
+    gunsmiths: { type: Boolean, default: true }
   }
 });
 

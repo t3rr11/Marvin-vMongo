@@ -68,6 +68,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command === "others": { GetHelp(prefix, message, command); break; }
         case command === "clan": { GetHelp(prefix, message, command); break; }
         case command === "broadcasts": { GetHelp(prefix, message, command); break; }
+        case command === "announcements": { GetHelp(prefix, message, command); break; }
         case command === "drystreaks": { GetHelp(prefix, message, command); break; }
         
         //Management
@@ -86,6 +87,11 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("toggle title broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle clan broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle gunsmith broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("set announcements"): { ManageAnnouncements(prefix, message, "set", command, guild); break; }
+        case command.startsWith("remove announcements"): { ManageAnnouncements(prefix, message, "remove", command, guild); break; }
+        case command.startsWith("manage announcements"): { ManageAnnouncements(prefix, message, "manage", command, guild); break; }
+        case command.startsWith("toggle update announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle gunsmith announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
@@ -333,6 +339,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
               function updateGuildByID(isError, severity, err) {
                 if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the broadcasts channel. Please try again.`); }
                 else {
+                  guild.broadcasts.channel = message.guild.id;
                   embed.setDescription(`Successfully set <#${ message.mentions.channels.first().id }> as the broadcasts channel!`);
                   Log.SaveLog("Frontend", "Info", `${ message.guild.id } has set a broadcasts channel: ${ message.mentions.channels.first().id }`);
                 }
@@ -351,6 +358,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
             function updateGuildByID(isError, severity, err) {
               if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the broadcasts channel. Please try again.`); }
               else {
+                guild.broadcasts.channel = "0";
                 embed.setDescription(`Successfully removed the broadcasts channel!`);
                 Log.SaveLog("Frontend", "Info", `${ message.guild.id } has removed the broadcasts channel.`);
               }
@@ -391,6 +399,82 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
         break;
       }
       default: { GetHelp(prefix, message, "broadcasts"); break; }
+    }
+  }
+  else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
+}
+function ManageAnnouncements(prefix, message, type, command, guild) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setAuthor(`Announcements Manager`);
+
+  if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+    switch(type) {
+      case "set": {
+        if(message.mentions.channels.first()) {
+          if(guild) {
+            Database.updateGuildByID(message.guild.id, { "announcements.channel": message.mentions.channels.first().id },
+              function updateGuildByID(isError, severity, err) {
+                if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the announcements channel. Please try again.`); }
+                else {
+                  guild.announcements.channel = message.guild.id;
+                  embed.setDescription(`Successfully set <#${ message.mentions.channels.first().id }> as the announcements channel!`);
+                  Log.SaveLog("Frontend", "Info", `${ message.guild.id } has set a announcements channel: ${ message.mentions.channels.first().id }`);
+                }
+                message.channel.send({embed});
+              }
+            );
+          }
+          else { embed.setDescription(`There are no clans tracked by this server, so i cannot set a announcements channel yet. Use: \`${ prefix }set clan\` first.`); message.channel.send({embed}); }
+        }
+        else { embed.setDescription(`In order to set the announcements channel use the command like this: \`${ prefix }set announcements {channelname}\`. Example: \`${ prefix }set announcements #general\``); message.channel.send({embed}); } 
+        break;
+      }
+      case "remove": {
+        if(guild) {
+          Database.updateGuildByID(message.guild.id, { "announcements.channel": "0" },
+            function updateGuildByID(isError, severity, err) {
+              if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to update the announcements channel. Please try again.`); }
+              else {
+                guild.announcements.channel = "0";
+                embed.setDescription(`Successfully removed the announcements channel!`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has removed the announcements channel.`);
+              }
+              message.channel.send({embed});
+            }
+          );
+        }
+        else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({embed}); }
+        break;
+      }
+      case "toggle": {
+        if(guild) {
+          let toggle = command.split('toggle ').pop().split(' announcements')[0];
+          console.log(toggle);
+          guild.announcements[`${ toggle }s`] = !guild.announcements[`${ toggle }s`];
+          Database.updateGuildByID(message.guild.id, { announcements: guild.announcements }, function updateGuildByID(isError, severity, err) {
+            if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle announcements. Please try again.`); }
+            else {
+              if(guild.announcements[`${ toggle }s`]) {
+                embed.setDescription(`Successfully enabled ${ toggle } announcements!`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has enabled ${ toggle } announcements.`);
+              }
+              else {
+                embed.setDescription(`Successfully disabled ${ toggle } announcements!`);
+                Log.SaveLog("Frontend", "Info", `${ message.guild.id } has disabled ${ toggle } announcements.`);
+              }
+              message.channel.send({embed});
+            }
+          });
+        }
+        else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({embed}); }
+        break;
+      }
+      case "manage": {
+        if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
+        else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmith Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
+        message.channel.send({embed});
+        break;
+      }
+      default: { GetHelp(prefix, message, "announcements"); break; }
     }
   }
   else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
@@ -571,6 +655,12 @@ async function GetHelp(prefix, message, command) {
       break;
     }
     case "help broadcasts": case "broadcasts": { GetBroadcastItems(prefix, message, command); break; }
+    case "help announcements": case "announcements": {
+      embed.setAuthor("Globals Help Menu");
+      embed.setDescription(`Here is a list of announcements commands! Example: \`${prefix}Set announcements #channel\``);
+      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\``); 
+      break;
+    }
     case "help globals": case "globals": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription(`Here is a list of global commands! Example: \`${prefix}Global Time Played\``);
@@ -608,7 +698,7 @@ async function GetHelp(prefix, message, command) {
     default: {
       embed.setAuthor("Hey there! I am Marvin.");
       embed.setDescription(`I have so many commands now i've had to split them up here is a list of my help commands! Example: \`${prefix}Rankings\``);
-      embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``);
+      embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Broadcasts\`, \`${prefix}Announcements\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``);
       embed.addField("Request", `If you wish to request something or would like to give feedback use the request command like this: \`${prefix}request I would like to see Marvin track season ranks!\``);
       break;
     }
@@ -1084,7 +1174,7 @@ async function GetBroadcastItems(prefix, message, command) {
   //Create the help menu
   embed.setAuthor("Broadcasts Help Menu");
   embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
-  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\`\n\`${prefix}Toggle gunsmith broadcasts\``);
+  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
   
   // //Get mode, global items and extra items.
   // let broadcastMode = guild.broadcasts.mode;
