@@ -716,8 +716,8 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
         let user = players.find(e => e.membershipID === playerItems[i].membershipID);
         if(user) {
           let itemState = null; try { itemState = (playerItems[i].items.find(e => e.hash == item.collectibleHash)).state } catch (err) { }
-          if(type === "obtained") { if(!Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
-          else { if(Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
+          if(type === "obtained") { if(itemState!== null && !Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
+          else { if(itemState === null || Misc.GetItemState(itemState).notAcquired) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
         }
       }
     }

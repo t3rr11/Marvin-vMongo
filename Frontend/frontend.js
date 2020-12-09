@@ -144,7 +144,7 @@ async function updateGunsmithMods() {
       }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
       //Finally send the broadcasts out to all discords that have them enabled.
-      broadcastHandler.sendGunsmithBroadcasts(client, guilds);
+      BroadcastHandler.sendGunsmithBroadcasts(client, Guilds);
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
