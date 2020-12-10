@@ -109,6 +109,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("title "): { GetObtainedTitles(prefix, message, command, "obtained", users, registeredUser); break; }
         case command.startsWith("!title "): { GetObtainedTitles(prefix, message, command, "not", users, registeredUser); break; }
         case command.startsWith("valor"): case command.startsWith("glory"): case command.startsWith("infamy"): 
+        case command.startsWith("iron banner"): case command.startsWith("ib"): 
         case command.startsWith("levi"): case command.startsWith("leviathan"):
         case command.startsWith("eow"): case command.startsWith("eater of worlds"):
         case command.startsWith("sos"): case command.startsWith("spire of stars"):
@@ -1260,6 +1261,25 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       embed.setAuthor("Top 10 Seasonal Glory Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Glory", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("iron banner"): {
+      let top = players.sort((a, b) => { return b.ironBanner.kills - a.ironBanner.kills }).slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.ironBanner.kills) }` });
+      leaderboard.second = top.map((e, index) => { return `${ Misc.AddCommas(e.ironBanner.wins) }` });
+      if(registeredPlayer) {
+        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.ironBanner.kills) }`);
+        leaderboard.second.push("", `${ Misc.AddCommas(registeredPlayer.User.ironBanner.wins) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Overall Iron Banner Rankings");
+      embed.setDescription("Seasonal Iron Banner stats are not avaliable, so overall stats it is.");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Kills", leaderboard.first, true);
+      embed.addField("Wins", leaderboard.second, true);
       break;
     }
 

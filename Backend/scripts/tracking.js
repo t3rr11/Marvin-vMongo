@@ -369,8 +369,8 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
   var valor = 0; try { valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress; } catch (err) { }
   var glory = 0; try { glory = playerData.characterProgressions.data[characterIds[0]].progressions["2679551909"].currentProgress; } catch (err) { }
-  var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["2023796284"].intervalObjectives[2].progress; } catch (err) { }
-  var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["759958308"].intervalObjectives[2].progress; } catch (err) { }
+  var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["999240767"].intervalObjectives[2].progress; } catch (err) { }
+  var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["2096302465"].intervalObjectives[2].progress; } catch (err) { }
 
   //Trials
   var overall_trialsWins = 0; try { overall_trialsWins = playerData.metrics.data.metrics["1365664208"].objectiveProgress.progress; } catch (err) { }
@@ -398,8 +398,8 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
     "valor": valor,
     "glory": glory,
     "ironBanner": {
-      "ibKills": ibKills,
-      "ibWins": ibWins,
+      "kills": ibKills,
+      "wins": ibWins,
     },
     "trials": {
       "overall": {

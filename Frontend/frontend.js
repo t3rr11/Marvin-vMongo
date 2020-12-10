@@ -7,6 +7,7 @@ const Log = require('../Shared/log');
 const Misc = require('../Shared/misc');
 const { MessageHandler } = require('./scripts/handlers/messageHandler');
 const BroadcastHandler = require('./scripts/handlers/broadcastsHandler');
+const AnnouncementsHandler = require('./scripts/handlers/announcementsHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
 const RequestHandler = require('../Shared/handlers/requestHandler');
@@ -143,8 +144,8 @@ async function updateGunsmithMods() {
         nextRefreshDate: refreshDate
       }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
-      //Finally send the broadcasts out to all discords that have them enabled.
-      BroadcastHandler.sendGunsmithBroadcasts(client, Guilds);
+      //Finally send the announcement out to all discords that have them enabled.
+      AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds);
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
