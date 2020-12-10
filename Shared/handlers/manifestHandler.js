@@ -31,8 +31,10 @@ getManifestTitleByName = (name) => {
 
   if(name === "conqueror s10") { return allSeals.filter(e => e.hash === 1983630873); }
   else if(name === "conqueror s11") { return allSeals.filter(e => e.hash === 4081738395); }
+  else if(name === "conqueror s12") { return allSeals.filter(e => e.hash === 4167244320); }
   else if(name === "flawless s10") { return allSeals.filter(e => e.hash === 2945528800); }
   else if(name === "flawless s11") { return allSeals.filter(e => e.hash === 1547272082); }
+  else if(name === "flawless s12") { return allSeals.filter(e => e.hash === 2126548397); }
   else { return allSeals.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
 }
 

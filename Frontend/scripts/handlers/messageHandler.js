@@ -845,7 +845,7 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
   }));
 
   //Promise all
-  if(title) {
+  if(title.length > 0) {
     await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]);
 
     if(title.length === 1) {
@@ -864,9 +864,15 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
         }
       }
     }
-  }
 
-  SendTitlesLeaderboard(prefix, msg, command, type, players, obtained, title);
+    SendTitlesLeaderboard(prefix, msg, command, type, players, obtained, title);
+  }
+  else {
+    let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqourer use: Flawless S10, Conqourer S11, Etc.`);
+    msg.edit(errorEmbed);
+  }
 }
 async function GetProfile(prefix, message, command, type, users, registeredUser) {
   let players = [];
@@ -1900,22 +1906,16 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
     return resultArray
   }, []);
 
-  if(title) {
-    if(playerTitles.length > 0) {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
-      embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
-      if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
-      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
-    }
-    else {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
-      embed.setDescription(`Nobody has it yet.`);
-      if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
-    }
+  if(playerTitles.length > 0) {
+    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
+    embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
+    if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
+    for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
   }
   else {
-    embed.setAuthor("Uhh oh...");
-    embed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqourer use: Flawless S10, Conqourer S11, Etc.`);
+    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
+    embed.setDescription(`Nobody has it yet.`);
+    if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
   }
 
   message.edit(embed);
