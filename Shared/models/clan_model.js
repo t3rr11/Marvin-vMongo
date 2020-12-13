@@ -5,6 +5,15 @@ var clanSchema = new Schema({
   clanID: Number,
   clanName: String,
   clanCallsign: String,
+  clanBanner: {
+    decalId: Number,
+    decalColorId: Number,
+    decalBackgroundColorId: Number,
+    gonfalonId: Number,
+    gonfalonColorId: Number,
+    gonfalonDetailId: Number,
+    gonfalonDetailColorId: Number
+  },
   clanLevel: { type: Number, default: 1 },
   memberCount: { type: Number, default: 0 },
   onlineMembers: { type: Number, default: 0 },

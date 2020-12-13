@@ -163,6 +163,15 @@ async function ProcessClanData(clan, guilds, season, clanData, onlineMembers) {
   Database.updateClanByID(clan.clanID, {
     clanName: clanDetails.name,
     clanCallsign: clanDetails.clanInfo.clanCallsign,
+    clanBanner: {
+      decalId: clanDetails.clanInfo.clanBannerData.decalId,
+      decalColorId: clanDetails.clanInfo.clanBannerData.decalColorId,
+      decalBackgroundColorId: clanDetails.clanInfo.clanBannerData.decalBackgroundColorId,
+      gonfalonId: clanDetails.clanInfo.clanBannerData.gonfalonId,
+      gonfalonColorId: clanDetails.clanInfo.clanBannerData.gonfalonColorId,
+      gonfalonDetailId: clanDetails.clanInfo.clanBannerData.gonfalonDetailId,
+      gonfalonDetailColorId: clanDetails.clanInfo.clanBannerData.gonfalonDetailColorId
+    },
     clanLevel: currentClanLevel,
     memberCount: clanDetails.memberCount,
     onlineMembers: onlineMembers.length,
