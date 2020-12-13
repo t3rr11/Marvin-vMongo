@@ -129,23 +129,23 @@ async function updateGunsmithMods() {
     if(!isError && Gunsmith?.Response?.sales?.data) {
       const gunsmithSales = Gunsmith.Response.sales.data;
       const refreshDate = Gunsmith.Response.vendor.data.nextRefreshDate;
-      const mods = Object.values(gunsmithSales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
-      Database.addGunsmithMods({
-        mods: Object.values(mods).map(e => {
-          let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
-          return {
-            name: mod.displayProperties.name,
-            icon: mod.displayProperties.icon,
-            description: mod.displayProperties.description,
-            hash: mod.hash,
-            collectibleHash: mod.collectibleHash
-          }
-        }),
-        nextRefreshDate: refreshDate
-      }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+      const modsRaw = Object.values(gunsmithSales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
+      const mods = Object.values(modsRaw).map(e => {
+        let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
+        return {
+          name: mod.displayProperties.name,
+          icon: mod.displayProperties.icon,
+          description: mod.displayProperties.description,
+          hash: mod.hash,
+          collectibleHash: mod.collectibleHash
+        }
+      });
+
+      //Add new database entry.
+      Database.addGunsmithMods({ mods: mods, nextRefreshDate: refreshDate }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
       //Finally send the announcement out to all discords that have them enabled.
-      AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds);
+      AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds, mods);
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
