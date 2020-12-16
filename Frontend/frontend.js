@@ -146,6 +146,11 @@ async function updateGunsmithMods() {
 
       //Finally send the announcement out to all discords that have them enabled.
       AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds, mods);
+
+      //Reset the announcement to broadcast again the next day
+      let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
+      let resetOffset = 1000 * 60 * 15;
+      setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
