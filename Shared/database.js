@@ -602,6 +602,17 @@ const getAllClansForExpress = async (options, data, callback) => {
     }
   });
 }
+const getClanByID = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  console.log(data);
+  await Clan.find({ clanID: data.clanID }, '-_id -firstScan -forcedScan -__v').exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getGunsmithMods = async (callback) => {
   //Callback fields { isError, isFound, data }
   await GunsmithMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
@@ -799,5 +810,5 @@ module.exports = {
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
-  getAllClansForExpress
+  getAllClansForExpress, getClanByID
 }
