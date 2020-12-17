@@ -604,8 +604,17 @@ const getAllClansForExpress = async (options, data, callback) => {
 }
 const getClanByID = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  console.log(data);
   await Clan.find({ clanID: data.clanID }, '-_id -firstScan -forcedScan -__v').exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getClanMembersByID = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await User.find({ clanID: data.clanID }, '-_id -__v').exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -810,5 +819,5 @@ module.exports = {
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
-  getAllClansForExpress, getClanByID
+  getAllClansForExpress, getClanByID, getClanMembersByID
 }
