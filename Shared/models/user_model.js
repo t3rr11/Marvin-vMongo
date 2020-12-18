@@ -42,6 +42,7 @@ var userSchema = new Schema({
     masterHunts: DefaultNumber,
     total: DefaultNumber
   },
+  dawning2020: DefaultNumber,
   xp: {
     dailyXP: DefaultNumber,
     weeklyXP: DefaultNumber,

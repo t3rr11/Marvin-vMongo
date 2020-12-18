@@ -12,3 +12,7 @@
 
 #configs
 /Shared/configs
+
+#logs
+frontend-error.log
+frontend-out.log

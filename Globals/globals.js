@@ -48,7 +48,8 @@ app.get("/GetGlobalGardenLeaderboard", async function(req, res) { res.status(200
 app.get("/GetGlobalDSCLeaderboard", async function(req, res) { res.status(200).send(GetGlobalDSCLeaderboard()); });
 app.get("/GetGlobalTotalRaidsLeaderboard", async function(req, res) { res.status(200).send(GetGlobalTotalRaidsLeaderboard()); });
 app.get("/GetGlobalHighestPowerLeaderboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerLeaderboard()); });
-app.get("/GetGlobalHighestPowerMinusArtifactLeaderboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerMinusArtifactLeaderboard()); })
+app.get("/GetGlobalHighestPowerMinusArtifactLeaderboard", async function(req, res) { res.status(200).send(GetGlobalHighestPowerMinusArtifactLeaderboard()); });
+app.get("/GetGlobalDawning2020Leaderboard", async function(req, res) { res.status(200).send(GetGlobalDawning2020Leaderboard()); });
 
 async function Logger() {
   //Interval for 10 minute status logging.
@@ -96,6 +97,7 @@ async function UpdateLeaderboards() {
 function ProcessClanLeaderboards(clans, users) {
   let TempClans = { };
   let start = Date.now();
+  count = 0;
 
   for(let i in users) {
     //Add player to Players array
@@ -117,7 +119,8 @@ function ProcessClanLeaderboards(clans, users) {
       dsc: users[i].raids.dsc,
       totalRaids: users[i].totalRaids,
       highestPower: users[i].highestPower,
-      powerBonus: users[i].powerBonus
+      powerBonus: users[i].powerBonus,
+      dawning2020: users[i]["_doc"].dawning2020
     }
 
     //Add players stats to Clans array
@@ -137,7 +140,8 @@ function ProcessClanLeaderboards(clans, users) {
         sorrows: users[i].raids.sorrows,
         garden: users[i].raids.garden,
         dsc: users[i].raids.dsc,
-        totalRaids: users[i].totalRaids
+        totalRaids: users[i].totalRaids,
+        dawning2020: users[i].dawning2020
       }
     }
     else {
@@ -155,6 +159,7 @@ function ProcessClanLeaderboards(clans, users) {
       TempClans[users[i].clanID].garden += users[i].raids.garden;
       TempClans[users[i].clanID].dsc += users[i].raids.dsc;
       TempClans[users[i].clanID].totalRaids += users[i].totalRaids;
+      TempClans[users[i].clanID].dawning2020 += users[i].dawning2020;
     }
   }
   Clans = TempClans;
@@ -254,5 +259,10 @@ function GetGlobalHighestPowerLeaderboard() {
 function GetGlobalHighestPowerMinusArtifactLeaderboard() {
   return [...Object.values(Players).sort((a,b) => { return b.highestPower - a.highestPower })].map((e, index) => {
     return { membershipID: e.membershipID, displayName: e.displayName, highestPower: e.highestPower, rank: index }
+  });
+}
+function GetGlobalDawning2020Leaderboard() {
+  return [...Object.values(Players).sort((a,b) => { return b.dawning2020 - a.dawning2020 })].filter(e => e.dawning2020).map((e, index) => {
+    return { membershipID: e.membershipID, displayName: e.displayName, dawning2020: e.dawning2020, rank: index }
   });
 }

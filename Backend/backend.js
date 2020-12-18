@@ -7,6 +7,7 @@ const Database = require('../Shared/database');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
+const APIRequest = require('../Shared/handlers/requestHandler');
 const Checks = require('../Shared/checks');
 const Merge = require('./scripts/sqlMerge');
 const Test = require('./scripts/testing');
@@ -78,6 +79,7 @@ async function init() {
 
   //Loops
 	setInterval(() => { Log.SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, processing); }, 1000 * 10); //10 Second Interval
+  setInterval(() => { LogCookies(); }, 1000 * 60 * 10); //10 Minute Interval
   setInterval(() => { doChecks(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { GlobalItemsHandler.updateGlobalItems(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
@@ -237,4 +239,17 @@ async function doChecks() {
   await GlobalItemsHandler.updateGlobalItems();
   await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
   await Checks.UpdateSeason(Season, (NSeason) => { Season = NSeason });
+}
+
+async function LogCookies() {
+  //This one is to update the cookies leaderboard
+  try {
+    APIRequest.GetCookies((isError, Data) => {
+      if(!isError) {
+        let Cookies = Data.Response.characterProgressions.data["2305843009405310126"].uninstancedItemObjectives[1867822656][0].progress;
+        Database.addCookieLog({ cookies: Cookies });
+      }
+    });
+  }
+  catch (err) { ErrorHandler("High", err); }
 }

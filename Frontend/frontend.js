@@ -70,6 +70,7 @@ function UpdateActivityList() {
     ActivityList.push(`Use ~HELP or ~REQUEST for Support`);
     ActivityList.push(`You can now change your prefix by using: ~set prefix`);
     ActivityList.push(`Deep stone crypt leaderboards are live use: ~DSC or ~Global DSC`);
+    ActivityList.push(`Use ~Event to keep track of the community dawning event this year!`);
     ActivityList.push(`Consider Donating? ~Donate`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);

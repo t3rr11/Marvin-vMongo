@@ -22,6 +22,7 @@ const BroadcastLog = require('./models/broadcastLog_model');
 const FrontendStatusLog = require('./models/frontendStatus_model');
 const BackendStatusLog = require('./models/backendStatus_model');
 const GunsmithMods = require('./models/gunsmithMods_model');
+const Cookies = require('./models/log_cookies_model');
 
 //Variables
 let SSHConnected = false;
@@ -210,6 +211,9 @@ const addFrontendStatusLog = async (logData, callback) => {
     if(err) { callback(true, "High", err) }
     else { callback(false); }
   });
+}
+const addCookieLog = async (logData) => {
+  if(!Config.isLocal) { await new Cookies(logData).save((err, doc) => { }); }
 }
 const addGunsmithMods = async (data, callback) => {
   await new GunsmithMods(data).save((err, doc) => {
@@ -622,6 +626,16 @@ const getClanMembersByID = async (options, data, callback) => {
     }
   });
 }
+const getLastCookieLog = async (callback) => {
+  //Callback fields { isError, isFound, data }
+  await Cookies.find({ }).sort({ _id: -1 }).limit(1).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getGunsmithMods = async (callback) => {
   //Callback fields { isError, isFound, data }
   await GunsmithMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
@@ -810,7 +824,7 @@ module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
-  addGunsmithMods,
+  addCookieLog, addGunsmithMods,
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
@@ -819,5 +833,5 @@ module.exports = {
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
-  getAllClansForExpress, getClanByID, getClanMembersByID
+  getAllClansForExpress, getClanByID, getClanMembersByID, getLastCookieLog
 }

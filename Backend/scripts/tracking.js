@@ -300,6 +300,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       triumphScore: Others.triumphScore,
       seasonRank: Seasonal.seasonRank,
       powerBonus: Seasonal.powerBonus,
+      dawning2020: Triumphs.dawning2020,
       lightLevels: AccountInfo.lightLevels,
       ironBanner: Rankings.ironBanner,
       raids: Raids.raids,
@@ -527,10 +528,12 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
+  var characterIds = playerData.profile.data.characterIds;
   var theDarkPriestess = 0; try { theDarkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
   var theWarrior = 0; try { theWarrior = playerData.profileRecords.data.records["869599000"].objectives[0].progress; } catch (err) { }
   var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
   var masterHunts = 0; try { masterHunts = playerData.profileRecords.data.records["1363459558"].objectives[0].progress; } catch (err) { }
+  var dawning2020 = 0; try { dawning2020 = playerData.characterRecords.data[characterIds[0]].records["3692735918"].intervalObjectives[3].progress; } catch (err) { }
   return {
     empireHunts: {
       theDarkPriestess,
@@ -538,7 +541,8 @@ function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
       theTechnocrat,
       masterHunts,
       total: (theDarkPriestess+theWarrior+theTechnocrat)
-    }
+    },
+    dawning2020
   }
 }
 function FormatOthers(clan, memberData, playerData, oldPlayerData) {

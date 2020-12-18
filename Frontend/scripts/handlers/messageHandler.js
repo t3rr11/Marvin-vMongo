@@ -146,7 +146,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         //Others
         case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { Donate(client, message); break; }
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
-        case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); }
+        case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
+        case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
         
         //Default - Unknown commands
         default: { message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
@@ -732,7 +733,7 @@ async function GetLeaderboard(prefix, message, command, users, registeredUser) {
   );
 
   //Promise all
-  if(registeredUser && registeredUser !== "NoUser") { console.log("Check"); await Promise.all([await GetGuildPlayers(), await GetRegisteredUserInfo()]); }
+  if(registeredUser && registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers(), await GetRegisteredUserInfo()]); }
   else { await Promise.all([await GetGuildPlayers()]); }
 
   SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer);
@@ -997,6 +998,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
       else { globalReq = "GetGlobalHighestPowerLeaderboard"; }
       break;
     }
+    case command.startsWith("global cookies"): case command.startsWith("global event"): case command.startsWith("global dawning 2020"): { globalReq = "GetGlobalDawning2020Leaderboard"; break; }
     default: break;
   }
   if(globalReq) {
@@ -1206,7 +1208,7 @@ async function GetBroadcastItems(prefix, message, command) {
   });
 }
 
-function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
+async function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
   let leaderboard = { names: [], first: [], second: [] }
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
@@ -1855,6 +1857,37 @@ function SendLeaderboard(prefix, message, command, players, privatePlayers, regi
       embed.setAuthor("Top 10 Total Titles");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Total", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): {
+      await new Promise(resolve => {
+        Database.getLastCookieLog((isError, isFound, data) => {
+          if(!isError) {
+            embed.setAuthor("Community Dawning Spirit");
+            embed.setDescription(`${ data[0].cookies.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } / 1,000,000,000 Dawning Spirit. (This updates every 10 minutes)\n\n50M ${ data[0].cookies > 50000000 ? "(Reached)" : "" }\n125M ${ data[0].cookies > 125000000 ? "(Reached)" : "" }\n250M ${ data[0].cookies > 250000000 ? "(Reached)" : "" }\n500M ${ data[0].cookies > 500000000 ? "(Reached)" : "" }\n1000M ${ data[0].cookies > 1000000000 ? "(Reached)" : "" } `);
+
+            let top = players.sort((a, b) => { return b.dawning2020 - a.dawning2020 }).slice(0, 10);
+            leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+            leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.dawning2020) }` });
+            if(registeredPlayer) {
+              var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+              leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+              leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.dawning2020) }`);
+            }
+            else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+            embed.addField("Name", leaderboard.names, true);
+            embed.addField("Score", leaderboard.first, true);
+            resolve(true);
+          }
+          else {
+            ErrorHandler("Low", "Failed to grab cookies");
+            embed.setColor(0x0099FF);
+            embed.setAuthor("Uhh oh...");
+            embed.setDescription(`This shouldn't happen. Uhh... Use \`${prefix}request Cookies command is broken aaaahhhh\` to let me know.`);
+            resolve(true);
+          }
+        });
+      });
       break;
     }
 
@@ -2627,6 +2660,21 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
       embed.setAuthor("Top 10 Global Triumph Score");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("global cookies"): case command.startsWith("global event"): case command.startsWith("global dawning 2020"): {
+      let top = leaderboardData.slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.dawning2020) }` });
+      if(registeredPlayer) {
+        var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.dawning2020) }`);
+      }
+      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Global Dawning Spirit Collected");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Spirit", leaderboard.first, true);
       break;
     }
   }
