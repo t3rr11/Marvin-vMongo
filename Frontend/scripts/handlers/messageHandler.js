@@ -7,6 +7,7 @@ const BroadcastHandler = require('./broadcastsHandler.js');
 const Database = require('../../../Shared/database');
 const Misc = require('../../../Shared/misc');
 const Log = require('../../../Shared/log');
+const { dailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 const RequestHandler = require('../../../Shared/handlers/requestHandler');
@@ -20,7 +21,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
     var prefix = guild ? guild.prefix : "~";
     if(message.guild.id === "110373943822540800" || message.guild.id === "264445053596991498") return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('SEND_MESSAGES')) return;
-    if(!message.content.startsWith(prefix) || message.author.bot) return;
+    if(!message.content.startsWith(prefix) || message.author.bot && message.author.id !== "159985870458322944") return;
     if(message.content.startsWith("~~")) return;
 
     const args = message.content.slice(prefix.length);
@@ -148,7 +149,10 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
         case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
-        
+        case command.startsWith("legend"): { LostSectors(message, "legendLostSector"); break; }
+        case command.startsWith("master"): { LostSectors(message, "masterLostSector"); break; }
+        case command.startsWith("grandmaster"): { GrandMaster(message); break; }
+
         //Default - Unknown commands
         default: { message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
@@ -610,6 +614,50 @@ async function GunsmithMods(guild, message) {
   }
 
   GetGunsmithMods();
+}
+async function LostSectors(message, type) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  const lostSector = dailyCycleInfo(type);
+  const sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
+
+  //Canvasing the mod images
+  const canvas = Canvas.createCanvas(640, 360);
+  const ctx = canvas.getContext('2d');
+
+  //Add Background Image
+  ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ sector.pgcrImage }`), 0, 0, 640, 360);
+
+  //Add Image to Embed
+  const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png');
+  embed.attachFiles([attachment]);
+  embed.setImage('attachment://lostSector.png');
+
+  embed.setAuthor(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
+  embed.setDescription(sector.displayProperties.description);
+
+  message.channel.send(embed);
+}
+async function GrandMaster(message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  const grandMaster = weeklyCycleInfo("grandMaster");
+  const grandMasterActivity = ManifestHandler.getManifest().DestinyActivityDefinition[grandMaster.activityHash];
+
+  //Canvasing the mod images
+  const canvas = Canvas.createCanvas(640, 360);
+  const ctx = canvas.getContext('2d');
+
+  //Add Background Image
+  ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ grandMasterActivity.pgcrImage }`), 0, 0, 640, 360);
+
+  //Add Image to Embed
+  const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'grandMaster.png');
+  embed.attachFiles([attachment]);
+  embed.setImage('attachment://grandMaster.png');
+
+  embed.setAuthor(`${ grandMasterActivity.displayProperties.name }`);
+  embed.setDescription(grandMasterActivity.displayProperties.description);
+
+  message.channel.send(embed);
 }
 
 async function GetHelp(prefix, message, command) {

@@ -1,6 +1,7 @@
 //Required Libraraies
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const fetch = require('node-fetch');
 const Database = require('../Shared/database');
 const Checks = require('../Shared/checks');
 const Log = require('../Shared/log');
@@ -12,6 +13,7 @@ const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
 const RequestHandler = require('../Shared/handlers/requestHandler');
 const Config = require('../Shared/configs/Config.json');
+const Interactions = require('../Shared/configs/Interactions.json');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
@@ -35,6 +37,11 @@ let startupCheck = setInterval(async function Startup() {
     //Initialize the frontend and start running!
     clearInterval(startupCheck);
     await update();
+
+    //Setup interactions
+    //await setupInteractions();
+
+    //Finally start the bot
     init();
   }
 }, 1000);
@@ -125,6 +132,12 @@ async function update() {
   //Check for broadcasts
   if(!Config.isLocal) { BroadcastHandler.checkForBroadcasts(client); }
 }
+async function setupInteractions() {
+  //const url = `https://discord.com/api/v8/applications/${ DiscordConfig.client_id }/commands`;
+  const url = `https://discord.com/api/v8/applications/${ DiscordConfig.client_id }/guilds/305561313675968513/commands`;
+  const request = await fetch(url, { headers: { "Authorization": `Bot ${ DiscordConfig.token }`, 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify(Interactions) }).then(async (req) => { console.log(req); return true; }).catch((err) => { return false; });
+  console.log(request);
+}
 async function updateGunsmithMods() {
   RequestHandler.GetGunsmithMods(async function(isError, Gunsmith) {    
     if(!isError && Gunsmith?.Response?.sales?.data) {
@@ -191,6 +204,23 @@ client.on("guildDelete", guild => {
     if(!isError) { if(isFound) { Log.SaveLog("Frontend", "Server", `Tracking Disabled: ${ guild.name } (${ guild.id })`); } }
     else { ErrorHandler("High", `Failed to disable guild tracking for ${ guild.id }`); }
   });
+});
+
+//Watch for commands via Interactions
+client.on("interactionCreate", (interaction) => {
+  if (interaction.name === "test") {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    const masterSector = dailyCycleInfo("legendLostSector");
+    const activity = ManifestHandler.getManifest().DestinyActivityDefinition[masterSector.sector.masterHash];
+    console.log(activity);
+    
+    embed.setAuthor("Master Lost Sector");
+    embed.setDescription(JSON.stringify(masterSector));
+    embed.addField("Name", activity.displayProperties.name);
+    embed.setImage(`https://www.bungie.net${ activity.pgcrImage }`);
+
+    interaction.channel.send(embed);
+  }
 });
 
 //Check if discord bot is ready and shard info

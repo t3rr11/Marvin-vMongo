@@ -34,8 +34,10 @@ let startupCheck = setInterval(async function Startup() {
 
 app.get("/Test", async function(req, res) { res.status(200).send("Hello World"); });
 app.get("/GetAllClans", async function(req, res) { await DatabaseFunction(req, res, { func: "getAllClansForExpress", amount: 1000 }); });
+app.get("/GetDailyUsers", async function(req, res) { await DatabaseFunction(req, res, { func: "getDailyUsers" }); });
 app.get("/GetClan", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanByID", amount: 1 }, { clanID: req.query.clanID }); });
 app.get("/GetClanMembers", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanMembersByID", amount: 100 }, { clanID: req.query.clanID }); });
+app.get("/GetClanBroadcasts", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanBroadcastsByID", amount: 250 }, { clanID: req.query.clanID }); });
 app.get("/GetBackendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 1 }); });
 app.get("/GetFrontendStatus", async function(req, res) { await DatabaseFunction(req, res, { func: "getFrontendLogs", amount: 1 }); });
 app.get("/GetBackendStatusHistory", async function(req, res) { await DatabaseFunction(req, res, { func: "getBackendLogs", amount: 300 }); });

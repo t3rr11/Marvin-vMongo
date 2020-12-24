@@ -606,6 +606,17 @@ const getAllClansForExpress = async (options, data, callback) => {
     }
   });
 }
+const getDailyUsers = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+  await User.find({ lastPlayed: { $gt: yesterday.toISOString() } }, '-_id -firstScan -forcedScan -__v').exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getClanByID = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
   await Clan.find({ clanID: data.clanID }, '-_id -firstScan -forcedScan -__v').exec(function (err, array) {
@@ -619,6 +630,16 @@ const getClanByID = async (options, data, callback) => {
 const getClanMembersByID = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
   await User.find({ clanID: data.clanID }, '-_id -__v').exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getClanBroadcastsByID = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Broadcast.find({ clanID: data.clanID }, '-_id -__v', { sort: { _id: -1 } }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
@@ -833,5 +854,5 @@ module.exports = {
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
   enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
-  getAllClansForExpress, getClanByID, getClanMembersByID, getLastCookieLog
+  getAllClansForExpress, getDailyUsers, getClanByID, getClanMembersByID, getClanBroadcastsByID, getLastCookieLog
 }

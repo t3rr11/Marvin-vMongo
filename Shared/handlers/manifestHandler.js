@@ -48,6 +48,7 @@ storeManifest = async function StoreManifest() {
           DestinyActivityDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyActivityDefinition.json')),
           DestinyActivityTypeDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyActivityTypeDefinition.json')),
           DestinyActivityModeDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyActivityModeDefinition.json')),
+          DestinyActivityModifierDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyActivityModifierDefinition.json')),
           DestinyCollectibleDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyCollectibleDefinition.json')),
           DestinyPresentationNodeDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyPresentationNodeDefinition.json')),
           DestinyRecordDefinition: JSON.parse(fs.readFileSync('../Shared/manifest/DestinyRecordDefinition.json')),
@@ -95,6 +96,7 @@ updateManifest = async function UpdateManifest() {
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityTypeDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModeDefinition),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModifierDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyCollectibleDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyPresentationNodeDefinition),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyRecordDefinition),
@@ -110,15 +112,16 @@ updateManifest = async function UpdateManifest() {
         fs.writeFile('../Shared/manifest/DestinyActivityDefinition.json', JSON.stringify(values[0].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyActivityTypeDefinition.json', JSON.stringify(values[1].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
         fs.writeFile('../Shared/manifest/DestinyActivityModeDefinition.json', JSON.stringify(values[2].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyCollectibleDefinition.json', JSON.stringify(values[3].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyPresentationNodeDefinition.json', JSON.stringify(values[4].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyRecordDefinition.json', JSON.stringify(values[5].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyInventoryItemDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyInventoryBucketDefinition.json', JSON.stringify(values[7].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyObjectiveDefinition.json', JSON.stringify(values[8].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyProgressionDefinition.json', JSON.stringify(values[9].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyTalentGridDefinition.json', JSON.stringify(values[10].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyVendorDefinition.json', JSON.stringify(values[11].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyActivityModifierDefinition.json', JSON.stringify(values[3].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyCollectibleDefinition.json', JSON.stringify(values[4].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyPresentationNodeDefinition.json', JSON.stringify(values[5].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyRecordDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyInventoryItemDefinition.json', JSON.stringify(values[7].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyInventoryBucketDefinition.json', JSON.stringify(values[8].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyObjectiveDefinition.json', JSON.stringify(values[9].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyProgressionDefinition.json', JSON.stringify(values[10].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyTalentGridDefinition.json', JSON.stringify(values[11].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        fs.writeFile('../Shared/manifest/DestinyVendorDefinition.json', JSON.stringify(values[12].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
 
         //Update version in database
         if(!didError) {
