@@ -641,6 +641,7 @@ async function GrandMaster(message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   const grandMaster = weeklyCycleInfo("grandMaster");
   const grandMasterActivity = ManifestHandler.getManifest().DestinyActivityDefinition[grandMaster.activityHash];
+  const grandMasterMods = grandMasterActivity.modifiers.filter((e) => [3933343183,605585258,882588556].includes(e.activityModifierHash)).map((mod) => { return (ManifestHandler.getManifest().DestinyActivityModifierDefinition[mod.activityModifierHash]).displayProperties.name });
 
   //Canvasing the mod images
   const canvas = Canvas.createCanvas(640, 360);
@@ -655,7 +656,7 @@ async function GrandMaster(message) {
   embed.setImage('attachment://grandMaster.png');
 
   embed.setAuthor(`${ grandMasterActivity.displayProperties.name }`);
-  embed.setDescription(grandMasterActivity.displayProperties.description);
+  embed.setDescription(grandMasterMods);
 
   message.channel.send(embed);
 }

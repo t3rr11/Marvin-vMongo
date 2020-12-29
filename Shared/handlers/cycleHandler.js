@@ -32,8 +32,8 @@ const getLoot = (type) => {
 const getSector = (type) => {
   switch(type) {
     case 0: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
-    case 1: { return { name: "Exodus", masterHash: 2936791995, legendHash: 2936791996, planet: "EDZ" } }
-    case 2: { return { name: "Veles", masterHash: 3094493727, legendHash: 3094493720, planet: "EDZ" } }
+    case 1: { return { name: "Exodus", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
+    case 2: { return { name: "Veles", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
     case 3: { return { name: "Concealed", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
     case 4: { return { name: "Bunker", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
   }
