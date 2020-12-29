@@ -126,6 +126,7 @@ function ProcessClanLeaderboards(clans, users) {
     //Add players stats to Clans array
     if(!TempClans[users[i].clanID]) {
       TempClans[users[i].clanID] = {
+        clanID: users[i].clanID,
         clanName: clans.find(e => e.clanID === users[i].clanID).clanName,
         timePlayed: users[i].timePlayed,
         seasonRank: users[i].seasonRank,

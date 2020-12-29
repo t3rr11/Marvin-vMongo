@@ -730,7 +730,7 @@ async function GetHelp(prefix, message, command) {
     case "help clanwars": case "clanwars": {
       embed.setAuthor("Clanwars Help Menu");
       embed.setDescription(`Here is a list of Clanwars commands! Example: \`${prefix}Clanwars Time\``);
-      embed.addField("Raids", `\`${prefix}Clanwars Levi\`\n\`${prefix}Clanwars pLevi\`\n\`${prefix}Clanwars Eow\`\n\`${prefix}Clanwars pEow\`\n\`${prefix}Clanwars Sos\`\n\`${prefix}Clanwars pSos\`\n\`${prefix}Clanwars Last Wish\`\n\`${prefix}Clanwars Scourge\`\n\`${prefix}Clanwars Crown\`\n\`${prefix}Clanwars Garden\``);
+      embed.addField("Raids", `\`${prefix}Clanwars Levi\`\n\`${prefix}Clanwars Eow\`\n\`${prefix}Clanwars Sos\`\n\`${prefix}Clanwars Last Wish\`\n\`${prefix}Clanwars Scourge\`\n\`${prefix}Clanwars Crown\`\n\`${prefix}Clanwars Garden\`\n\`${prefix}Clanwars Dsc\``);
       embed.addField("Others", `\`${prefix}Clanwars Season Rank\`\n\`${prefix}Clanwars Triumph Score\`\n\`${prefix}Clanwars Time Played\``);
       break;
     }
@@ -1001,6 +1001,8 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
 }
 async function GetClanWars(prefix, message, command, users, registeredUser) {
   RequestHandler.GetClanWars(async (isError, clanData) => {
+    console.log(isError);
+    console.log(clanData);
     if(!isError) {
       let registeredPlayer;
 
@@ -2028,14 +2030,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
 
   switch(true) {
     case command.startsWith("clanwars time"): case command.startsWith("clanwars time played"): {
-      let top = clanData.sort((a, b) => { return b.data.timePlayed - a.data.timePlayed }).slice(0, 10);
+      let top = Object.values(Object.values(clanData)).sort((a, b) => { return b.timePlayed - a.timePlayed }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(Math.round(e.data.timePlayed/60)) } Hrs` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(Math.round(e.timePlayed/60)) } Hrs` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.timePlayed - a.timePlayed }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(Math.round(clan.data.timePlayed/60)) } Hrs`);
+        leaderboard.first.push("", `${ Misc.AddCommas(Math.round(clan.timePlayed/60)) } Hrs`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Total Time Played");
       embed.addField("Name", leaderboard.names, true);
@@ -2043,14 +2045,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars triumph"): case command.startsWith("clanwars triumphs"): case command.startsWith("clanwars triumph score"): {
-      let top = clanData.sort((a, b) => { return b.data.triumphScore - a.data.triumphScore }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.triumphScore - a.triumphScore }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.triumphScore) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.triumphScore - a.triumphScore }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.triumphScore) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.triumphScore) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Total Triumph Score");
       embed.addField("Name", leaderboard.names, true);
@@ -2058,14 +2060,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars levi"): case command.startsWith("clanwars leviathan"): {
-      let top = clanData.sort((a, b) => { return b.data.leviCompletions - a.data.leviCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.levi - a.levi }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.leviCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.levi) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.levi - a.levi }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.leviCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.levi) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Leviathan Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2073,14 +2075,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars eow"): case command.startsWith("clanwars eater"): case command.startsWith("clanwars eater of worlds"): {
-      let top = clanData.sort((a, b) => { return b.data.eowCompletions - a.data.eowCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.eow - a.eow }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.eowCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.eow) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.eow - a.eow }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.eowCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.eow) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Eater of Worlds Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2088,14 +2090,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars sos"): case command.startsWith("clanwars spire of stars"): {
-      let top = clanData.sort((a, b) => { return b.data.sosCompletions - a.data.sosCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.sos - a.sos }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.sosCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.sos) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.sos - a.sos }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.sosCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.sos) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Spire of Stars Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2103,14 +2105,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars lw"): case command.startsWith("clanwars last wish"): {
-      let top = clanData.sort((a, b) => { return b.data.lwCompletions - a.data.lwCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.lastWish - a.lastWish }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.lwCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.lastWish) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.lastWish - a.lastWish }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.lwCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.lastWish) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Last Wish Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2118,14 +2120,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars scourge"): case command.startsWith("clanwars scourge of the past"): {
-      let top = clanData.sort((a, b) => { return b.data.scourgeCompletions - a.data.scourgeCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.scourge - a.scourge }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.scourgeCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.scourge) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.scourge - a.scourge }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.scourgeCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.scourge) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Scourge of the Past Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2133,14 +2135,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars sorrows"): case command.startsWith("clanwars crown"): case command.startsWith("clanwars crown of sorrows"): {
-      let top = clanData.sort((a, b) => { return b.data.sorrowsCompletions - a.data.sorrowsCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.sorrows - a.sorrows }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.sorrowsCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.sorrows) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.sorrows - a.sorrows }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.sorrowsCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.sorrows) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Crown of Sorrows Clears");
       embed.addField("Name", leaderboard.names, true);
@@ -2148,29 +2150,44 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars garden"): case command.startsWith("clanwars garden of salvation"): {
-      let top = clanData.sort((a, b) => { return b.data.gardenCompletions - a.data.gardenCompletions }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.garden - a.garden }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.gardenCompletions) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.garden) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.garden - a.garden }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.gardenCompletions) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.garden) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Garden of Salvation Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
     }
-    case command.startsWith("clanwars raids"): case command.startsWith("clanwars total raids"): case command.startsWith("clanwars raid completions"): {
-      let top = clanData.sort((a, b) => { return b.data.totalRaids - a.data.totalRaids }).slice(0, 10);
+    case command.startsWith("clanwars dsc"): case command.startsWith("clanwars deep stone crypt"): {
+      let top = Object.values(clanData).sort((a, b) => { return b.dsc - a.dsc }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.totalRaids) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.dsc) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.dsc - a.dsc }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.totalRaids) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.dsc) }`);
+      }
+      embed.setAuthor("Top 10 Clan Wars Rankings for Deep Stone Crypt Clears");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Clears", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("clanwars raids"): case command.startsWith("clanwars total raids"): case command.startsWith("clanwars raid completions"): {
+      let top = Object.values(clanData).sort((a, b) => { return b.totalRaids - a.totalRaids }).slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.totalRaids) }` });
+      if(registeredPlayer) {
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.totalRaids - a.totalRaids }).indexOf(clan);
+        leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.totalRaids) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Total Raid Completions");
       embed.addField("Name", leaderboard.names, true);
@@ -2178,14 +2195,14 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       break;
     }
     case command.startsWith("clanwars season ranks"): case command.startsWith("clanwars sr"): case command.startsWith("clanwars season rank"): {
-      let top = clanData.sort((a, b) => { return b.data.seasonRanks - a.data.seasonRanks }).slice(0, 10);
+      let top = Object.values(clanData).sort((a, b) => { return b.seasonRank - a.seasonRank }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.data.seasonRanks) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.seasonRank) }` });
       if(registeredPlayer) {
-        var clan = clanData.find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = clanData.indexOf(clan);
+        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
+        var rank = Object.values(clanData).sort((a, b) => { return b.seasonRank - a.seasonRank }).indexOf(clan);
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.data.seasonRanks) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(clan.seasonRank) }`);
       }
       embed.setAuthor("Top 10 Clan Wars Rankings for Total Season Ranks");
       embed.addField("Name", leaderboard.names, true);
