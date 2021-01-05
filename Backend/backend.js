@@ -246,8 +246,11 @@ async function LogCookies() {
   try {
     APIRequest.GetCookies((isError, Data) => {
       if(!isError) {
-        let Cookies = Data.Response.characterProgressions.data["2305843009405310126"].uninstancedItemObjectives[1867822656][0].progress;
-        Database.addCookieLog({ cookies: Cookies });
+        try {
+          let Cookies = Data.Response.characterProgressions.data["2305843009405310126"].uninstancedItemObjectives[1867822656][0].progress;
+          Database.addCookieLog({ cookies: Cookies });
+        }
+        catch (err) { ErrorHandler("Med", `Failed to get cookies data: ${ err }`) }
       }
     });
   }

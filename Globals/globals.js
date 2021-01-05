@@ -108,7 +108,9 @@ function ProcessClanLeaderboards(clans, users) {
       seasonRank: users[i].seasonRank,
       triumphScore: users[i].triumphScore,
       valor: users[i].valor.current,
+      glory: users[i].glory,
       infamy: users[i].infamy.current,
+      ironBanner: users[i].ironBanner,
       levi: { normal: users[i].raids.levi, prestige: users[i].raids.prestige_levi },
       eow: { normal: users[i].raids.eow, prestige: users[i].raids.prestige_eow },
       sos: { normal: users[i].raids.sos, prestige: users[i].raids.prestige_sos },
@@ -132,7 +134,9 @@ function ProcessClanLeaderboards(clans, users) {
         seasonRank: users[i].seasonRank,
         triumphScore: users[i].triumphScore,
         valor: users[i].valor.current,
+        glory: users[i].glory,
         infamy: users[i].infamy.current,
+        ironBanner: users[i].ironBanner,
         levi: ( users[i].raids.levi + users[i].raids.prestige_levi ),
         eow: ( users[i].raids.eow + users[i].raids.prestige_eow ),
         sos: ( users[i].raids.sos + users[i].raids.prestige_sos ),
@@ -142,7 +146,7 @@ function ProcessClanLeaderboards(clans, users) {
         garden: users[i].raids.garden,
         dsc: users[i].raids.dsc,
         totalRaids: users[i].totalRaids,
-        dawning2020: users[i].dawning2020
+        dawning2020: users[i]["_doc"].dawning2020
       }
     }
     else {
@@ -150,7 +154,10 @@ function ProcessClanLeaderboards(clans, users) {
       TempClans[users[i].clanID].seasonRank += users[i].seasonRank;
       TempClans[users[i].clanID].triumphScore += users[i].triumphScore;
       TempClans[users[i].clanID].valor += users[i].valor.current;
+      TempClans[users[i].clanID].glory += users[i].glory;
       TempClans[users[i].clanID].infamy += users[i].infamy.current;
+      TempClans[users[i].clanID].ironBanner.kills += users[i].ironBanner.kills;
+      TempClans[users[i].clanID].ironBanner.wins += users[i].ironBanner.wins;
       TempClans[users[i].clanID].levi += ( users[i].raids.levi + users[i].raids.prestige_levi );
       TempClans[users[i].clanID].eow += ( users[i].raids.eow + users[i].raids.prestige_eow );
       TempClans[users[i].clanID].sos += ( users[i].raids.sos + users[i].raids.prestige_sos );
@@ -160,7 +167,7 @@ function ProcessClanLeaderboards(clans, users) {
       TempClans[users[i].clanID].garden += users[i].raids.garden;
       TempClans[users[i].clanID].dsc += users[i].raids.dsc;
       TempClans[users[i].clanID].totalRaids += users[i].totalRaids;
-      TempClans[users[i].clanID].dawning2020 += users[i].dawning2020;
+      TempClans[users[i].clanID].dawning2020 += users[i]["_doc"].dawning2020;
     }
   }
   Clans = TempClans;

@@ -2,6 +2,7 @@
 const Discord = require('discord.js');
 const Log = require('../../../Shared/log');
 const Database = require('../../../Shared/database');
+const Misc = require('../../../Shared/misc');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
@@ -65,7 +66,8 @@ async function processBroadcast(client, broadcast) {
                   if(broadcastType === "item") {
                     if(typeof broadcast.count != "undefined" && broadcast.count > -1) {
                       //If the broadcast count has a value other than -1 then it must be a raid broadcast so the message needs to be changed to include this.
-                      BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } in ${ broadcast.count } ${ broadcast.count === 0 ? "raids!" : ( broadcast.count > 1 ? "raids!" : "raid!") }`;
+                      broadcast.count++;
+                      BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } clear! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
                     }
                     else { BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast }`; }
                     sendItemBroadcast(client, guild, BroadcastMessage, broadcast, clan);
