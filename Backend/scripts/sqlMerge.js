@@ -5,6 +5,7 @@ const Clans = require('../data/clans.json').clans;
 const Definitions = require('../data/definitions.json').definitions;
 const RegisteredUsers = require('../data/regUsers.json').users;
 const Broadcasts = require('../data/broadcasts.json').broadcasts;
+const Logs = require('../data/frontendLogs.json').logs;
 
 async function addNewGuilds() {
   for(let i in Guilds) {
@@ -96,6 +97,18 @@ async function addNewBroadcasts() {
     }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
   }
 }
+async function addNewFrontendLogs() {
+  for(let i in Logs) {
+    let log = Logs[i];
+    Database.addHourlyFrontendStatusLog({
+      users: log.users,
+      servers: log.servers,
+      commandsInput: log.commandsInput,
+      uptime: log.uptime,
+      date: new Date(log.date)
+    }, (isError, severity, err) => { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
 
 
-module.exports = { addNewGuilds, addNewClans, addNewDefintions, addNewRegisteredUsers, addNewBroadcasts }
+module.exports = { addNewGuilds, addNewClans, addNewDefintions, addNewRegisteredUsers, addNewBroadcasts, addNewFrontendLogs }

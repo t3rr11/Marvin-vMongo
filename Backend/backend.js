@@ -33,7 +33,7 @@ let startupCheck = setInterval(async function Startup() {
   if(Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);
-    init();
+    //init();
 
     //Testing Below
     //Test.getClanInfo();
@@ -41,6 +41,7 @@ let startupCheck = setInterval(async function Startup() {
     //Merge.addNewClans();
     //Merge.addNewRegisteredUsers();
     //Merge.addNewBroadcasts();
+    //Merge.addNewFrontendLogs();
   }
 }, 1000);
 
@@ -79,7 +80,6 @@ async function init() {
 
   //Loops
 	setInterval(() => { Log.SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, processing); }, 1000 * 10); //10 Second Interval
-  setInterval(() => { LogCookies(); }, 1000 * 60 * 10); //10 Minute Interval
   setInterval(() => { doChecks(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { GlobalItemsHandler.updateGlobalItems(); }, 1000 * 60 * 1); //1 Minute Interval
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
