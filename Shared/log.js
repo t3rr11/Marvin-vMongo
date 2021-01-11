@@ -4,7 +4,7 @@ const Misc = require("./misc");
 const Config = require("./configs/Config.json");
 
 //Exports
-module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogFrontendStatus };
+module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogHourlyBackendStatus, LogFrontendStatus, LogHourlyFrontendStatus };
 
 //Functions
 function SaveLog(location, type, log) {
@@ -42,11 +42,32 @@ function LogBackendStatus(index, rt_index, clans, rt_clans, processing, rt_proce
   }
 }
 
+function LogHourlyBackendStatus(index, rt_index, clans, rt_clans, processing, rt_processing, uptime, speed, APIStatus) {
+  if(!Config.isLocal) { 
+    const Database = require("./database");
+    Database.addHourlyBackendStatusLog({
+      index, rt_index,
+      clans, rt_clans,
+      processing, rt_processing,
+      uptime, speed, APIStatus,
+    },
+    function AddHourlyBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
+
 function LogFrontendStatus(users, servers, commandsInput, uptime) {
   if(!Config.isLocal) { 
     const Database = require("./database");
     Database.addFrontendStatusLog({ users, servers, commandsInput, uptime },
     function AddFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
+
+function LogHourlyFrontendStatus(users, servers, commandsInput, uptime) {
+  if(!Config.isLocal) { 
+    const Database = require("./database");
+    Database.addHourlyFrontendStatusLog({ users, servers, commandsInput, uptime },
+    function AddHourlyFrontendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
   }
 }
 

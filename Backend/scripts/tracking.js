@@ -549,7 +549,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var menageire = 0; try { menageire = playerData.profileRecords.data.records["1363982253"].objectives[0].progress; } catch (err) { }
   var runes = 0; try { runes = playerData.profileRecords.data.records["2422246600"].objectives[0].progress; } catch (err) { }
-  var triumphScore = 0; try { triumphScore = playerData.profileRecords.data.score; } catch (err) { }
+  var score = 0; try { score = playerData.profileRecords.data.score; } catch (err) { }
+  var activeScore = 0; try { activeScore = playerData.profileRecords.data.activeScore; } catch (err) { }
+  var legacyScore = 0; try { legacyScore = playerData.profileRecords.data.legacyScore; } catch (err) { }
+  var lifetimeScore = 0; try { lifetimeScore = playerData.profileRecords.data.lifetimeScore; } catch (err) { }
   var wellsCompleted = 0; try { wellsCompleted = playerData.profileRecords.data.records["819775261"].objectives[0].progress; } catch (err) { }
   var epsCompleted = 0; try { epsCompleted = playerData.profileRecords.data.records["3350489579"].objectives[0].progress; } catch (err) { }
 
@@ -568,7 +571,12 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   return {
     "menageire": menageire,
     "runes": runes,
-    "triumphScore": triumphScore,
+    "triumphScore": {
+      "score": score,
+      "activeScore": activeScore,
+      "legacyScore": legacyScore,
+      "lifetimeScore": lifetimeScore
+    },
     "wellsRankings": wellsCompleted,
     "epRankings": epsCompleted,
     "dungeons": {

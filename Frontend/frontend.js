@@ -65,6 +65,16 @@ async function init() {
       setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
     }
   });
+
+  //Start Logger
+  //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
+  //Then it'll start the hourly interval which logs like normal every hour.
+  setTimeout(() => {
+    Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
+    setInterval(() => {
+      Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
+    }, 1000 * 60 * 60);
+  }, 3600000 - new Date().getTime() % 3600000);
 }
 
 //Functions
@@ -77,7 +87,6 @@ function UpdateActivityList() {
     ActivityList.push(`Use ~HELP or ~REQUEST for Support`);
     ActivityList.push(`You can now change your prefix by using: ~set prefix`);
     ActivityList.push(`Deep stone crypt leaderboards are live use: ~DSC or ~Global DSC`);
-    ActivityList.push(`Use ~Event to keep track of the community dawning event this year!`);
     ActivityList.push(`Consider Donating? ~Donate`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);

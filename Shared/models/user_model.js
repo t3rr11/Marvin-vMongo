@@ -13,7 +13,12 @@ var userSchema = new Schema({
   infamy: { current: DefaultNumber, resets: DefaultNumber },
   valor: { current: DefaultNumber, resets: DefaultNumber },
   glory: DefaultNumber,
-  triumphScore: DefaultNumber,
+  triumphScore: {
+    score: DefaultNumber,
+    activeScore: DefaultNumber,
+    legacyScore: DefaultNumber,
+    lifetimeScore: DefaultNumber
+  },
   seasonRank: DefaultNumber,
   powerBonus: DefaultNumber,
   lightLevels: { type: Array, default: [] },

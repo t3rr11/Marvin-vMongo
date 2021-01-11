@@ -57,6 +57,11 @@ app.get("/GetBroadcastLogs", async function(req, res) { await DatabaseFunction(r
 app.get("/GetBroadcasts", async function(req, res) { await DatabaseFunction(req, res, { func: "getBroadcasts", amount: 300 }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { type: "Error", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+
+app.get("/GetWeeklyFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getWeeklyFrontendLogs", amount: 300 }); });
+app.get("/GetWeeklyBackendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getWeeklyBackendLogs", amount: 300 }); });
+app.get("/GetAggregateWeeklyFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getAggregateWeeklyFrontendLogs" }); });
+
 app.get("/CheckAuthorization", async function(req, res) {
   if(req.query.token && req.query.token === adminToken) { res.status(200).send({ "isError": false, "message": "Success", "code": 200 }); }
   else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }

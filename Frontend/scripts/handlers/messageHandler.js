@@ -732,7 +732,7 @@ async function GetHelp(prefix, message, command) {
       embed.setDescription(`Here is a list of Clanwars commands! Example: \`${prefix}Clanwars Time\``);
       embed.addField("Crucible", `\`${prefix}Clanwars Valor\`\n\`${prefix}Clanwars Glory\`\n\`${prefix}Clanwars Iron Banner Kills\`\n\`${prefix}Clanwars Iron Banner Wins\``);
       embed.addField("Raids", `\`${prefix}Clanwars Levi\`\n\`${prefix}Clanwars Eow\`\n\`${prefix}Clanwars Sos\`\n\`${prefix}Clanwars Last Wish\`\n\`${prefix}Clanwars Scourge\`\n\`${prefix}Clanwars Crown\`\n\`${prefix}Clanwars Garden\`\n\`${prefix}Clanwars Dsc\``);
-      embed.addField("Others", `\`${prefix}Clanwars Season Rank\`\n\`${prefix}Clanwars Triumph Score\`\n\`${prefix}Clanwars Time Played\``);
+      embed.addField("Others", `\`${prefix}Clanwars Season Rank\`\n\`${prefix}Clanwars Time Played\``);
       break;
     }
     case "help others": case "others": {
@@ -958,7 +958,9 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
             infamy: { "data": data.User.infamy.current, "rank": players.sort(function(a, b) { return b.infamy.current - a.infamy.current; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             valor: { "data": data.User.valor.current, "rank": players.sort(function(a, b) { return b.valor.current - a.valor.current; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             glory: { "data": data.User.glory, "rank": players.sort(function(a, b) { return b.glory - a.glory; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
-            triumphScore: { "data": data.User.triumphScore, "rank": players.sort(function(a, b) { return b.triumphScore - a.triumphScore; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            triumphScore: { "data": data.User.triumphScore.score, "rank": players.sort(function(a, b) { return b.triumphScore.score - a.triumphScore.score; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            legacyTriumphScore: { "data": data.User.triumphScore.legacyScore, "rank": players.sort(function(a, b) { return b.triumphScore.legacyScore - a.triumphScore.legacyScore; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
+            lifetimeTriumphScore: { "data": data.User.triumphScore.lifetimeScore, "rank": players.sort(function(a, b) { return b.triumphScore.lifetimeScore - a.triumphScore.lifetimeScore; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             seasonRank: { "data": data.User.seasonRank, "rank": players.sort(function(a, b) { return b.seasonRank - a.seasonRank; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             titles: { "data": data.Titles.titles.length, "rank": playerTitles.sort(function(a, b) { return b.titles.length - a.titles.length; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             lastPlayed: data.User.lastPlayed,
@@ -1141,6 +1143,7 @@ async function GetDrystreak(prefix, message, command) {
         if(Misc.GetItemState(itemState).notAcquired) {
           drystreaks.push({
             "displayName": user.displayName,
+            "membershipID": user.membershipID,
             "item": item.displayProperties.name,
             "obtained": false,
             "completions": completions
@@ -1154,12 +1157,15 @@ async function GetDrystreak(prefix, message, command) {
       let user = players.find(e => e.membershipID === broadcasts[i].membershipID);
       let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
       if(broadcasts[i].hash.toString() === collectibleHash.toString()) {
-        drystreaks.push({
-          "displayName": user.displayName,
-          "item": item.displayProperties.name,
-          "obtained": true,
-          "completions": broadcasts[i].count
-        });
+        if(!drystreaks.find(e => e.membershipID === broadcasts[i].membershipID)) {
+          drystreaks.push({
+            "displayName": user.displayName,
+            "membershipID": user.membershipID,
+            "item": item.displayProperties.name,
+            "obtained": true,
+            "completions": broadcasts[i].count
+          });
+        }
       }
     }
 
@@ -1850,16 +1856,36 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
 
     //Others - triumphScore, totalTime, totalRaids, totalTitles
     case command.startsWith("triumph score"): case command.startsWith("triumphscore"): case command.startsWith("triumph"): case command.startsWith("triumphs"): {
-      let top = players.sort((a, b) => { return b.triumphScore - a.triumphScore }).slice(0, 10);
+      let type = "score";
+      let typeName = "Active Triumph Score";
+      switch(true) {
+        case command.startsWith("triumph score -active"): case command.startsWith("triumphscore -active"): case command.startsWith("triumph -active"): case command.startsWith("triumphs -active"): {
+          type = "activeScore";
+          typeName = "Active Triumph Score";
+          break;
+        }
+        case command.startsWith("triumph score -legacy"): case command.startsWith("triumphscore -legacy"): case command.startsWith("triumph -legacy"): case command.startsWith("triumphs -legacy"): {
+          type = "legacyScore";
+          typeName = "Legacy Triumph Score";
+          break;
+        }
+        case command.startsWith("triumph score -lifetime"): case command.startsWith("triumphscore -lifetime"): case command.startsWith("triumph -lifetime"): case command.startsWith("triumphs -lifetime"): {
+          type = "lifetimeScore";
+          typeName = "Lifetime Triumph Score";
+          break;
+        }
+        default: { break; }
+      }
+      let top = players.sort((a, b) => { return b.triumphScore[type] - a.triumphScore[type] }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore[type]) }` });
       if(registeredPlayer) {
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore[type]) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Triumph Score Rankings");
+      embed.setAuthor(`Top 10 ${ typeName } Rankings`);
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -2103,21 +2129,6 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
       embed.addField("Hours", leaderboard.first, true);
       break;
     }
-    case command.startsWith("clanwars triumph"): case command.startsWith("clanwars triumphs"): case command.startsWith("clanwars triumph score"): {
-      let top = Object.values(clanData).sort((a, b) => { return b.triumphScore - a.triumphScore }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore) }` });
-      if(registeredPlayer) {
-        var clan = Object.values(clanData).find(e => e.clanID === registeredPlayer.User.clanID);
-        var rank = Object.values(clanData).sort((a, b) => { return b.triumphScore - a.triumphScore }).indexOf(clan);
-        leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(clan.triumphScore) }`);
-      }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Total Triumph Score");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Score", leaderboard.first, true);
-      break;
-    }
     case command.startsWith("clanwars levi"): case command.startsWith("clanwars leviathan"): {
       let top = Object.values(clanData).sort((a, b) => { return b.levi - a.levi }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
@@ -2285,7 +2296,6 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("profile -r"): case command.startsWith("profile -raids"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              console.log(registeredPlayer);
               embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
               embed.addField("Leviathan", `${ Misc.AddCommas(registeredPlayerStats.levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.levi.rank) })*`, true);
@@ -2353,7 +2363,9 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               embed.addField("Valor", `${ Misc.AddCommas(registeredPlayerStats.valor.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.valor.rank) })*`, true);
               embed.addField("Glory", `${ Misc.AddCommas(registeredPlayerStats.glory.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.glory.rank) })*`, true);
               embed.addField("Infamy", `${ Misc.AddCommas(registeredPlayerStats.infamy.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.infamy.rank) })*`, true);
-              embed.addField("Triumph Score", `${ Misc.AddCommas(registeredPlayerStats.triumphScore.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.triumphScore.rank) })*`, true);
+              embed.addField("Active Triumph Score", `${ Misc.AddCommas(registeredPlayerStats.triumphScore.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.triumphScore.rank) })*`, true);
+              embed.addField("Legacy Triumph Score", `${ Misc.AddCommas(registeredPlayerStats.legacyTriumphScore.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.legacyTriumphScore.rank) })*`, true);
+              embed.addField("Lifetime Triumph Score", `${ Misc.AddCommas(registeredPlayerStats.lifetimeTriumphScore.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.lifetimeTriumphScore.rank) })*`, true);
               embed.addField("Raids", `${ Misc.AddCommas(registeredPlayerStats.totalRaids.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.totalRaids.rank) })*`, true);
               embed.addField("Titles", `${ Misc.AddCommas(registeredPlayerStats.titles.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.titles.rank) })*`, true);
               embed.addField("Highest Power", `${ Misc.AddCommas(registeredPlayerStats.highestPower.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.highestPower.rank) })*`, true);
@@ -2775,11 +2787,11 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
     case command.startsWith("global triumph score"): case command.startsWith("global triumph"): case command.startsWith("global triumphs"): {
       let top = leaderboardData.slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.triumphScore.score) }` });
       if(registeredPlayer) {
         var rank = leaderboardData.indexOf(leaderboardData.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore.score) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Global Triumph Score");
