@@ -33,7 +33,7 @@ let startupCheck = setInterval(async function Startup() {
   if(Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the backend and start running!
     clearInterval(startupCheck);
-    //init();
+    init();
 
     //Testing Below
     //Test.getClanInfo();
