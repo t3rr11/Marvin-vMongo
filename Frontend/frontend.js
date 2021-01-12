@@ -241,7 +241,9 @@ client.on('shardReconnecting', (id) => { Log.SaveLog("Frontend", "Warning", `Sha
 client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Frontend", "Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
-client.on("message", async message => { MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled); commandsInput++; });
+client.on("message", async message => {
+  MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
+});
 
 //On Error
 client.on('error', async error => { Log.SaveLog("Frontend", "Error", error) });

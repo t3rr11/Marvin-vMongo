@@ -337,4 +337,4 @@ async function disableItemBroadcast(prefix, message, command, guild) {
 }
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { checkForBroadcasts, processBroadcast, enableItemBroadcast, disableItemBroadcast, sendFinishedLoadingAnnouncement }
+module.exports = { checkForBroadcasts, processBroadcast, enableItemBroadcast, disableItemBroadcast, sendFinishedLoadingAnnouncement, sendItemBroadcast }

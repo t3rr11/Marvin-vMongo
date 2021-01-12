@@ -15,7 +15,8 @@ const GlobalItemsHandler = require('../../../Shared/handlers/globalItemsHandler'
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 
-function MessageHandler(client, message, guilds, users, APIDisabled) {
+function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
+  let related = true;
   if(message.guild) {
     var guild = guilds.find(e => e.guildID == message.guild.id);
     var prefix = guild ? guild.prefix : "~";
@@ -46,6 +47,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case message.author.id === "194972321168097280" && command.startsWith("view mbans"): { ViewBans(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("broadcast test"): { BroadcastHandler.sendItemBroadcast(client, guild, "Test", { hash: 1258579677 }, { clanName: "Test" }); break; }
         case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(); message.channel.send("Manifest Update Forced"); break; }
         case message.author.id === "194972321168097280" && command === "force rescan": {
           Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
@@ -154,8 +156,9 @@ function MessageHandler(client, message, guilds, users, APIDisabled) {
         case command.startsWith("grandmaster"): { GrandMaster(message); break; }
 
         //Default - Unknown commands
-        default: { message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
+        default: { related = false; message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
       }
+      callback(related);
     }
     catch (err) { ErrorHandler("High", err); message.channel.send("Uhh something went really wrong... Sorry about that."); }
   }
