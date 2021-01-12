@@ -25,6 +25,7 @@ const BackendStatusLog = require('./models/backendStatus_model');
 const HourlyBackendStatusLog = require('./models/hourlyBackendStatus_model');
 const GunsmithMods = require('./models/gunsmithMods_model');
 const Cookies = require('./models/log_cookies_model');
+const Auth = require('./models/auth_model');
 
 //Variables
 let SSHConnected = false;
@@ -235,6 +236,13 @@ const addGunsmithMods = async (data, callback) => {
     else { callback(false); }
   });
 }
+const addAuth = async (options, data, callback) => {
+  //Callback(isError, isFound, response)
+  await new Auth(data.auth).save((err, doc) => {
+    if(err) { callback(true, "High", err) }
+    else { callback(false, true, doc); }
+  });
+}
 
 //Finds
 const findUserByID = async (membershipID, callback) => {
@@ -372,6 +380,22 @@ const getUsersByClanIDArrayList = async (clanIDs, callback) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getGuildsByGuildIDArrayList = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await Guild.find({ guildID: { $in: data.guilds.map(e => e.id) }, isTracking: true }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) {
+        let adjustedArray = [];
+        for(let i in array) {
+          adjustedArray.push({...array[i]["_doc"], ...data.guilds.find(e => e.id === array[i].guildID) });
+        }
+        callback(false, true, adjustedArray);
+      }
       else { callback(false, false, null); }
     }
   });
@@ -923,15 +947,15 @@ module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
-  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addCookieLog, addGunsmithMods,
+  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addCookieLog, addGunsmithMods, addAuth, 
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
-  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
+  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods,
   getWeeklyFrontendLogs, getWeeklyBackendLogs, getAggregateWeeklyFrontendLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
-  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID, forceFullRescan,
-  enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
+  updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,
+  forceFullRescan, enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
   getAllClansForExpress, getDailyUsers, getClanByID, getClanMembersByID, getClanBroadcastsByID, getLastCookieLog
 }
