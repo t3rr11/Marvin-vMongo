@@ -400,6 +400,86 @@ const getGuildsByGuildIDArrayList = async (options, data, callback) => {
     }
   });
 }
+const getClansFromGuildID = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  Guild.findOne({ guildID: data.guildID }, (err, doc) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(doc) {
+        Clan.find({ clanID: { $in: doc.clans.map(e => parseInt(e)) } }, (err, array) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(array.length > 0) { callback(false, true, array); }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getUsersFromGuildID = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  Guild.findOne({ guildID: data.guildID }, (err, doc) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(doc) {
+        Clan.find({ clanID: { $in: doc.clans.map(e => parseInt(e)) } }, (err, array) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(array.length > 0) {
+              User.find({ clanID: { $in: array.map(e => e.clanID) } }, (err, users) => {
+                if(err) { callback(true, false, err); }
+                else {
+                  if(array.length > 0) { callback(false, true, users); }
+                  else { callback(false, false, null); }
+                }
+              });
+            }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getGuildDashboard = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  Guild.findOne({ guildID: data.guildID }, (err, doc) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(doc) {
+        Clan.find({ clanID: { $in: doc.clans.map(e => parseInt(e)) } }, (err, array) => {
+          if(err) { callback(true, false, err); }
+          else {
+            if(array.length > 0) {
+              User.find({ clanID: { $in: array.map(e => e.clanID) } }, (err, users) => {
+                if(err) { callback(true, false, err); }
+                else {
+                  if(array.length > 0) { callback(false, true, { guild: doc, clans: array, users: users }); }
+                  else { callback(false, false, null); }
+                }
+              });
+            }
+            else { callback(false, false, null); }
+          }
+        });
+      }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getGlobalItems = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await GlobalItem.find({}, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getAllRegisteredUsers = async (callback) => {
   //Callback fields { isError, isFound, data }
   await RegisteredUser.find({}, (err, array) => {
@@ -949,10 +1029,10 @@ module.exports = {
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
   addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addCookieLog, addGunsmithMods, addAuth, 
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
-  getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getAllGlobalItems, getAllTrackedUsers,
-  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
+  getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getGlobalItems, getAllGlobalItems, getAllTrackedUsers,
+  getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getClansFromGuildID, getUsersFromGuildID, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods,
+  getBackendLogs, getFrontendLogs, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods, getGuildDashboard,
   getWeeklyFrontendLogs, getWeeklyBackendLogs, getAggregateWeeklyFrontendLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,

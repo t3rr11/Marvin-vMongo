@@ -16,6 +16,8 @@ const Config = require('../Shared/configs/Config.json');
 const Interactions = require('../Shared/configs/Interactions.json');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
+const DBL = require("dblapi.js");
+const dbl = new DBL('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMTM1MTM2Njc5OTA2NTA4OCIsImJvdCI6dHJ1ZSwiaWF0IjoxNTg0NDIxMzAxfQ.qZ5CrrQdaC9cIfeuqx7svNTwiSTH_R0JD5H-1CVzrCo', client);
 
 //Variables
 let InitializationTime = new Date().getTime();
@@ -233,7 +235,12 @@ client.on("interactionCreate", (interaction) => {
 });
 
 //Check if discord bot is ready and shard info
-client.on("ready", async () => { DiscordReady = true; });
+client.on("ready", async () => {
+  DiscordReady = true;
+  if(!Config.isLocal) { setInterval(() => {
+    try { dbl.postStats(client.guilds.cache.size) } catch (err) { console.log("Failed to update top.gg stats."); }
+  }, 1800000); }
+});
 client.on('shardDisconnect', (event, id) => { Log.SaveLog("Frontend", "Error", `Shard has disconnected and will no longer reconnect: ${ id }`); });
 client.on('shardError', (error, shardID) => { Log.SaveLog("Frontend", "Error", `Shard encounted an error: ${ id }, ${ error }`); });
 client.on('shardReady', (id, unavailableGuilds) => { Log.SaveLog("Frontend", "Info", `Shard is ready: ${ id }`); });

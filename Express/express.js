@@ -36,6 +36,7 @@ let startupCheck = setInterval(async function Startup() {
 app.get("/Test", async function(req, res) { res.status(200).send("Hello World"); });
 app.get("/GetAllClans", async function(req, res) { await DatabaseFunction(req, res, { func: "getAllClansForExpress", amount: 1000 }); });
 app.get("/GetDailyUsers", async function(req, res) { await DatabaseFunction(req, res, { func: "getDailyUsers" }); });
+app.get("/GetGlobals", async function(req, res) { await DatabaseFunction(req, res, { func: "getGlobalItems" }); });
 app.get("/GetClan", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanByID", amount: 1 }, { clanID: req.query.clanID }); });
 app.get("/GetClanMembers", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanMembersByID", amount: 100 }, { clanID: req.query.clanID }); });
 app.get("/GetClanBroadcasts", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanBroadcastsByID", amount: 250 }, { clanID: req.query.clanID }); });
@@ -59,7 +60,12 @@ app.get("/GetBroadcasts", async function(req, res) { await DatabaseFunction(req,
 app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { type: "Error", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 
-app.get("/GetGuilds", async function(req, res) { await DiscordGuildReq(req, res, { name: "/GetGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });
+app.get("/GetGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });
+app.get("/GetAllGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetAllGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });
+app.get("/GetClansFromGuildID", async function(req, res) { await DiscordReq(req, res, { name: "/GetClansFromGuildID", func: "getClansFromGuildID", amount: 100 }, { token: req.query.token, guildID: req.query.guildID }); });
+app.get("/GetUsersFromGuildID", async function(req, res) { await DiscordReq(req, res, { name: "/GetUsersFromGuildID", func: "getUsersFromGuildID", amount: 1000 }, { token: req.query.token, guildID: req.query.guildID }); });
+app.get("/GetGuildDashboard", async function(req, res) { await DiscordReq(req, res, { name: "/GetGuildDashboard", func: "getGuildDashboard" }, { token: req.query.token, guildID: req.query.guildID }); });
+app.get("/GetGuildRankings", async function(req, res) { await UnAuthedDiscordReq(req, res, { name: "/GetGuildRankings", func: "getGuildDashboard" }, { token: req.query.token, guildID: req.query.guildID }); });
 app.get("/SaveAuth", async function(req, res) { await DatabaseFunction(req, res, { func: "addAuth" }, { auth: req.query }); });
 
 app.get("/GetWeeklyFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getWeeklyFrontendLogs", amount: 744 }); });
@@ -90,6 +96,94 @@ async function DatabaseFunction(req, res, options, data) {
   }
 }
 
+async function UnAuthedDiscordReq(req, res, options, reqData) {
+  switch(true) {
+    case options.name === "/GetGuildRankings": {
+      CallbackDatabaseFunction(req, options, { guildID: reqData.guildID }, ({ isError, message, code, data }) => {
+        if(!isError) {
+          data.guild = { guildID: data.guild.guildID, guildName: data.guild.guildName }
+          data.clans = data.clans.map(e => { return { clanID: e.clanID, clanName: e.clanName, clanCallsign: e.clanCallsign } });
+          res.status(200).send({ isError, message, code, data });
+        }
+        else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+      });
+      break;
+    }
+    default: { res.status(200).send({ "isError": true, "message": "No request option was given", "code": 500 }); break; }
+  }
+}
+
+async function DiscordReq(req, res, options, reqData) {
+  fetch(`https://discord.com/api/users/@me/guilds`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${ reqData.token }`, 'Content-Type': 'application/x-www-form-urlencoded' }
+  })
+  .then(async function(response) {
+    response = JSON.parse(await response.text());
+    if(response.code === 0) {
+      res.status(200).send({ "isError": true, "message": response.message, "code": 500 });
+      if(response.message === '401: Unauthorized') { ErrorHandler("Med", `Someone tried to access ${ options.name } with an Invalid access token: ${ reqData.token }.`); }
+      else { ErrorHandler("Med", `Someone tried to access ${ options.name } and hit this error: ${ response.message }.`); }
+    }
+    else {
+      switch(true) {
+        case options.name === "/GetGuilds": {
+          let adminGuilds = response.filter(e => (e.permissions & 0x00000008) == 0x00000008);
+          CallbackDatabaseFunction(req, options, { guilds: adminGuilds }, ({ isError, message, code, data }) => {
+            if(!isError) { res.status(200).send({ isError, message, code, data }); }
+            else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+          });
+          break;
+        }
+        case options.name === "/GetAllGuilds": {
+          CallbackDatabaseFunction(req, options, { guilds: response }, ({ isError, message, code, data }) => {
+            let guildIDs = data.map(e => e.guildID);
+            data = response.filter(e => guildIDs.includes(e.id));
+            if(!isError) { res.status(200).send({ isError, message, code, data }); }
+            else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+          });
+          break;
+        }
+        case options.name === "/GetClansFromGuildID": {
+          let adminGuilds = response.filter(e => (e.permissions & 0x00000008) == 0x00000008);
+          if(adminGuilds.find(e => e.id === reqData.guildID)) {
+            CallbackDatabaseFunction(req, options, { guildID: reqData.guildID }, ({ isError, message, code, data }) => {
+              if(!isError) { res.status(200).send({ isError, message, code, data }); }
+              else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+            });
+          }
+          else { res.status(200).send({ "isError": true, "message": "This access token is not vaild for this guild.", "code": 500 }); }
+          break;
+        }
+        case options.name === "/GetUsersFromGuildID": {
+          let adminGuilds = response.filter(e => (e.permissions & 0x00000008) == 0x00000008);
+          if(adminGuilds.find(e => e.id === reqData.guildID)) {
+            CallbackDatabaseFunction(req, options, { guildID: reqData.guildID }, ({ isError, message, code, data }) => {
+              if(!isError) { res.status(200).send({ isError, message, code, data }); }
+              else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+            });
+          }
+          else { res.status(200).send({ "isError": true, "message": "This access token is not vaild for this guild.", "code": 500 }); }
+          break;
+        }
+        case options.name === "/GetGuildDashboard": {
+          let adminGuilds = response.filter(e => (e.permissions & 0x00000008) == 0x00000008);
+          if(adminGuilds.find(e => e.id === reqData.guildID)) {
+            CallbackDatabaseFunction(req, options, { guildID: reqData.guildID }, ({ isError, message, code, data }) => {
+              if(!isError) { res.status(200).send({ isError, message, code, data }); }
+              else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
+            });
+          }
+          else { res.status(200).send({ "isError": true, "message": "This access token is not vaild for this guild.", "code": 500 }); }
+          break;
+        }
+        default: { res.status(200).send({ "isError": true, "message": "No request option was given", "code": 500 }); break; }
+      }
+    }
+  })
+  .catch((error) => { console.log(error); return { error: true, reason: error } });
+}
+
 async function CallbackDatabaseFunction(req, options, data, callback) {
   try {
     Database[options.func](options, data, (isError, isFound, response) => {
@@ -107,27 +201,4 @@ async function CallbackDatabaseFunction(req, options, data, callback) {
     callback({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
     ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`);
   }
-}
-
-async function DiscordGuildReq(req, res, options, reqData) {
-  fetch(`https://discord.com/api/users/@me/guilds`, {
-    method: 'GET',
-    headers: { 'Authorization': `Bearer ${ reqData.token }`, 'Content-Type': 'application/x-www-form-urlencoded' }
-  })
-  .then(async function(response) {
-    response = JSON.parse(await response.text());
-    if(response.code === 0) {
-      res.status(200).send({ "isError": true, "message": response.message, "code": 500 });
-      if(response.message === '401: Unauthorized') { ErrorHandler("Med", `Someone tried to access ${ options.name } with an Invalid access token: ${ reqData.token }.`); }
-      else { ErrorHandler("Med", `Someone tried to access ${ options.name } and hit this error: ${ response.message }.`); }
-    }
-    else {
-      let adminGuilds = response.filter(e => (e.permissions & 0x00000008) == 0x00000008);
-      CallbackDatabaseFunction(req, options, { guilds: adminGuilds }, ({ isError, message, code, data }) => {
-        if(!isError) { res.status(200).send({ isError, message, code, data }); }
-        else { res.status(200).send({ "isError": true, "message": message, "code": 500 }); }
-      });
-    }
-  })
-  .catch((error) => { console.log(error); return { error: true, reason: error } });
 }

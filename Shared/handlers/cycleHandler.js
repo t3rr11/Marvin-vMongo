@@ -85,8 +85,8 @@ const dailyCycleInfo = (type) => {
     cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]) + 1;
   }
   switch(type) {
-    case "legendLostSector": { return rotations.lostSector[cycleInfo.day.lostSector+1 <= 19 ? cycleInfo.day.lostSector+1 : 1]; }
-    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector]; }
+    case "legendLostSector": { return rotations.lostSector[cycleInfo.day.lostSector]; }
+    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 1 ? cycleInfo.day.lostSector-1 : 20]; }
   }
 };
 

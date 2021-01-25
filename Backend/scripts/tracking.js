@@ -534,6 +534,7 @@ function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
   var masterHunts = 0; try { masterHunts = playerData.profileRecords.data.records["1363459558"].objectives[0].progress; } catch (err) { }
   var dawning2020 = 0; try { dawning2020 = playerData.characterRecords.data[characterIds[0]].records["3692735918"].intervalObjectives[3].progress; } catch (err) { }
+  
   return {
     empireHunts: {
       theDarkPriestess,
