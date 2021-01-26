@@ -1283,8 +1283,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.valor.current) }`);
         leaderboard.second.push("", `${ ~~(registeredPlayer.User.valor.current/2000) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/valor/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/valor/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Seasonal Valor Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Valor", leaderboard.first, true);
@@ -1301,8 +1303,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.infamy.current) }`);
         leaderboard.second.push("", `${ ~~(registeredPlayer.User.infamy.current/15000) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/infamy/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/infamy/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Seasonal Infamy Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Infamy", leaderboard.first, true);
@@ -1317,8 +1321,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.glory) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/glory/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/glory/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Seasonal Glory Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Glory", leaderboard.first, true);
@@ -1334,8 +1340,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.ironBanner.kills) }`);
         leaderboard.second.push("", `${ Misc.AddCommas(registeredPlayer.User.ironBanner.wins) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/ironBanner/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/ironBanner/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Overall Iron Banner Rankings");
       embed.setDescription("Seasonal Iron Banner stats are not available, so overall stats it is.");
       embed.addField("Name", leaderboard.names, true);
@@ -1355,8 +1363,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.raids.levi } - ${ registeredPlayer.User.raids.prestige_levi }`);
         leaderboard.second.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.levi + registeredPlayer.User.raids.prestige_levi) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/levi/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/levi/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Leviathan Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Norm | Pres", leaderboard.first, true);
@@ -1373,8 +1383,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.raids.eow } - ${ registeredPlayer.User.raids.prestige_eow }`);
         leaderboard.second.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.eow + registeredPlayer.User.raids.prestige_eow) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/eow/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/eow/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Eater of Worlds Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Norm | Pres", leaderboard.first, true);
@@ -1391,8 +1403,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.raids.sos } - ${ registeredPlayer.User.raids.prestige_sos }`);
         leaderboard.second.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.sos + registeredPlayer.User.raids.prestige_sos) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/sos/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/sos/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Spire of Stars Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Norm | Pres", leaderboard.first, true);
@@ -1407,8 +1421,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.lastWish) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/lastWish/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/lastWish/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Last Wish Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
@@ -1422,8 +1438,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.scourge) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/scourge/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/scourge/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Scourge of the Past Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
@@ -1437,8 +1455,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.sorrows) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/sorrows/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/sorrows/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Crown of Sorrows Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
@@ -1452,8 +1472,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.garden) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/garden/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/garden/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Garden of Salvation Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
@@ -1467,8 +1489,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.dsc) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/dsc/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/dsc/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Deep Stone Crypt Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
@@ -1487,8 +1511,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.seasonRank) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/seasonRank/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/seasonRank/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Season Ranks");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Season Rank", leaderboard.first, true);
@@ -1503,8 +1529,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
           var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
           leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
           leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
+          embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/highestPower/?hl=${ registeredPlayer.User.membershipID })`);
         }
-        else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+        else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/highestPower/)`); }
+        if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
         embed.setAuthor("Top 10 Highest Base Power");
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Highest Base", leaderboard.first, true);
@@ -1536,8 +1564,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.dungeons.shatteredThrone.completions } - ${ registeredPlayer.User.dungeons.shatteredThrone.flawless }`);
         leaderboard.second.push("", `${ registeredPlayer.User.dungeons.shatteredThrone.completions + registeredPlayer.User.dungeons.shatteredThrone.flawless }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/shatteredThrone/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/shatteredThrone/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Shattered Throne Completions");
       embed.setDescription("Completions (Normal - Flawless)");
       embed.addField("Name", leaderboard.names, true);
@@ -1555,8 +1585,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.dungeons.pitOfHeresy.completions } - ${ registeredPlayer.User.dungeons.pitOfHeresy.flawless }`);
         leaderboard.second.push("", `${ registeredPlayer.User.dungeons.pitOfHeresy.completions + registeredPlayer.User.dungeons.pitOfHeresy.flawless }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/pitOfHeresy/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/pitOfHeresy/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Pit of Heresy Completions");
       embed.setDescription("Completions (Normal - Flawless)");
       embed.addField("Name", leaderboard.names, true);
@@ -1574,8 +1606,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ registeredPlayer.User.dungeons.prophecy.completions } - ${ registeredPlayer.User.dungeons.prophecy.flawless }`);
         leaderboard.second.push("", `${ registeredPlayer.User.dungeons.prophecy.completions + registeredPlayer.User.dungeons.prophecy.flawless }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/prophecy/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/prophecy/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Prophecy Completions");
       embed.setDescription("Completions (Normal - Flawless)");
       embed.addField("Name", leaderboard.names, true);
@@ -1859,7 +1893,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
 
     //Others - triumphScore, totalTime, totalRaids, totalTitles
     case command.startsWith("triumph score"): case command.startsWith("triumphscore"): case command.startsWith("triumph"): case command.startsWith("triumphs"): {
-      let type = "score";
+      let type = "activeScore";
       let typeName = "Active Triumph Score";
       switch(true) {
         case command.startsWith("triumph score -active"): case command.startsWith("triumphscore -active"): case command.startsWith("triumph -active"): case command.startsWith("triumphs -active"): {
@@ -1886,8 +1920,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore[type]) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${type}/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${type}/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor(`Top 10 ${ typeName } Rankings`);
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
@@ -1901,8 +1937,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(Math.round(registeredPlayer.User.timePlayed/60)) } Hrs`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/timePlayed/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/timePlayed/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Most Time Played");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Hours", leaderboard.first, true);
@@ -1916,8 +1954,10 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
         var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.totalRaids) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/totalRaids/?hl=${ registeredPlayer.User.membershipID })`);
       }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/totalRaids/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Total Raid Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Raids", leaderboard.first, true);
