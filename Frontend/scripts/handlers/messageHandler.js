@@ -671,7 +671,7 @@ async function GetHelp(prefix, message, command) {
     case "help rankings": case "rankings": {
       embed.setAuthor("Rankings Help Menu");
       embed.setDescription(`Here is a list of ranking commands! Example: \`${prefix}Iron Banner\``);
-      embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\``);
+      embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Triumph Score -legacy\`\n\`${prefix}Triumph Score -lifetime\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\``);
       break;
     }
     case "help dungeons": case "dungeons": {
@@ -741,7 +741,7 @@ async function GetHelp(prefix, message, command) {
     case "help others": case "others": {
       embed.setAuthor("Others Help Menu");
       embed.setDescription(`Here is a list of other commands! Example: \`${prefix}Donate\``);
-      embed.addField("Commands", `\`${prefix}Donate\``);
+      embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\``);
       break;
     }
     case "help drystreaks": case "drystreaks": {
