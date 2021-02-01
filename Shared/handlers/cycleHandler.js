@@ -7,12 +7,12 @@ const msPerDay = 86400000;
 const cycleInfo = {
   epoch: {
     zeroHour: new Date(`May 7 2019 ${ resetTime }`).getTime(),
-    lostSector: new Date(`December 21 2020 ${ resetTime }`).getTime(),
+    lostSector: new Date(`November 11 2020 ${ resetTime }`).getTime(),
     grandMaster: new Date(`December 22 2020 ${ resetTime }`).getTime(),
   },
   cycle: {
     zeroHour: 3,
-    lostSector: 19,
+    lostSector: 20,
     grandMaster: 6
   },
   elapsed: { },
@@ -22,20 +22,20 @@ const cycleInfo = {
 
 const getLoot = (type) => {
   switch(type) {
-    case 0: { return { type: "Chest", loot: [] } }
-    case 1: { return { type: "Helmet", loot: [] } }
-    case 2: { return { type: "Legs", loot: [] } }
-    case 3: { return { type: "Arms", loot: [] } }
+    case 0: { return { type: "Helmet", loot: [] } }
+    case 1: { return { type: "Legs", loot: [] } }
+    case 2: { return { type: "Arms", loot: [] } }
+    case 3: { return { type: "Chest", loot: [] } }
   }
 }
 
 const getSector = (type) => {
   switch(type) {
-    case 0: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
-    case 1: { return { name: "Exodus", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
-    case 2: { return { name: "Veles", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
-    case 3: { return { name: "Concealed", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
-    case 4: { return { name: "Bunker", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
+    case 0: { return { name: "Exodus", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
+    case 1: { return { name: "Veles", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
+    case 2: { return { name: "Concealed", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
+    case 3: { return { name: "Bunker", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
+    case 4: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
   }
 }
 
@@ -84,6 +84,7 @@ const dailyCycleInfo = (type) => {
     cycleInfo.week[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerWk) % cycleInfo.cycle[cycle]) + 1;
     cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]) + 1;
   }
+  console.log(cycleInfo.day.lostSector);
   switch(type) {
     case "legendLostSector": { return rotations.lostSector[cycleInfo.day.lostSector]; }
     case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 1 ? cycleInfo.day.lostSector-1 : 20]; }
