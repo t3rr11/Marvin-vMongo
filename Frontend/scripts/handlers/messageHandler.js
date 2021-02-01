@@ -978,6 +978,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
             scourge: { "data": data.User.raids.scourge, "rank": players.sort(function(a, b) { return b.raids.scourge - a.raids.scourge; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             sorrows: { "data": data.User.raids.sorrows, "rank": players.sort(function(a, b) { return b.raids.sorrows - a.raids.sorrows; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },
             garden: { "data": data.User.raids.garden, "rank": players.sort(function(a, b) { return b.raids.garden - a.raids.garden; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
+            dsc: { "data": data.User.raids.dsc, "rank": players.sort(function(a, b) { return b.raids.dsc - a.raids.dsc; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
             totalRaids: { "data": data.User.totalRaids, "rank": players.sort(function(a, b) { return b.totalRaids - a.totalRaids; }).findIndex(e => e.membershipID === data.User.membershipID) +1 }                    
           }
         }
@@ -2351,6 +2352,8 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               embed.addField("Scourge of the Past", `${ Misc.AddCommas(registeredPlayerStats.scourge.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.scourge.rank) })*`, true);
               embed.addField("Crown of Sorrows", `${ Misc.AddCommas(registeredPlayerStats.sorrows.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.sorrows.rank) })*`, true);
               embed.addField("Garden of Salvation", `${ Misc.AddCommas(registeredPlayerStats.garden.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.garden.rank) })*`, true);
+              embed.addField("Deep Stone Crypt", `${ Misc.AddCommas(registeredPlayerStats.dsc.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.dsc.rank) })*`, true);
+              embed.addField("\u200b", `\u200b`, true);
               embed.addField("See more at", `https://guardianstats.com/profile/${ registeredUser.membershipID }`);
               break;
             }
