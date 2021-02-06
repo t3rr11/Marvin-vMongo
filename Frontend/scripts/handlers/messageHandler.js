@@ -1969,7 +1969,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ players.find(player => player.membershipID === e.membershipID).displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.titles.length) }` });
       if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        var rank = playerTitles.indexOf(playerTitles.find(e => e.membershipID === registeredPlayer.User.membershipID));
         leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.Titles.titles.length) }`);
       }

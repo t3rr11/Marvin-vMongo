@@ -8,6 +8,7 @@ const compression = require('compression');
 const Database = require('../Shared/database');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const Log = require('../Shared/log');
+const Misc = require('../Shared/misc');
 var app = express();
 
 app.use(cors());
@@ -29,7 +30,6 @@ let startupCheck = setInterval(async function Startup() {
     clearInterval(startupCheck);
     RefreshAdminToken();
     app.listen(3001, function () { Log.SaveLog("Express", "Startup", "Express is listening on port 3001...") });
-
   }
 }, 1000);
 
@@ -75,6 +75,11 @@ app.get("/GetAggregateWeeklyFrontendLogs", async function(req, res) { await Data
 app.get("/CheckAuthorization", async function(req, res) {
   if(req.query.token && req.query.token === adminToken) { res.status(200).send({ "isError": false, "message": "Success", "code": 200 }); }
   else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }
+});
+
+app.get("/SeasonProgress", async function(req, res) {
+  const data = await SoT(`https://www.seaofthieves.com/api/profilev2/seasons-progress`, { rat: decodeURI(req.query.rat) });
+  res.status(200).send(data);
 });
 
 async function DatabaseFunction(req, res, options, data) {
@@ -201,4 +206,24 @@ async function CallbackDatabaseFunction(req, options, data, callback) {
     callback({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
     ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`);
   }
+}
+
+async function SoT(path, user) {
+  return await fetch(`${ path }`, {
+    headers: {
+      "Referer": `https://www.seaofthieves.com`,
+      "Host": "www.seaofthieves.com",
+      "cookie": `rat=${ user?.rat }; Domain=.seaofthieves.com; Path=/; Expires=Tue, 02 Feb 2021 07:43:19 GMT; HttpOnly; Secure`
+    }
+  }).then(async (request) => {
+    try {
+      const response = await request.text();
+      if(Misc.IsJSON(response)) {
+        const res = JSON.parse(response);
+        if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
+        else if(request.ok) { return { "isError": false, "Data": res } }
+        else { return { "isError": true, "Data": res } }
+      } else { return { "isError": true, "Data": "Did not recieve json" } }
+    } catch (err) { return { "isError": true, "Data": err } } 
+  }).catch((err) => { return { "isError": true, "Data": err } });
 }
