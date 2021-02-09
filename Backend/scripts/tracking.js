@@ -205,7 +205,7 @@ async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
 async function CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds) {
   var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
   var previousRecentItems = oldPlayerData.Items.recentItems;
-  if(previousRecentItems) {
+  if(previousRecentItems && recentItems) {
     var differences = recentItems.filter(itemHash => !previousRecentItems.includes(itemHash));
 
     if(differences.length > 0) {
@@ -516,13 +516,14 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var season10Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2926321498"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1470619782"].level; season10Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season11Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["1627914615"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["4021269753"].level; season11Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season12Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["477676543"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2304468497"].level; season12Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
+  var season13Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["4030656982"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2068785426"].level; season13Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
   var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
   var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
-  var powerBonus = "0"; try { powerBonus = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].level; } catch (err) { }
+  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["1113384427"].intervalObjectives[2].progress; } catch (err) { }
 
   return {
-    "seasonRank": season12Rank,
+    "seasonRank": season13Rank,
     "xp": { "dailyXP": dailyXP, "weeklyXP": weeklyXP, "overallXP": overallXP },
     "powerBonus": powerBonus,
   }
