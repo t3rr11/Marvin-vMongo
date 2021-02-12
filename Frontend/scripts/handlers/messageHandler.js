@@ -151,8 +151,16 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
         case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
-        case command.startsWith("legend"): { LostSectors(message, "legendLostSector"); break; }
-        case command.startsWith("master"): { LostSectors(message, "masterLostSector"); break; }
+        case command.startsWith("legend"): {
+          message.channel.send("Lost sectors went through a change this season so these are not accurate and need to be re-wrote. Sorry!");
+          //LostSectors(message, "legendLostSector");
+          break;
+        }
+        case command.startsWith("master"): {
+          message.channel.send("Lost sectors went through a change this season so these are not accurate and need to be re-wrote. Sorry!");
+          //LostSectors(message, "masterLostSector");
+          break;
+        }
         case command.startsWith("grandmaster"): { GrandMaster(message); break; }
 
         //Default - Unknown commands
