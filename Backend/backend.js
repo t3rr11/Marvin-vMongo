@@ -57,6 +57,7 @@ async function init() {
   var allClans = []; 
   var clans = [];
   var startTime = new Date().getTime();
+  var rt_startTime = new Date().getTime();
   var processing = [];
   var index = 0;
   var rt_allClans = []; 
@@ -149,6 +150,7 @@ async function init() {
         var onlineMembers = 0;
         for(let i in clans) { onlineMembers += clans[i].onlineMembers; }
         Log.SaveLog("Backend", "Scan", `Scan took: ${ Misc.formatTime("small", (new Date().getTime() - startTime) / 1000) } to scan ${ clans.length } clans. Which was a total of ${ onlineMembers } players. Each: ~(${ (Math.round((new Date().getTime() - startTime) / 1000) / onlineMembers).toFixed(2) }s) @ Scanspeed: ${ ScanSpeed }`);
+        Log.LogScanTime("Normal", new Date().getTime() - startTime, clans.length, onlineMembers, ScanSpeed);
         LastScanTime = new Date().getTime(); //Log last scan time.
         ScanLength = new Date().getTime() - startTime; //Get timing of last scan. This is for tracking purposes.
         allClans = data.filter(e => !e.realtime);
@@ -216,6 +218,7 @@ async function init() {
         var onlineMembers = 0;
         for(let i in rt_clans) { onlineMembers += rt_clans[i].onlineMembers; }
         Log.SaveLog("Backend", "Scan", `Realtime Scanned: ${ rt_clans.length } clans. Which was a total of ${ onlineMembers } players. @ Scanspeed: ${ rt_scanSpeed }`);
+        Log.LogScanTime("Realtime", new Date().getTime() - rt_startTime, rt_clans.length, onlineMembers, rt_scanSpeed);
         rt_allClans = data.filter(e => e.realtime);
         rt_clans = []; //Reset rt_clans array to be empty.
 
@@ -227,6 +230,7 @@ async function init() {
 
         //Reset start time and rt_index.
         rt_index = 0;
+        rt_startTime = new Date().getTime();
         RT_Restarting = false;
       }
     })

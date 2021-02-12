@@ -4,7 +4,7 @@ const Misc = require("./misc");
 const Config = require("./configs/Config.json");
 
 //Exports
-module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogHourlyBackendStatus, LogFrontendStatus, LogHourlyFrontendStatus };
+module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogHourlyBackendStatus, LogFrontendStatus, LogHourlyFrontendStatus, LogScanTime };
 
 //Functions
 function SaveLog(location, type, log) {
@@ -51,6 +51,14 @@ function LogHourlyBackendStatus(index, rt_index, clans, rt_clans, processing, rt
       processing, rt_processing,
       uptime, speed, APIStatus,
     },
+    function AddHourlyBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
+}
+
+function LogScanTime(type, time, clans, players, scanspeed) {
+  if(!Config.isLocal) { 
+    const Database = require("./database");
+    Database.addTimeLog({ type, time, clans, players, scanspeed },
     function AddHourlyBackendStatusLog(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
   }
 }

@@ -59,6 +59,8 @@ app.get("/GetBroadcastLogs", async function(req, res) { await DatabaseFunction(r
 app.get("/GetBroadcasts", async function(req, res) { await DatabaseFunction(req, res, { func: "getBroadcasts", amount: 300 }, { date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Globals", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { type: "Error", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetNormalTimeLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getTimeLogs", amount: 60 }, { type: "Normal", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetRealtimeTimeLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getTimeLogs", amount: 300 }, { type: "Realtime", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 
 app.get("/GetGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });
 app.get("/GetAllGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetAllGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });

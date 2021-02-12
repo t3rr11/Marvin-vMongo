@@ -23,6 +23,7 @@ const FrontendStatusLog = require('./models/frontendStatus_model');
 const HourlyFrontendStatusLog = require('./models/hourlyFrontendStatus_model');
 const BackendStatusLog = require('./models/backendStatus_model');
 const HourlyBackendStatusLog = require('./models/hourlyBackendStatus_model');
+const ScanTimeLog = require('./models/log_time_model');
 const GunsmithMods = require('./models/gunsmithMods_model');
 const Cookies = require('./models/log_cookies_model');
 const Auth = require('./models/auth_model');
@@ -223,6 +224,12 @@ const addFrontendStatusLog = async (logData, callback) => {
 }
 const addHourlyFrontendStatusLog = async (logData, callback) => {
   await new HourlyFrontendStatusLog(logData).save((err, doc) => {
+    if(err) { callback(true, "High", err) }
+    else { callback(false); }
+  });
+}
+const addTimeLog = async (logData, callback) => {
+  await new ScanTimeLog(logData).save((err, doc) => {
     if(err) { callback(true, "High", err) }
     else { callback(false); }
   });
@@ -815,6 +822,16 @@ const getWeeklyBackendLogs = async (options, data, callback) => {
     }
   });
 }
+const getTimeLogs = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await ScanTimeLog.find(data).sort({ _id: -1 }).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 
 //Get Aggregates
 const getAggregateWeeklyFrontendLogs = async (options, data, callback) => {
@@ -1027,7 +1044,7 @@ module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
-  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addCookieLog, addGunsmithMods, addAuth, 
+  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addTimeLog, addCookieLog, addGunsmithMods, addAuth, 
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getGlobalItems, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getClansFromGuildID, getUsersFromGuildID, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
@@ -1037,5 +1054,5 @@ module.exports = {
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,
   forceFullRescan, enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,
-  getAllClansForExpress, getDailyUsers, getClanByID, getClanMembersByID, getClanBroadcastsByID, getLastCookieLog
+  getAllClansForExpress, getDailyUsers, getClanByID, getClanMembersByID, getClanBroadcastsByID, getLastCookieLog, getTimeLogs
 }
