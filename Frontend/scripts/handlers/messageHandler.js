@@ -534,7 +534,7 @@ async function ItemInfo(prefix, message, command) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
     embed.setAuthor(`${ item.displayProperties.name }`);
-    if(item.displayProperties.description) { embed.setDescription(`${ item.displayProperties.description }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
+    if(item.flavorText) { embed.setDescription(`${ item.flavorText }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
     embed.addField(`Collectible Hash`, item.collectibleHash ? item.collectibleHash : "None", true);

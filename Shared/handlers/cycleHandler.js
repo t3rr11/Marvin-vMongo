@@ -10,7 +10,7 @@ const cycleInfo = {
   },
   cycle: {
     zeroHour: 3,
-    lostSector: 20,
+    lostSector: 36,
     grandMaster: 6
   },
   elapsed: { },
@@ -81,17 +81,17 @@ const rotations = {
     35:  { sector: getSector(8), loot: getLoot(3) }
   },
   zeroHour: {
-    1: { burn: 'Void' },
-    2: { burn: 'Arc' },
-    3: { burn: 'Solar' }
+    0: { burn: 'Void' },
+    1: { burn: 'Arc' },
+    2: { burn: 'Solar' }
   },
   grandMaster: {
-    1: { name: "Exodus Crash", recordHash: 3505377076, activityHash: 54961125 },
-    2: { name: "The Glassway", recordHash: 3250442757, activityHash: 4197461112 },
-    3: { name: "The Scarlet Keep", recordHash: 3426594834, activityHash: 3449817631 },
-    4: { name: "Broodhold", recordHash: 1445611700, activityHash: 89113250 },
-    5: { name: "The Inverted Spire", recordHash: 164162423, activityHash: 281497220 },
-    6: { name: "The Disgraced", recordHash: 3694149830, activityHash: 3381711459 }
+    0: { name: "Exodus Crash", recordHash: 3505377076, activityHash: 54961125 },
+    1: { name: "The Glassway", recordHash: 3250442757, activityHash: 4197461112 },
+    2: { name: "The Scarlet Keep", recordHash: 3426594834, activityHash: 3449817631 },
+    3: { name: "Broodhold", recordHash: 1445611700, activityHash: 89113250 },
+    4: { name: "The Inverted Spire", recordHash: 164162423, activityHash: 281497220 },
+    5: { name: "The Disgraced", recordHash: 3694149830, activityHash: 3381711459 }
   }
 }
 
@@ -113,8 +113,8 @@ const weeklyCycleInfo = (type) => {
   const time = new Date().getTime();
   for(var cycle in cycleInfo.cycle) {
     cycleInfo.elapsed[cycle] = time - cycleInfo.epoch[cycle];
-    cycleInfo.week[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerWk) % cycleInfo.cycle[cycle]) + 1;
-    cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]) + 1;
+    cycleInfo.week[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerWk) % cycleInfo.cycle[cycle]);
+    cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]);
   }
   switch(type) {
     case "zeroHour": { return rotations.zeroHour }
