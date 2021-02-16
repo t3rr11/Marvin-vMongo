@@ -86,10 +86,10 @@ function UpdateActivityList() {
     var ActivityList = [];
     ActivityList.push(`Serving ${ Users } users`);
     ActivityList.push(`Tracking ${ Clans.length } clans!`);
-    ActivityList.push(`Use ~HELP or ~REQUEST for Support`);
+    ActivityList.push(`Use ~Help or ~Request for Support`);
     ActivityList.push(`You can now change your prefix by using: ~set prefix`);
-    ActivityList.push(`Deep stone crypt leaderboards are live use: ~DSC or ~Global DSC`);
-    ActivityList.push(`Consider Donating? ~Donate`);
+    ActivityList.push(`~Legend and ~Master are now re-enabled.`);
+    ActivityList.push(`Want Faster Broadcasts? Consider Supporting, ~Support`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
   }

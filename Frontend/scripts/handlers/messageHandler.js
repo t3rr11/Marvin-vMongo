@@ -147,21 +147,13 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("trials profile overall"): { GetProfile(prefix, message, command, "trials", users, registeredUser); break; }
 
         //Others
-        case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("supporting"): { Donate(client, message); break; }
+        case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("support"): { Donate(client, message); break; }
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
         case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
-        case command.startsWith("legend"): {
-          message.channel.send("Lost sectors went through a change this season so these are not accurate and need to be re-wrote. Sorry!");
-          //LostSectors(message, "legendLostSector");
-          break;
-        }
-        case command.startsWith("master"): {
-          message.channel.send("Lost sectors went through a change this season so these are not accurate and need to be re-wrote. Sorry!");
-          //LostSectors(message, "masterLostSector");
-          break;
-        }
-        case command.startsWith("grandmaster"): { GrandMaster(message); break; }
+        case command.startsWith("legend"): { LostSectors(message, "legendLostSector"); break; }
+        case command.startsWith("master"): { LostSectors(message, "masterLostSector"); break; }
+        //case command.startsWith("grandmaster"): { GrandMaster(message); break; }
 
         //Default - Unknown commands
         default: { related = false; message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
@@ -1251,7 +1243,7 @@ async function GetBroadcastItems(prefix, message, command) {
   //Create the help menu
   embed.setAuthor("Broadcasts Help Menu");
   embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
-  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\``);
+  embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\`\n\`${prefix}Track itemname\`\n\`${prefix}Untrack itemname\``);
   
   // //Get mode, global items and extra items.
   // let broadcastMode = guild.broadcasts.mode;

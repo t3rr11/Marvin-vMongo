@@ -1,5 +1,3 @@
-const { GetGlobalHighestPowerMinusArtifactLeaderboard } = require("./requestHandler");
-
 const resetTime = '17:00 UTC';
 const msPerWk = 604800000;
 const msPerDay = 86400000;
@@ -7,7 +5,7 @@ const msPerDay = 86400000;
 const cycleInfo = {
   epoch: {
     zeroHour: new Date(`May 7 2019 ${ resetTime }`).getTime(),
-    lostSector: new Date(`November 11 2020 ${ resetTime }`).getTime(),
+    lostSector: new Date(`Feb 15 2021 ${ resetTime }`).getTime(),
     grandMaster: new Date(`December 22 2020 ${ resetTime }`).getTime(),
   },
   cycle: {
@@ -31,36 +29,56 @@ const getLoot = (type) => {
 
 const getSector = (type) => {
   switch(type) {
-    case 0: { return { name: "Exodus", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
-    case 1: { return { name: "Veles", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
-    case 2: { return { name: "Concealed", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
-    case 3: { return { name: "Bunker", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
-    case 4: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
+    case 0: { return { name: "K1 Revelations", masterHash: 3911969238, legendHash: 3911969233, planet: "Moon" } }
+    case 1: { return { name: "Consealed Void", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
+    case 2: { return { name: "Bunker E15", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
+    case 3: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
+    case 4: { return { name: "Exodus Garden 2A", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
+    case 5: { return { name: "Veles Labyrinth", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
+    case 6: { return { name: "K1 Logistics", masterHash: 567131519, legendHash: 567131512, planet: "Moon" } }
+    case 7: { return { name: "K1 Communion", masterHash: 2829206720, legendHash: 2829206727, planet: "Moon" } }
+    case 8: { return { name: "K1 Crew Quarters", masterHash: 184186578, legendHash: 184186581, planet: "Moon" } }
   }
 }
 
 const rotations = {
   lostSector: {
-    1:  { sector: getSector(0), loot: getLoot(0) },
-    2:  { sector: getSector(1), loot: getLoot(1) },
-    3:  { sector: getSector(2), loot: getLoot(2) },
-    4:  { sector: getSector(3), loot: getLoot(3) },
-    5:  { sector: getSector(4), loot: getLoot(0) },
-    6:  { sector: getSector(0), loot: getLoot(1) },
-    7:  { sector: getSector(1), loot: getLoot(2) },
-    8:  { sector: getSector(2), loot: getLoot(3) },
-    9:  { sector: getSector(3), loot: getLoot(0) },
-    10: { sector: getSector(4), loot: getLoot(1) },
-    11: { sector: getSector(0), loot: getLoot(2) },
-    12: { sector: getSector(1), loot: getLoot(3) },
-    13: { sector: getSector(2), loot: getLoot(0) },
-    14: { sector: getSector(3), loot: getLoot(1) },
-    15: { sector: getSector(4), loot: getLoot(2) },
-    16: { sector: getSector(0), loot: getLoot(3) },
-    17: { sector: getSector(1), loot: getLoot(0) },
-    18: { sector: getSector(2), loot: getLoot(1) },
-    19: { sector: getSector(3), loot: getLoot(2) },
-    20: { sector: getSector(4), loot: getLoot(3) }
+    0:  { sector: getSector(0), loot: getLoot(0) },
+    1:  { sector: getSector(1), loot: getLoot(1) },
+    2:  { sector: getSector(2), loot: getLoot(2) },
+    3:  { sector: getSector(3), loot: getLoot(3) },
+    4:  { sector: getSector(4), loot: getLoot(0) },
+    5:  { sector: getSector(5), loot: getLoot(1) },
+    6:  { sector: getSector(6), loot: getLoot(2) },
+    7:  { sector: getSector(7), loot: getLoot(3) },
+    8:  { sector: getSector(8), loot: getLoot(0) },
+    9:  { sector: getSector(0), loot: getLoot(1) },
+    10:  { sector: getSector(1), loot: getLoot(2) },
+    11:  { sector: getSector(2), loot: getLoot(3) },
+    12:  { sector: getSector(3), loot: getLoot(0) },
+    13:  { sector: getSector(4), loot: getLoot(1) },
+    14:  { sector: getSector(5), loot: getLoot(2) },
+    15:  { sector: getSector(6), loot: getLoot(3) },
+    16:  { sector: getSector(7), loot: getLoot(0) },
+    17:  { sector: getSector(8), loot: getLoot(1) },
+    18:  { sector: getSector(0), loot: getLoot(2) },
+    19:  { sector: getSector(1), loot: getLoot(3) },
+    20:  { sector: getSector(2), loot: getLoot(0) },
+    21:  { sector: getSector(3), loot: getLoot(1) },
+    22:  { sector: getSector(4), loot: getLoot(2) },
+    23:  { sector: getSector(5), loot: getLoot(3) },
+    24:  { sector: getSector(6), loot: getLoot(0) },
+    25:  { sector: getSector(7), loot: getLoot(1) },
+    26:  { sector: getSector(8), loot: getLoot(2) },
+    27:  { sector: getSector(0), loot: getLoot(3) },
+    28:  { sector: getSector(1), loot: getLoot(0) },
+    29:  { sector: getSector(2), loot: getLoot(1) },
+    30:  { sector: getSector(3), loot: getLoot(2) },
+    31:  { sector: getSector(4), loot: getLoot(3) },
+    32:  { sector: getSector(5), loot: getLoot(0) },
+    33:  { sector: getSector(6), loot: getLoot(1) },
+    34:  { sector: getSector(7), loot: getLoot(2) },
+    35:  { sector: getSector(8), loot: getLoot(3) }
   },
   zeroHour: {
     1: { burn: 'Void' },
@@ -81,13 +99,12 @@ const dailyCycleInfo = (type) => {
   const time = new Date().getTime();
   for(var cycle in cycleInfo.cycle) {
     cycleInfo.elapsed[cycle] = time - cycleInfo.epoch[cycle];
-    cycleInfo.week[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerWk) % cycleInfo.cycle[cycle]) + 1;
-    cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]) + 1;
+    cycleInfo.week[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerWk) % cycleInfo.cycle[cycle]);
+    cycleInfo.day[cycle] = Math.floor((cycleInfo.elapsed[cycle] / msPerDay) % cycleInfo.cycle[cycle]);
   }
-  console.log(cycleInfo.day.lostSector);
   switch(type) {
     case "legendLostSector": { return rotations.lostSector[cycleInfo.day.lostSector]; }
-    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 1 ? cycleInfo.day.lostSector-1 : 20]; }
+    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 0 ? cycleInfo.day.lostSector-1 : 35]; }
   }
 };
 
