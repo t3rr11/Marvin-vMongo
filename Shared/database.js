@@ -824,7 +824,7 @@ const getWeeklyBackendLogs = async (options, data, callback) => {
 }
 const getScanTimeLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
-  await ScanTimeLog.find().sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+  await ScanTimeLog.find({ type: options.type }).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }
