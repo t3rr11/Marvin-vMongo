@@ -246,13 +246,18 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
   let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
+  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
   let allSeals = seals.concat(legacySeals);
+  let allGildedSeals = gildedSeals.concat(legacyGildedSeals.filter(e => e !== undefined));
+  let allSealsCombined = allSeals.concat(allGildedSeals.filter(e => e !== undefined));
 
   if(oldPlayerData.Titles.titles) {
     let previousTitles = oldPlayerData.Titles.titles;
-    let newTitles = allSeals.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
+    let newTitles = allSealsCombined.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
     var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
   
+    //Check for title completions
     if(differences.length > 0) {
       for(let i in guilds) {
         //Get mode, global items and extra items.
@@ -484,13 +489,17 @@ function FormatTitles(clan, memberData, playerData, oldPlayerData) {
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
   let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
+  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
+  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
   let allSeals = seals.concat(legacySeals);
+  let allGildedSeals = gildedSeals.concat(legacyGildedSeals.filter(e => e !== undefined));
+  let allSealsCombined = allSeals.concat(allGildedSeals.filter(e => e !== undefined));
 
   var titles = [];
-  for(var i in allSeals) {
-    if(playerData.profileRecords.data.records[allSeals[i]]) {
-      if(playerData.profileRecords.data.records[allSeals[i]].objectives[0].complete) {
-        titles.push(allSeals[i]);
+  for(var i in allSealsCombined) {
+    if(playerData.profileRecords.data.records[allSealsCombined[i]]) {
+      if(playerData.profileRecords.data.records[allSealsCombined[i]].objectives[0].complete) {
+        titles.push(allSealsCombined[i]);
       }
     }
   }

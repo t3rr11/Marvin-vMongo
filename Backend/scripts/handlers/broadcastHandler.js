@@ -1,6 +1,7 @@
 const Database = require('../../../Shared/database.js');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
+const GlobalItemsHandler = require('../../../Shared/handlers/globalItemsHandler');
 const Log = require("../../../Shared/log.js");
 
 function sendClanBroadcast(clan, guild, clanDetails, type, season) {
@@ -57,19 +58,40 @@ function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   }
   else { ErrorHandler("Med", `ItemDef not found: ${ itemHash }`) }
 }
-
 function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {
   let titleDef = ManifestHandler.getManifest().DestinyRecordDefinition[titleHash];
-  Database.addAwaitingBroadcast({
-    clanID: clan.clanID,
-    guildID: guild.guildID,
-    displayName: playerData.User.displayName,
-    membershipID: playerData.User.membershipID,
-    season: season,
-    type: "title",
-    broadcast: titleDef.titleInfo.titlesByGender.Male,
-    hash: titleHash,
-  }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  if(titleDef.forTitleGilding) {
+    const GlobalItems = GlobalItemsHandler.getGlobalItems();
+    const globalTitleDef = GlobalItems.find(e => e.hash == titleHash);
+    console.log(globalTitleDef.parentHash);
+    console.log(globalTitleDef["_doc"].parentHash);
+    if(globalTitleDef) {
+      Database.addAwaitingBroadcast({
+        clanID: clan.clanID,
+        guildID: guild.guildID,
+        displayName: playerData.User.displayName,
+        membershipID: playerData.User.membershipID,
+        season: season,
+        type: "gildedTitle",
+        broadcast: titleDef.titleInfo.titlesByGender.Male,
+        hash: titleHash,
+        parentHash: globalTitleDef["_doc"].parentHash
+      }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+    }
+    else { ErrorHandler("High", `Failed to find and send broadcast for title: ${ titleHash } for user: ${ playerData.User.displayName } (${ playerData.User.membershipID })`); }
+  }
+  else {
+    Database.addAwaitingBroadcast({
+      clanID: clan.clanID,
+      guildID: guild.guildID,
+      displayName: playerData.User.displayName,
+      membershipID: playerData.User.membershipID,
+      season: season,
+      type: "title",
+      broadcast: titleDef.titleInfo.titlesByGender.Male,
+      hash: titleHash,
+    }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
 }
 
 module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast }

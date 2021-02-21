@@ -1,4 +1,5 @@
 const Database = require('../database');
+const Log = require('../log');
 const { ErrorHandler } = require('./errorHandler');
 const APIRequest = require('./requestHandler');
 const fs = require('fs');
@@ -70,17 +71,26 @@ checkManifestUpdate = async function CheckManifestUpdate(location) {
   await Database.getManifestVersion(function GetOldManifestVersion(isError, isFound, version) {
     if(!isError) {
       if(isFound) {
-        APIRequest.GetManifestVersion(function GetNewManifestVersion(isError, newVersion) {
-          if(!isError) {
-            if(version[0].version !== newVersion.Response.version) {
-              console.log("Manifest is different updating...");
-              if(location === "frontend") { storeManifest(); }
-              else { updateManifest(); }
-            }
-            else { if(!checkManifestMounted()) { storeManifest(); } }
+        if(location === "frontend") {
+          //If frontend, check if manifest has been updated and restore.
+          if(getManifestVersion() !== version[0].version) {
+            Log.SaveLog("Frontend", "Info", `Frontend: Manifest is different re-storing... (${ getManifestVersion() }) to (${ version[0].version })`);
+            storeManifest();
           }
-          else { ErrorHandler("High", `Failed to get new manifest version: ${ newVersion }`) }
-        });
+        }
+        else {
+          //If backend, check if manifest needs an update
+          APIRequest.GetManifestVersion(function GetNewManifestVersion(isError, newVersion) {
+            if(!isError) {
+              if(version[0].version !== newVersion.Response.version) {
+                Log.SaveLog("Backend", "Info", `Frontend: Manifest is different updating... (${ version[0].version }) to (${ newVersion.Response.version })`);
+                updateManifest();
+              }
+              else { if(!checkManifestMounted()) { storeManifest(); } }
+            }
+            else { ErrorHandler("High", `Failed to get new manifest version: ${ newVersion }`) }
+          });
+        }
       }
       else { updateManifest(); }
     }

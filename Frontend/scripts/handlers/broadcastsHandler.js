@@ -76,6 +76,10 @@ async function processBroadcast(client, broadcast) {
                     BroadcastMessage = `${ broadcast.displayName } has obtained the ${ broadcast.broadcast } title!`;
                     sendTitleBroadcast(client, guild, BroadcastMessage, broadcast, clan);
                   }
+                  else if(broadcastType === "gildedTitle") {
+                    BroadcastMessage = `${ broadcast.displayName } has Gilded the ${ broadcast.broadcast } title!`;
+                    sendGildedTitleBroadcast(client, guild, BroadcastMessage, broadcast, clan);
+                  }
                   else if(broadcastType === "clan") { BroadcastMessage = broadcast.broadcast; sendClanBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "dungeon") { BroadcastMessage = broadcast.broadcast; sendDungeonBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "catalyst") { BroadcastMessage = broadcast.broadcast; sendCatalystBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
@@ -96,7 +100,7 @@ async function processBroadcast(client, broadcast) {
   }
 
   //Add broadcast to broadcasts list and remove it from awaiting broadcasts
-  Database.addBroadcast({ clanID: broadcast.clanID, guildID: broadcast.guildID, displayName: broadcast.displayName, membershipID: broadcast.membershipID, season: broadcast.season, type: broadcast.type, broadcast: broadcast.broadcast, hash: broadcast.hash, count: broadcast.count }, function AddBroadcast(isError, severity, err) {
+  Database.addBroadcast({ clanID: broadcast.clanID, guildID: broadcast.guildID, displayName: broadcast.displayName, membershipID: broadcast.membershipID, season: broadcast.season, type: broadcast.type, broadcast: broadcast.broadcast, hash: broadcast.hash, parentHash: broadcast.parentHash, count: broadcast.count }, function AddBroadcast(isError, severity, err) {
     if(isError) { ErrorHandler(severity, `Failed to add broadcast to broadcasts collection: ${ err }`) }
     else {
       Database.removeAwaitingBroadcast(broadcast, function RemoveAwaitingBroadcast(isError, severity, err) {
@@ -151,6 +155,27 @@ async function sendTitleBroadcast(client, guild, message, broadcast, clan) {
       try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
       catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }
     }
+  }
+}
+async function sendGildedTitleBroadcast(client, guild, message, broadcast, clan) {
+  let embed = new Discord.MessageEmbed().setColor(0xFFE000).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  //Check to see if item broadcasts are enabled.
+  if(guild.broadcasts.titles) {
+
+    var globalRecord = GlobalItemsHandler.getGlobalItems().find(e => e.hash === broadcast.hash);
+    if(globalRecord) {
+      var manifestRecord = ManifestHandler.getManifest().DestinyRecordDefinition[globalRecord["_doc"].parentHash];
+      if(manifestRecord) {
+        embed.setTitle(`Clan Broadcast - ${ clan.clanName }`);
+        embed.setDescription(message);
+        embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`));
+        
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+        catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }
+      }
+    }
+    else { console.log(`Failed to send title broadcast to ${ guild.guildID } because global record for ${ broadcast.hash } was not found.`); }
   }
 }
 async function sendClanBroadcast(client, guild, message, broadcast, clan) {

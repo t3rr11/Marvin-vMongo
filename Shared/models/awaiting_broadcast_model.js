@@ -10,6 +10,7 @@ var broadcastsSchema = new Schema({
   type: String,
   broadcast: String,
   hash: String,
+  parentHash: { type: String, default: "" },
   count: { type: Number, default: -1 },
   date: { type: Date, default: Date.now }
 });
