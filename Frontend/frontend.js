@@ -90,6 +90,7 @@ function UpdateActivityList() {
     ActivityList.push(`You can now change your prefix by using: ~set prefix`);
     ActivityList.push(`~Legend and ~Master are now re-enabled.`);
     ActivityList.push(`Want Faster Broadcasts? Consider Supporting, ~Support`);
+    ActivityList.push(`Wonder what clannies are upto? Use: ~Clan Activity`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
   }

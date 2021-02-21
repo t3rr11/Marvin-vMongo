@@ -49,7 +49,7 @@ async function UpdateClan(clan, season, callback) {
                 if(isFound) {
                   //Get each players data
                   for(var i in onlineMembers) {
-                    await APIRequest.GetProfile(onlineMembers[i], "100,200,202,800,900,1100", async function GetProfile(member, isError, playerData) {
+                    await APIRequest.GetProfile(onlineMembers[i], "100,200,202,204,800,900,1100", async function GetProfile(member, isError, playerData) {
                       if(!isError) {
                         //Check if user is private by checking for if the data object exists.
                         if(playerData.Response.profileRecords.data) {
@@ -314,6 +314,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       xp: Seasonal.xp,
       dungeons: Others.dungeons,
       trials: Rankings.trials,
+      lastActivity: AccountInfo.lastActivity,
       joinDate: memberData.joinDate,
       lastPlayed: AccountInfo.lastPlayed,
       lastUpdated: new Date(),
@@ -345,6 +346,7 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
   let highestPower = 0;
   let timePlayed = 0;
   let lightLevels = [];
+  let lastActivity = { currentActivityHash: null, dateActivityStarted: null };
 
   for(let i in characterIds) {
     //Get users last played character
@@ -360,6 +362,14 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     //Get users overall playtime
     timePlayed = parseInt(timePlayed) + parseInt(characters[characterIds[i]].minutesPlayedTotal);
   }
+
+  //Get last played activity.
+  try { 
+    lastActivity = {
+      currentActivityHash: playerData.characterActivities.data[lastPlayedCharacter.characterId]?.currentActivityHash,
+      dateActivityStarted: new Date(playerData.characterActivities.data[lastPlayedCharacter.characterId]?.dateActivityStarted).getTime()
+    }
+  } catch (err) { }
     
   //Get users highest light from record, this however changed based on character last played. Hence the next check.
   try { highestPower = playerData.profileRecords.data.records["3241995275"].intervalObjectives[3].progress; } catch (err) {  }
@@ -376,7 +386,8 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     "timePlayed": timePlayed,
     "lastPlayed": lastPlayed,
     "currentClass": lastPlayedCharacter ? Misc.GetClassName(lastPlayedCharacter.classType) : "Unknown",
-    "dlcOwned": dlcOwned
+    "dlcOwned": dlcOwned,
+    "lastActivity": lastActivity
   }
 }
 function FormatRankings(clan, memberData, playerData, oldPlayerData) {

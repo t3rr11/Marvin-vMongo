@@ -99,6 +99,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
         case command === "claninfo": { ClanInfo(prefix, message, command, guild); break; }
+        case command === "playing": case command === "activity": case command === "clan activity": { ClanActivity(prefix, message, command, guild); break; }
 
         //Vendors
         case command.startsWith("gunsmith"): { GunsmithMods(guild, message); break; }
@@ -167,7 +168,7 @@ async function Donate(client, message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   embed.setThumbnail(DiscordConfig.defaultLogoURL);
   embed.setAuthor("Want to help support future updates?");
-  embed.setDescription(`By becoming a Patreon for $2.50 USD/month, Your clan will be scanned by a more powerful version of Marvin.\n\nThis means leaderboards and broadcasts will update anywhere from instant to ~30 seconds rather than the usual scan times between 5-10 minutes.`);
+  embed.setDescription(`By becoming a Patreon for $2.50 USD/month, Your clan will be scanned by a more powerful version of Marvin.\n\nThis means leaderboards and broadcasts will update anywhere from instant to ~60 seconds rather than the usual scan times between 5-10 minutes.`);
   embed.addField("Patreon <:patreon:779549421851377665>", "https://www.patreon.com/Terrii");
   embed.addField("Ko-fi <:kofi:779548939975131157>", "https://ko-fi.com/terrii_dev");
   embed.addField("Paypal <:paypal:779549835522080768>", "https://paypal.me/guardianstats");
@@ -663,6 +664,49 @@ async function GrandMaster(message) {
 
   message.channel.send(embed);
 }
+async function ClanActivity(prefix, message, command, guild) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  //Get players
+  Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
+    if(!isError) {
+      if(isFound) {
+        let players = data.filter(e => !e.isPrivate);
+        let activities = { names: [], first: [], second: [] }
+
+        //Filter users who have an activityHash of 0 and have not played in the last 15 minutes.
+        players = players.filter(e => e.lastActivity.currentActivityHash !== 0 && (new Date() - new Date(e.lastActivity.dateActivityStarted)) < (1000 * 60 * 60));
+        players = players.sort((a, b) => { return b.lastActivity.dateActivityStarted - a.lastActivity.dateActivityStarted });
+
+        activities.names = players.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+        activities.first = players.map((e, index) => {
+          let activity = ManifestHandler.getManifest().DestinyActivityDefinition[e.lastActivity.currentActivityHash];
+          return `${ e.lastActivity.currentActivityHash !== 82913930 ? (activity ? activity?.displayProperties?.name : "Unknown") : "Orbit" }`
+        });
+        activities.second = players.map((e, index) => { return `${ Misc.formatTime("small", (new Date() - new Date(e.lastActivity.dateActivityStarted)) / 1000) } ago` });
+        
+        embed.setAuthor("Servers Destiny 2 Activity");
+        embed.setDescription(`This information was last updated: ${ Misc.formatTime("small", (new Date() - new Date(players[0].lastUpdated)) / 1000) } ago\nTo get quicker scans consider \`${prefix}supporting\``);
+        embed.addField("Name", activities.names, true);
+        embed.addField("Activity", activities.first, true);
+        embed.addField("Last Seen", activities.second, true);
+      }
+      else {
+        embed.setAuthor("Uhh oh...");
+        embed.setDescription(`Failed to find any users for the clans tracked by this guild. Potentially due to it not having scanned them yet? Have you waited 5 minutes?`);
+      }
+    }
+    else {
+      embed.setAuthor("Uhh oh...");
+      embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
+    }
+
+    message.channel.send({embed}).catch(err => {
+      if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+      else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
+    });
+  });
+}
 
 async function GetHelp(prefix, message, command) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -741,7 +785,7 @@ async function GetHelp(prefix, message, command) {
     case "help others": case "others": {
       embed.setAuthor("Others Help Menu");
       embed.setDescription(`Here is a list of other commands! Example: \`${prefix}Donate\``);
-      embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\``);
+      embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Clan Activity\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\``);
       break;
     }
     case "help drystreaks": case "drystreaks": {

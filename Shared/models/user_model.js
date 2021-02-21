@@ -92,6 +92,10 @@ var userSchema = new Schema({
       carries: DefaultNumber
     }
   },
+  lastActivity: {
+    currentActivityHash: { type: Number, default: 0 },
+    dateActivityStarted: Date
+  },
   joinDate: Date,
   lastPlayed: Date,
   lastUpdated: { type: Date, default: Date.now },
