@@ -822,6 +822,16 @@ const getWeeklyBackendLogs = async (options, data, callback) => {
     }
   });
 }
+const getScanTimeLogs = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await ScanTimeLog.find().sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getTimeLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
   await ScanTimeLog.find(data).sort({ _id: -1 }).exec(function (err, array) {
@@ -1050,7 +1060,7 @@ module.exports = {
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getClansFromGuildID, getUsersFromGuildID, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
   getBackendLogs, getFrontendLogs, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods, getGuildDashboard,
-  getWeeklyFrontendLogs, getWeeklyBackendLogs, getAggregateWeeklyFrontendLogs,
+  getWeeklyFrontendLogs, getWeeklyBackendLogs, getScanTimeLogs, getAggregateWeeklyFrontendLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,
   forceFullRescan, enableGuildTracking, disableGuildTracking, enableItemBroadcast, disableItemBroadcast,

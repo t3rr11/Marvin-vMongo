@@ -72,6 +72,7 @@ app.get("/SaveAuth", async function(req, res) { await DatabaseFunction(req, res,
 
 app.get("/GetWeeklyFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getWeeklyFrontendLogs", amount: 744 }); });
 app.get("/GetWeeklyBackendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getWeeklyBackendLogs", amount: 744 }); });
+app.get("/GetScanTimeLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getScanTimeLogs", amount: 360 }); });
 app.get("/GetAggregateWeeklyFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getAggregateWeeklyFrontendLogs" }); });
 
 app.get("/CheckAuthorization", async function(req, res) {
