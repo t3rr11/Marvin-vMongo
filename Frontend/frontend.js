@@ -35,6 +35,7 @@ let ResetTime = 0;
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
 let startupCheck = setInterval(async function Startup() {
   if(!isConnecting) { isConnecting = true; Database.FrontendConnect(); }
+  console.log(DiscordReady, Database.checkDBConnection(), GlobalItemsHandler.checkGlobalItems(), ManifestHandler.checkManifestMounted());
   if(DiscordReady && Database.checkDBConnection() && GlobalItemsHandler.checkGlobalItems() && ManifestHandler.checkManifestMounted()) {
     //Initialize the frontend and start running!
     clearInterval(startupCheck);
@@ -65,9 +66,13 @@ async function init() {
       let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
       let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
       setTimeout(() => {
-        //Here is what will be run at reset time.
+        //Update the mod slots to stop this check.
         updateGunsmithMods();
-        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, guilds);
+        try {
+          //Here is what will be run at reset time.
+          AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+        }
+        catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
       }, millisUntil + resetOffset);
     }
   });
@@ -244,9 +249,7 @@ client.on("interactionCreate", (interaction) => {
 //Check if discord bot is ready and shard info
 client.on("ready", async () => {
   DiscordReady = true;
-  if(!Config.isLocal) { setInterval(() => {
-    try { dbl.postStats(client.guilds.cache.size) } catch (err) { console.log("Failed to update top.gg stats."); }
-  }, 1800000); }
+  if(!Config.isLocal) { setInterval(() => { try { dbl.postStats(client.guilds.cache.size) } catch (err) { console.log("Failed to update top.gg stats."); } }, 1800000); }
 });
 client.on('shardDisconnect', (event, id) => { Log.SaveLog("Frontend", "Error", `Shard has disconnected and will no longer reconnect: ${ id }`); });
 client.on('shardError', (error, shardID) => { Log.SaveLog("Frontend", "Error", `Shard encounted an error: ${ id }, ${ error }`); });
