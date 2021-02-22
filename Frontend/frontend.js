@@ -58,13 +58,17 @@ async function init() {
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
-  //Get next reset and set timer to update gunsmith mods
+  //Get next reset and set timer to update gunsmith mods, this function is also used for other daily broadcasts.
   Database.getGunsmithMods((isError, isFound, data) => {
     if(!isError && isFound) {
       ResetTime = data.nextRefreshDate;
       let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
       let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
-      setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
+      setTimeout(() => {
+        //Here is what will be run at reset time.
+        updateGunsmithMods();
+        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, guilds);
+      }, millisUntil + resetOffset);
     }
   });
 
@@ -73,8 +77,10 @@ async function init() {
   //Then it'll start the hourly interval which logs like normal every hour.
   setTimeout(() => {
     Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
+    commandsInput = 0;
     setInterval(() => {
       Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
+      commandsInput = 0;
     }, 1000 * 60 * 60);
   }, 3600000 - new Date().getTime() % 3600000);
 }

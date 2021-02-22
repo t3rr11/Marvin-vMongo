@@ -26,7 +26,8 @@ var guildSchema = new Schema({
   announcements: {
     channel: { type: String, default: "0" },
     updates: { type: Boolean, default: true },
-    gunsmiths: { type: Boolean, default: true }
+    gunsmiths: { type: Boolean, default: true },
+    lostSectors: { type: Boolean, default: false }
   }
 });
 

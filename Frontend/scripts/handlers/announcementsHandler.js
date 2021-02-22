@@ -1,6 +1,9 @@
 const Discord = require('discord.js');
 const Canvas = require('canvas');
-const Database = require('../../../Shared/database');
+const Config = require('../../../Shared/configs/Config.json');
+const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
+const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
+const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 
 async function sendGunsmithBroadcasts(client, guilds, mods) {
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - Gunsmith Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
@@ -60,6 +63,46 @@ async function sendGunsmithBroadcasts(client, guilds, mods) {
     }
   }
 }
+async function sendDailyLostSectorBroadcasts(client, guilds) {
+
+  generateLostSectorEmbed = async (type) => {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    const lostSector = dailyCycleInfo(type);
+    const sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
+
+    //Canvasing the mod images
+    const canvas = Canvas.createCanvas(640, 360);
+    const ctx = canvas.getContext('2d');
+
+    //Add Background Image
+    ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ sector.pgcrImage }`), 0, 0, 640, 360);
+
+    //Add Image to Embed
+    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png');
+    embed.attachFiles([attachment]);
+    embed.setImage('attachment://lostSector.png');
+
+    embed.setAuthor(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
+    embed.setDescription(sector.displayProperties.description);
+
+    return embed;
+  }
+
+  let legendEmbed = await generateLostSectorEmbed("legendLostSector");
+  let masterEmbed = await generateLostSectorEmbed("masterLostSector");
+
+  //Send them
+  for(let i in guilds) {
+    let guild = guilds[i];
+    if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
+      try {
+        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(legendEmbed);
+        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(masterEmbed);
+      }
+      catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
+    }
+  }
+}
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { sendGunsmithBroadcasts }
+module.exports = { sendGunsmithBroadcasts, sendDailyLostSectorBroadcasts }

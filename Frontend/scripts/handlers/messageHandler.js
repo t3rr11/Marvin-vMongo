@@ -4,6 +4,7 @@ const Canvas = require('canvas');
 const Register = require('./registerHandler.js');
 const ClanHandler = require('./clanHandler.js');
 const BroadcastHandler = require('./broadcastsHandler.js');
+const AnnouncementsHandler = require('./announcementsHandler');
 const Database = require('../../../Shared/database');
 const Misc = require('../../../Shared/misc');
 const Log = require('../../../Shared/log');
@@ -49,6 +50,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
         case message.author.id === "194972321168097280" && command.startsWith("broadcast test"): { BroadcastHandler.sendItemBroadcast(client, guild, "Test", { hash: 1258579677 }, { clanName: "Test" }); break; }
         case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(); message.channel.send("Manifest Update Forced"); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("test sector"): { AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, guilds); break; }
         case message.author.id === "194972321168097280" && command === "force rescan": {
           Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); message.channel.send("Failed to force a full rescan."); }
@@ -89,12 +91,13 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("toggle item broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle title broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle clan broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
-        case command.startsWith("toggle gunsmith broadcasts"): { ManageBroadcasts(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("set announcements"): { ManageAnnouncements(prefix, message, "set", command, guild); break; }
         case command.startsWith("remove announcements"): { ManageAnnouncements(prefix, message, "remove", command, guild); break; }
         case command.startsWith("manage announcements"): { ManageAnnouncements(prefix, message, "manage", command, guild); break; }
         case command.startsWith("toggle update announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle gunsmith announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle lost sector announcements"): case command.startsWith("toggle lostsector announcements"): 
+        case command.startsWith("toggle lost sectors announcements"): case command.startsWith("toggle lostsectors announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
@@ -458,7 +461,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
       case "toggle": {
         if(guild) {
           let toggle = command.split('toggle ').pop().split(' announcements')[0];
-          console.log(toggle);
+          if(toggle === "lost sectors" || toggle === "lostsectors" || toggle === "lost sector" || toggle === "lostsector") { toggle = "lostSector" }
           guild.announcements[`${ toggle }s`] = !guild.announcements[`${ toggle }s`];
           Database.updateGuildByID(message.guild.id, { announcements: guild.announcements }, function updateGuildByID(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle announcements. Please try again.`); }
@@ -480,7 +483,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
       }
       case "manage": {
         if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
-        else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmith Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
+        else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmith Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
         message.channel.send({embed});
         break;
       }
@@ -756,7 +759,7 @@ async function GetHelp(prefix, message, command) {
     case "help announcements": case "announcements": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription(`Here is a list of announcements commands! Example: \`${prefix}Set announcements #channel\``);
-      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\``); 
+      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\`\n\`${prefix}Toggle lost sector announcements\``); 
       break;
     }
     case "help globals": case "globals": {
