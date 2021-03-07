@@ -23,6 +23,7 @@ const dbl = new DBL('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMTM1MTM2Nj
 let InitializationTime = new Date().getTime();
 let DiscordReady = false;
 let APIDisabled = false;
+let APILastDisabled = new Date().getTime();
 let Users = 0;
 let Guilds = [];
 let Clans = [];
@@ -68,11 +69,6 @@ async function init() {
       setTimeout(() => {
         //Update the mod slots to stop this check.
         updateGunsmithMods();
-        try {
-          //Here is what will be run at reset time.
-          AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-        }
-        catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
       }, millisUntil + resetOffset);
     }
   });
@@ -150,7 +146,18 @@ async function update() {
   }));
 
   //Check Maintenance
-  await Checks.CheckMaintenance(APIDisabled, (isDisabled) => { APIDisabled = isDisabled });
+  await Checks.CheckMaintenance(APIDisabled, (isDisabled) => {
+    if(APIDisabled === true && isDisabled === false) {
+      if((new Date().getTime() - new Date(APILastDisabled).getTime()) > (1000 * 60 * 15)) {
+        Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
+          if(isError) { ErrorHandler(severity, err); }
+          else { Log.SaveLog("Frontend", "Info", `Forced a full rescan due to API Maintenance being over.`); }
+        });
+      }
+    }
+    if(isDisabled) { APILastDisabled = new Date().getTime(); }
+    APIDisabled = isDisabled;
+  });
   
   //Check for broadcasts
   if(!Config.isLocal) { BroadcastHandler.checkForBroadcasts(client); }
@@ -184,6 +191,12 @@ async function updateGunsmithMods() {
       //Finally send the announcement out to all discords that have them enabled.
       AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds, mods);
 
+      //Send other daily announcements
+      try {
+        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      }
+      catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
+
       //Reset the announcement to broadcast again the next day
       let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
       let resetOffset = 1000 * 60 * 15;
@@ -191,8 +204,8 @@ async function updateGunsmithMods() {
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
-      ErrorHandler("High", `Failed to update Gunsmith mods, retrying in 30 seconds.`);
-      setTimeout(() => { updateGunsmithMods(); }, 30000);
+      ErrorHandler("Med", `Failed to update Gunsmith mods, retrying in 60 seconds.`);
+      setTimeout(() => { updateGunsmithMods(); }, 60000);
     }
   });
 }

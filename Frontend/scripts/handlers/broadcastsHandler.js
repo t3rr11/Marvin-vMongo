@@ -256,46 +256,71 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
   });
 }
 async function enableItemBroadcast(prefix, message, command, guild) {
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item(s)...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   if(guild) {
-    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
-      //Get item info
-      let requestedItemName = command.substr("track ".length);
-      let item;
-      if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
-      else {
-        item = ManifestHandler.getManifestItemByHash(requestedItemName);
-        if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
-      }
-
-      //If item exists add it to tracking
-      if(item) {
-        if(item.collectibleHash) {
-          Database.enableItemBroadcast(guild, item, function enableItemBroadcast(isError, severity, err) {
-            if(isError) {
-              let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-              if(err === "This item is already being tracked") { errorEmbed.setDescription(`This item is already being tracked. To remove use: \`${ prefix }untrack ${ requestedItemName }\``); }
-              else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to track item. Please try again.`); }
-              msg.edit(errorEmbed);
-            }
-            else {
-              Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
-              let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-              embed.setAuthor("Success!");
-              embed.setDescription(`Now tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
-              msg.edit(embed);
-            }
-          });
+    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+      //Check for multiple items
+      const requestedItems = command.substr("track ".length).split(",");
+      //Get all items
+      let items = [];
+      for(let i in requestedItems) {
+        if(isNaN(requestedItems[i])) {
+          let item = ManifestHandler.getManifestItemByName(requestedItems[i]);
+          item ? items.push(item) : null;
         }
         else {
-          let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          errorEmbed.setDescription(`This item does not have a collectibleHash meaning i cannot actually track it. Sorry!`);
-          msg.edit(errorEmbed);
+          let itemByHash = ManifestHandler.getManifestItemByHash(requestedItems[i]);
+          let itemByCollectible = ManifestHandler.getManifestItemByCollectibleHash(requestedItems[i]);
+          if(itemByHash) {
+            items.push(itemByHash);
+          }
+          else if(itemByCollectible) {
+            let itemByHashFromCollectible = ManifestHandler.getManifestItemByHash(itemByCollectible.itemHash);
+            if(itemByHashFromCollectible) {
+              items.push(itemByHashFromCollectible);
+            }
+          }
+        }
+      }
+
+      //If items exist add them to tracking
+      if(items.length > 0) {
+        let canTrack = [];
+        let canNotTrack = [];
+
+        for(let i in items) {
+          if(items[i].collectibleHash) {
+            await new Promise(resolve =>
+              Database.enableItemBroadcast(guild, items[i], function EnableItemBroadcast(isError, severity, err) {
+                if(isError) { canNotTrack.push({ item: items[i], reason: err }); }
+                else {
+                  //Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
+                  canTrack.push({ item: items[i] });
+                }
+                resolve(true);
+              })
+            );
+          }
+          else { canNotTrack.push({ item: items[i], reason: "No collectible hash found for item" }); }
+        }
+
+        //Let the user know successful and unsuccessful item tracks.
+        if(canTrack.length > 0) {
+          let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setAuthor("Success");
+          embed.setDescription(`**Now Tracking** ${ canTrack.map(e => { return `\n${e.item.displayProperties.name}` }) } ${ canNotTrack.length > 0 ? `\n\n**Failed to track these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }\n\n Please allow me 30 seconds to make the change!`);
+          msg.edit(embed);
+        }
+        else {
+          let embed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setAuthor("Uhh oh...");
+          embed.setDescription(`${ canNotTrack.length > 0 ? `**Failed to track these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }`);
+          msg.edit(embed);
         }
       }
       else {
         let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-        errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
+        errorEmbed.setDescription(`Could not find any of the the requested items. Sorry!`);
         msg.edit(errorEmbed);
       }
     }
@@ -315,36 +340,68 @@ async function disableItemBroadcast(prefix, message, command, guild) {
   let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   if(guild) {
     if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
-      //Get item info
-      let requestedItemName = command.substr("untrack ".length);
-      let item;
-      if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
-      else {
-        item = ManifestHandler.getManifestItemByHash(requestedItemName);
-        if(!item) { item = ManifestHandler.getManifestItemByCollectibleHash(requestedItemName); }
+      //Check for multiple items
+      const requestedItems = command.substr("untrack ".length).split(",");
+      //Get all items
+      let items = [];
+      for(let i in requestedItems) {
+        if(isNaN(requestedItems[i])) {
+          let item = ManifestHandler.getManifestItemByName(requestedItems[i]);
+          item ? items.push(item) : null;
+        }
+        else {
+          let itemByHash = ManifestHandler.getManifestItemByHash(requestedItems[i]);
+          let itemByCollectible = ManifestHandler.getManifestItemByCollectibleHash(requestedItems[i]);
+          if(itemByHash) {
+            items.push(itemByHash);
+          }
+          else if(itemByCollectible) {
+            let itemByHashFromCollectible = ManifestHandler.getManifestItemByHash(itemByCollectible.itemHash);
+            if(itemByHashFromCollectible) {
+              items.push(itemByHashFromCollectible);
+            }
+          }
+        }
       }
 
-      //If item exists add it to tracking
-      if(item) {
-        Database.disableItemBroadcast(guild, item, function disableItemBroadcast(isError, severity, err) {
-          if(isError) {
-            let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-            if(err === "This item is not being tracked") { errorEmbed.setDescription(`This item is not being tracked. To track use: \`${ prefix }track ${ requestedItemName }\``); }
-            else { ErrorHandler(severity, err); errorEmbed.setDescription(`There was an error trying to untrack item. Please try again.`); }
-            msg.edit(errorEmbed);
+      //If items exist remove them from tracking
+      if(items.length > 0) {
+        let canTrack = [];
+        let canNotTrack = [];
+
+        for(let i in items) {
+          if(items[i].collectibleHash) {
+            await new Promise(resolve =>
+              Database.disableItemBroadcast(guild, items[i], function DisableItemBroadcast(isError, severity, err) {
+                if(isError) { canNotTrack.push({ item: items[i], reason: err }); }
+                else {
+                  //Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is no longer being tracked by ${ guild.guildName } (${ message.guild.id })`);
+                  canTrack.push({ item: items[i] });
+                }
+                resolve(true);
+              })
+            );
           }
-          else {
-            Log.SaveLog("Frontend", "Info", `Item: ${ item.displayProperties.name } is no longer being tracked by ${ guild.guildName } (${ message.guild.id })`);
-            let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-            embed.setAuthor("Success!");
-            embed.setDescription(`No longer tracking ${ item.displayProperties.name } for this server! Please allow me 30 seconds to make the change!`);
-            msg.edit(embed);
-          }
-        });
+          else { canNotTrack.push({ item: items[i], reason: "No collectible hash found for item" }); }
+        }
+
+        //Let the user know successful and unsuccessful item untracks.
+        if(canTrack.length > 0) {
+          let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setAuthor("Success");
+          embed.setDescription(`**No Longer Tracking** ${ canTrack.map(e => { return `\n${e.item.displayProperties.name}` }) } ${ canNotTrack.length > 0 ? `\n\n**Failed to untrack these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }\n\n Please allow me 30 seconds to make the change!`);
+          msg.edit(embed);
+        }
+        else {
+          let embed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setAuthor("Uhh oh...");
+          embed.setDescription(`${ canNotTrack.length > 0 ? `**Failed to untrack these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }`);
+          msg.edit(embed);
+        }
       }
       else {
         let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-        errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
+        errorEmbed.setDescription(`Could not find any of the the requested items. Sorry!`);
         msg.edit(errorEmbed);
       }
     }
