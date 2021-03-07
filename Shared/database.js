@@ -691,6 +691,36 @@ const getFrontendLogs = async (options, data, callback) => {
     }
   });
 }
+const getDiscordUserLogs = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await LogItem.find({ discordID: data.discordID }).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getDiscordGuildLogs = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await LogItem.find({ guildID: data.guildID }).sort({ _id: -1 }).limit(options.amount).exec(function (err, array) {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array); }
+      else { callback(false, false, null); }
+    }
+  });
+}
+const getUserDetails = async (options, data, callback) => {
+  //Callback fields { isError, isFound, data }
+  await RegisteredUser.find({ discordID: data.discordID }, (err, array) => {
+    if(err) { callback(true, false, err); }
+    else {
+      if(array.length > 0) { callback(false, true, array[0]); }
+      else { callback(false, false, null); }
+    }
+  });
+}
 const getBroadcastLogs = async (options, data, callback) => {
   //Callback fields { isError, isFound, data }
   await BroadcastLog.find(data).limit(options.amount).sort({ _id: -1 }).exec(function (err, array) {
@@ -1059,7 +1089,7 @@ module.exports = {
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getGlobalItems, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getClansFromGuildID, getUsersFromGuildID, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods, getGuildDashboard,
+  getBackendLogs, getFrontendLogs, getDiscordUserLogs, getDiscordGuildLogs, getUserDetails, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods, getGuildDashboard,
   getWeeklyFrontendLogs, getWeeklyBackendLogs, getScanTimeLogs, getAggregateWeeklyFrontendLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,

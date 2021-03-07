@@ -61,6 +61,18 @@ app.get("/GetGlobalsLogs", async function(req, res) { await DatabaseFunction(req
 app.get("/GetErrorHandlerLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { type: "Error", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetNormalTimeLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getTimeLogs", amount: 60 }, { type: "Normal", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetRealtimeTimeLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getTimeLogs", amount: 300 }, { type: "Realtime", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetDiscordUserLogs", async function(req, res) {
+  if(req.query.token && req.query.token === adminToken) { await DatabaseFunction(req, res, { func: "getDiscordUserLogs", amount: 300 }, { discordID: req.query.discordID }); }
+  else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }
+});
+app.get("/GetDiscordGuildLogs", async function(req, res) {
+  if(req.query.token && req.query.token === adminToken) { await DatabaseFunction(req, res, { func: "getDiscordGuildLogs", amount: 300 }, { guildID: req.query.guildID }); }
+  else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }
+});
+app.get("/GetUserDetails", async function(req, res) {
+  if(req.query.token && req.query.token === adminToken) { await DatabaseFunction(req, res, { func: "getUserDetails", amount: 1 }, { discordID: req.query.discordID }); }
+  else { res.status(200).send({ "isError": true, "message": "Unauthorised", "code": 500 }); }
+});
 
 app.get("/GetGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });
 app.get("/GetAllGuilds", async function(req, res) { await DiscordReq(req, res, { name: "/GetAllGuilds", func: "getGuildsByGuildIDArrayList", amount: 20 }, { token: req.query.token }); });

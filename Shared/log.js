@@ -4,13 +4,29 @@ const Misc = require("./misc");
 const Config = require("./configs/Config.json");
 
 //Exports
-module.exports = { SaveLog, SaveBackendStatus, LogBackendStatus, LogHourlyBackendStatus, LogFrontendStatus, LogHourlyFrontendStatus, LogScanTime };
+module.exports = { SaveLog, SaveDiscordLog, SaveBackendStatus, LogBackendStatus, LogHourlyBackendStatus, LogFrontendStatus, LogHourlyFrontendStatus, LogScanTime };
 
 //Functions
 function SaveLog(location, type, log) {
   const Database = require("./database");
   if(location !== "ErrorHandler") { console.log(Misc.GetReadableDateTime() + " - " + log); }
   if(!Config.isLocal) { Database.addLog({ location, type, log }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } }); }
+}
+
+function SaveDiscordLog(location, message) {
+  const Database = require("./database");
+  console.log(Misc.GetReadableDateTime() + " - " + `User: ${ message.member.user.tag }, Command: ${ message.content.slice(0, 100) }`);
+  if(!Config.isLocal) {
+    Database.addLog({
+      location,
+      type: "Command",
+      log: `User: ${ message.member.user.tag }, Command: ${ message.content.slice(0, 100) }`,
+      discordID: message.author.id,
+      discordUser: message.member.user.tag,
+      guildID: message.guild.id,
+      command: message.content.slice(0, 100)
+    }, function AddLogToDB(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+  }
 }
 
 function SaveBackendStatus(APIDisabled, ScanSpeed, ClanScans, ScanLength, LastScanTime, InitializationTime, Processing) {
