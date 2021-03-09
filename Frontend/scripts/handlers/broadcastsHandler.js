@@ -294,7 +294,7 @@ async function enableItemBroadcast(prefix, message, command, guild) {
               Database.enableItemBroadcast(guild, items[i], function EnableItemBroadcast(isError, severity, err) {
                 if(isError) { canNotTrack.push({ item: items[i], reason: err }); }
                 else {
-                  //Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
+                  Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is now being tracked by ${ guild.guildName } (${ message.guild.id })`);
                   canTrack.push({ item: items[i] });
                 }
                 resolve(true);
@@ -375,7 +375,7 @@ async function disableItemBroadcast(prefix, message, command, guild) {
               Database.disableItemBroadcast(guild, items[i], function DisableItemBroadcast(isError, severity, err) {
                 if(isError) { canNotTrack.push({ item: items[i], reason: err }); }
                 else {
-                  //Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is no longer being tracked by ${ guild.guildName } (${ message.guild.id })`);
+                  Log.SaveLog("Frontend", "Info", `Item: ${ items[i].displayProperties.name } is no longer being tracked by ${ guild.guildName } (${ message.guild.id })`);
                   canTrack.push({ item: items[i] });
                 }
                 resolve(true);

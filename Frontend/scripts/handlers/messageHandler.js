@@ -79,7 +79,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         //Management
         case command === "current season": case command === "season": case command === "next season": { GetSeason(message); break; }
         case command.startsWith("register"): { Register(prefix, message, command, users, registeredUser); break; }
-        case command.startsWith("request"): { Request(client, message, command); break; }
+        case command.startsWith("request"): { Request(prefix, client, message, command); break; }
         case command.startsWith("set clan"): { ClanHandler.RegisterClan(prefix, message, command); break; }
         case command.startsWith("add clan"): { ClanHandler.AddClan(prefix, message, command); break; }
         case command.startsWith("remove clan"): { ClanHandler.RemoveClan(prefix, message, command); break; }
@@ -177,16 +177,19 @@ async function Donate(client, message) {
   embed.addField("Paypal <:paypal:779549835522080768>", "https://paypal.me/guardianstats");
   message.channel.send(embed);
 }
-async function Request(client, message, command) {
+async function Request(prefix, client, message, command) {
   const request = command.substr("request ".length);
-  const embed = new Discord.MessageEmbed()
-  .setColor(0x0099FF)
-  .setAuthor(`New Request by ${ message.author.username }#${ message.author.discriminator }, ID: ${ message.author.id }`)
-  .setDescription(request)
-  .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
-  .setTimestamp()
-  client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({embed});
-  message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://guardianstats.com/JoinMarvin");
+  if(request.length > 1) {
+    const embed = new Discord.MessageEmbed()
+    .setColor(0x0099FF)
+    .setAuthor(`New Request by ${ message.author.username }#${ message.author.discriminator }, ID: ${ message.author.id }`)
+    .setDescription(request)
+    .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
+    .setTimestamp()
+    client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({embed});
+    message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://guardianstats.com/JoinMarvin");
+  }
+  else { message.reply(`Please add some context along with the request, something like: \`${prefix}request please add season rank tracking\``); }
 }
 function DeleteMessages(message, amount) {
   message.channel.bulkDelete(amount, true).catch(err => {
@@ -681,18 +684,25 @@ async function ClanActivity(prefix, message, command, guild) {
         players = players.filter(e => e.lastActivity.currentActivityHash !== 0 && (new Date() - new Date(e.lastActivity.dateActivityStarted)) < (1000 * 60 * 60));
         players = players.sort((a, b) => { return b.lastActivity.dateActivityStarted - a.lastActivity.dateActivityStarted });
 
-        activities.names = players.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-        activities.first = players.map((e, index) => {
-          let activity = ManifestHandler.getManifest().DestinyActivityDefinition[e.lastActivity.currentActivityHash];
-          return `${ e.lastActivity.currentActivityHash !== 82913930 ? (activity ? activity?.displayProperties?.name : "Unknown") : "Orbit" }`
-        });
-        activities.second = players.map((e, index) => { return `${ Misc.formatTime("small", (new Date() - new Date(e.lastActivity.dateActivityStarted)) / 1000) } ago` });
-        
-        embed.setAuthor("Servers Destiny 2 Activity");
-        embed.setDescription(`This information was last updated: ${ Misc.formatTime("small", (new Date() - new Date(players[0].lastUpdated)) / 1000) } ago\nTo get quicker scans consider \`${prefix}supporting\``);
-        embed.addField("Name", activities.names, true);
-        embed.addField("Activity", activities.first, true);
-        embed.addField("Last Seen", activities.second, true);
+        //Check if anyone is online first
+        if(players[0]) {
+          activities.names = players.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+          activities.first = players.map((e, index) => {
+            let activity = ManifestHandler.getManifest().DestinyActivityDefinition[e.lastActivity.currentActivityHash];
+            return `${ e.lastActivity.currentActivityHash !== 82913930 ? (activity ? activity?.displayProperties?.name : "Unknown") : "Orbit" }`
+          });
+          activities.second = players.map((e, index) => { return `${ Misc.formatTime("small", (new Date() - new Date(e.lastActivity.dateActivityStarted)) / 1000) } ago` });
+
+          embed.setAuthor("Servers Destiny 2 Activity");
+          embed.setDescription(`This information was last updated: ${ Misc.formatTime("small", (new Date() - new Date(players[0].lastUpdated)) / 1000) } ago\nTo get quicker scans consider \`${prefix}supporting\``);
+          embed.addField("Name", activities.names, true);
+          embed.addField("Activity", activities.first, true);
+          embed.addField("Last Seen", activities.second, true);
+        }
+        else {
+          embed.setAuthor("Servers Destiny 2 Activity");
+          embed.setDescription(`Nobody has been online in the last hour, so i got nothing.`);
+        }
       }
       else {
         embed.setAuthor("Uhh oh...");
@@ -1045,9 +1055,6 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
   //Promise all
   if(registeredUser && registeredUser !== "NoUser") {
     if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
-  }
-  else {
-    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo(), await GetUserBroadcasts()]); }
     else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo()]); }
   }
 
@@ -2481,6 +2488,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
       break;
     }
     case command.startsWith("trials profile"): {
+      console.log(registeredPlayer);
       switch(true) {
         case command.startsWith("trials profile weekly"): {
           if(registeredUser) {

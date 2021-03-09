@@ -587,8 +587,8 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var pit_flawless_completions = 0; try { pit_flawless_completions = playerData.metrics.data.metrics["310888283"].objectiveProgress.progress; } catch (err) { }
 
   //Prophecy
-  var prophecy_completions = 0; try { prophecy_completions = playerData.metrics.data.metrics["3719033237"].objectiveProgress.progress; } catch (err) { }
-  var prophecy_flawless_completions = 0; try { prophecy_flawless_completions = playerData.metrics.data.metrics["146137481"].objectiveProgress.progress; } catch (err) { }
+  var prophecy_completions = 0; try { prophecy_completions = playerData.metrics.data.metrics["352659556"].objectiveProgress.progress; } catch (err) { }
+  var prophecy_flawless_completions = 0; try { prophecy_flawless_completions = playerData.metrics.data.metrics["1099614108"].objectiveProgress.progress; } catch (err) { }
 
   return {
     "menageire": menageire,
