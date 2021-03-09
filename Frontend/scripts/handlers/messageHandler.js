@@ -129,6 +129,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"):
         case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
         case command.startsWith("empire hunts"): case command.startsWith("empire hunt"):
+        case command.startsWith("presage"): case command.startsWith("master presage"): case command.startsWith("presage master"):
         case command.startsWith("triumph score"): case command.startsWith("triumph"): case command.startsWith("triumphs"):
         case command.startsWith("time"): case command.startsWith("time played"): case command.startsWith("total time"):
         case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
@@ -1684,6 +1685,40 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Empire Hunt Completions");
       embed.setDescription("Completions are for Empire Hunts on an elected difficulty. (Adept-Master)");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("presage"): {
+      let top = players.sort((a, b) => { return b.presage.normal - a.presage.normal }).slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.presage.normal }` });
+      if(registeredPlayer) {
+        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.presage.normal }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/presage/?hl=${ registeredPlayer.User.membershipID })`);
+      }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/prophecy/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Normal Presage Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("master presage"): case command.startsWith("presage master"): {
+      let top = players.sort((a, b) => { return b.presage.master - a.presage.master }).slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ e.presage.master }` });
+      if(registeredPlayer) {
+        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ registeredPlayer.User.presage.master }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/presage/?hl=${ registeredPlayer.User.membershipID })`);
+      }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/prophecy/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Master Presage Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;

@@ -67,6 +67,10 @@ var userSchema = new Schema({
       flawless: DefaultNumber
     }
   },
+  presage: {
+    normal: DefaultNumber,
+    master: DefaultNumber
+  },
   trials: {
     overall: {
       wins: DefaultNumber,

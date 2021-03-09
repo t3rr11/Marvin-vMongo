@@ -313,6 +313,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       empireHunts: Triumphs.empireHunts,
       xp: Seasonal.xp,
       dungeons: Others.dungeons,
+      presage: Others.presage,
       trials: Rankings.trials,
       lastActivity: AccountInfo.lastActivity,
       joinDate: memberData.joinDate,
@@ -577,6 +578,8 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var lifetimeScore = 0; try { lifetimeScore = playerData.profileRecords.data.lifetimeScore; } catch (err) { }
   var wellsCompleted = 0; try { wellsCompleted = playerData.profileRecords.data.records["819775261"].objectives[0].progress; } catch (err) { }
   var epsCompleted = 0; try { epsCompleted = playerData.profileRecords.data.records["3350489579"].objectives[0].progress; } catch (err) { }
+  var presageNormal = 0; try { presageNormal = playerData.profileRecords.data.records["1622888137"].objectives[0].progress; } catch (err) { }
+  var presageMaster = 0; try { presageMaster = playerData.profileRecords.data.records["2396534184"].objectives[0].progress; } catch (err) { }
 
   //Shattered Throne
   var st_completions = 0; try { st_completions = playerData.metrics.data.metrics["1339818929"].objectiveProgress.progress; } catch (err) { }
@@ -606,6 +609,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
       "pitOfHeresy": { "completions": pit_completions, "flawless": pit_flawless_completions },
       "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions }
     },
+    "presage": {
+      "normal": presageNormal,
+      "master": presageMaster
+    }
   }
 }
 
