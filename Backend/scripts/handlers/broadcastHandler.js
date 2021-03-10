@@ -93,5 +93,17 @@ function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {
     }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
   }
 }
+function sendCustomBroadcast(clan, guild, hash, playerData, season) {
+  Database.addAwaitingBroadcast({
+    clanID: 2603670,
+    guildID: "630967941076221954",
+    displayName: "BARRY McCOCKINNER",
+    membershipID: "4611686018475621200",
+    season: 13,
+    type: "custom",
+    broadcast: `BARRY McCOCKINNER has done ${ parseInt(playerData.User.raids.dsc)+1 } raids without getting Eyes Of Tomorrow, what a scrub.`,
+    hash: 753200559,
+  }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+}
 
-module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast }
+module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast, sendCustomBroadcast }

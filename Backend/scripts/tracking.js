@@ -476,6 +476,12 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   //Calulate total raids
   var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions + dscCompletions;
 
+  if(oldPlayerData?.User?.membershipID == "4611686018475621200") {
+    if(oldPlayerData.User.raids.dsc < dscCompletions) {
+      BroadcastHandler.sendCustomBroadcast(null, null, null, oldPlayerData, null);
+    }
+  }
+
   return {
     "raids": {
       "levi": leviCompletions,

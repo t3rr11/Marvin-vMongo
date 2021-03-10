@@ -85,6 +85,7 @@ async function processBroadcast(client, broadcast) {
                   else if(broadcastType === "catalyst") { BroadcastMessage = broadcast.broadcast; sendCatalystBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "triumph") { BroadcastMessage = broadcast.broadcast; sendTriumphBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else if(broadcastType === "other") { BroadcastMessage = broadcast.broadcast; sendOtherBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
+                  else if(broadcastType === "custom") { BroadcastMessage = broadcast.broadcast; sendCustomBroadcast(client, guild, BroadcastMessage, broadcast, clan); }
                   else { Log.SaveLog("Frontend", "Error", `New broadcast type found, but we are unsure of what to do with it. Type: ${ broadcastType }`); }
                 }
               }
@@ -227,6 +228,16 @@ async function sendOtherBroadcast(client, guild, message, broadcast, clan) {
   .setTimestamp();
   try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
   catch(err) { console.log(`Failed to send other broadcast to ${ guild.guildID } because of ${ err }`); }
+}
+async function sendCustomBroadcast(client, guild, message, broadcast, clan) {
+  let embed = new Discord.MessageEmbed()
+  .setColor(0xFFE000)
+  .setTitle(`Clan Broadcast - ${ clan.clanName }`)
+  .setDescription(message)
+  .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
+  .setTimestamp();
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  catch(err) { console.log(`Failed to send custom broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendFinishedLoadingAnnouncement(client, clan) {
   Database.getClanGuilds(clan.clanID, function(isError, isFound, guilds) {
@@ -419,4 +430,4 @@ async function disableItemBroadcast(prefix, message, command, guild) {
 }
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { checkForBroadcasts, processBroadcast, enableItemBroadcast, disableItemBroadcast, sendFinishedLoadingAnnouncement, sendItemBroadcast }
+module.exports = { checkForBroadcasts, processBroadcast, enableItemBroadcast, disableItemBroadcast, sendFinishedLoadingAnnouncement, sendItemBroadcast, sendCustomBroadcast }
