@@ -138,6 +138,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("when "): { GetBroadcastDates(prefix, message, command); break; }
 
         //Trials
+        case command.startsWith("trials wins"): case command.startsWith("trials flawless"): case command.startsWith("trials final blows"): 
+        case command.startsWith("trials post wins"): case command.startsWith("trials carries"): 
         case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
         case command.startsWith("trials weekly wins"): case command.startsWith("trials seasonal wins"): case command.startsWith("trials overall wins"): 
         case command.startsWith("trials weekly flawless"): case command.startsWith("trials seasonal flawless"): case command.startsWith("trials overall flawless"): 
@@ -1725,7 +1727,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
     }
     
     //Trials
-    case command.startsWith("trials weekly wins"): {
+    case command.startsWith("trials wins"): case command.startsWith("trials weekly wins"): {
       let top = players.sort((a, b) => { return b.trials.weekly.wins - a.trials.weekly.wins }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.wins) }` });
@@ -1740,7 +1742,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials weekly win streak"): {
+    case command.startsWith("trials win streak"): case command.startsWith("trials weekly win streak"): {
       let top = players.sort((a, b) => { return b.trials.weekly.winStreak - a.trials.weekly.winStreak }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.winStreak) }` });
@@ -1755,7 +1757,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials weekly flawless"): {
+    case command.startsWith("trials flawless"): case command.startsWith("trials weekly flawless"): {
       let top = players.sort((a, b) => { return b.trials.weekly.flawlessTickets - a.trials.weekly.flawlessTickets }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.flawlessTickets) }` });
@@ -1770,7 +1772,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials weekly final blows"): {
+    case command.startsWith("trials final blows"): case command.startsWith("trials weekly final blows"): {
       let top = players.sort((a, b) => { return b.trials.weekly.finalBlows - a.trials.weekly.finalBlows }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.finalBlows) }` });
@@ -1785,7 +1787,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials weekly post wins"): {
+    case command.startsWith("trials post wins"): case command.startsWith("trials weekly post wins"): {
       let top = players.sort((a, b) => { return b.trials.weekly.postFlawlessWins - a.trials.weekly.postFlawlessWins }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.postFlawlessWins) }` });
@@ -1800,7 +1802,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Total", leaderboard.first, true);
       break;
     }
-    case command.startsWith("trials weekly carries"): {
+    case command.startsWith("trials carries"): case command.startsWith("trials weekly carries"): {
       let top = players.sort((a, b) => { return b.trials.weekly.carries - a.trials.weekly.carries }).slice(0, 10);
       leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
       leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.carries) }` });
