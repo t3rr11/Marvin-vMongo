@@ -2118,6 +2118,7 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   
+  playerItems.sort((a, b) => a.localeCompare(b));
   var chunkArray = playerItems.slice(0, 100).reduce((resultArray, item, index) => { 
     const chunkIndex = Math.floor(index / 15);
     if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
@@ -2162,7 +2163,8 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
 }
 function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, title) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-
+  
+  playerTitles.sort((a, b) => a.localeCompare(b));
   var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, title, index) => { 
     const chunkIndex = Math.floor(index / 15);
     if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
