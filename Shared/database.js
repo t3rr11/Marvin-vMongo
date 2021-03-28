@@ -533,9 +533,9 @@ const getUserItems = async (membershipID) => {
 const getUserTitles = async (membershipID) => {
   return await UserTitles.find({ membershipID });
 }
-const getUserBroadcasts = async (membershipID, callback) => {
+const getUserBroadcasts = async (membershipID, guildID, amount, callback) => {
   //Callback fields { isError, isFound, data }
-  await Broadcast.find({ membershipID }, (err, array) => {
+  await Broadcast.find({ membershipID, guildID }).sort({ _id: -1 }).limit(amount).exec(function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array); }

@@ -1049,7 +1049,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
 
   //Get broadcasts for user
   var GetUserBroadcasts = () => new Promise(resolve => 
-    Database.getUserBroadcasts(registeredUser.membershipID, function GetUserBroadcasts(isError, isFound, data) {
+    Database.getUserBroadcasts(registeredUser.membershipID, message.guild.id, 15, function GetUserBroadcasts(isError, isFound, data) {
       if(!isError) { if(isFound) { registeredPlayerBroadcasts = data.filter(e => e.guildID === message.guild.id || e.guildID === "0"); } }
       resolve(true);
     })
@@ -1057,7 +1057,10 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
 
   //Promise all
   if(registeredUser && registeredUser !== "NoUser") {
-    if(type === "profile") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
+    if(type === "profile") {
+      if(command.startsWith("profile -b")) { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo(), await GetUserBroadcasts()]); }
+      else { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
+    }
     else if(type === "trials") { await Promise.all([await GetRegisteredUserInfo()]); }
   }
 
@@ -2468,7 +2471,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               if(registeredPlayerBroadcasts.length > 0) {
                 registeredPlayerBroadcasts.sort((a, b) => { return b.date - a.date }).slice(0, 15);
                 embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-                embed.setDescription("This only shows broadcasts whilst Marvin was tracking your clan. (Capped at 15 newest broadcasts)");
+                embed.setDescription("This only shows broadcasts whilst Marvin was tracking your clan in this discord. (Capped at 15 newest broadcasts)");
                 embed.addField("Name", registeredPlayerBroadcasts.map(e => { return e.broadcast }), true);
                 embed.addField("Date", registeredPlayerBroadcasts.map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }), true);
                 break;

@@ -103,19 +103,19 @@ updateManifest = async function UpdateManifest() {
     const manifestVersion = manifest.version;
     if(!isError) {
       Promise.all([
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityTypeDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModeDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModifierDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyCollectibleDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyPresentationNodeDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyRecordDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryItemDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryBucketDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyObjectiveDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyProgressionDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyTalentGridDefinition),
-        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyVendorDefinition)
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityTypeDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModeDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyActivityModifierDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyCollectibleDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyPresentationNodeDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyRecordDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryItemDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyInventoryBucketDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyObjectiveDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyProgressionDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyTalentGridDefinition + "?43q65jngqgab4jg"),
+        APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyVendorDefinition + "?43q65jngqgab4jg")
       ]).then(async (values) => {
         //Write the files
         let didError = false;

@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJSON, GetClassName, AddCommas,
-  cleanString, addOrdinal, GetItemState, capitalize
+  cleanString, addOrdinal, GetItemState, capitalize, nextDayAndTime
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -113,4 +113,9 @@ function GetItemState(state) {
   };
 }
 function capitalize(string) { return string.charAt(0).toUpperCase() + string.slice(1); }
-
+function nextDayAndTime(dayOfWeek, hour, minute) {
+  var now = new Date();
+  var result = new Date(new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 + dayOfWeek - now.getDay()) % 7, hour, minute) - now.getTimezoneOffset() * 60000);
+  if (result < now) { result.setDate(result.getDate() + 7) }
+  return result;
+}
