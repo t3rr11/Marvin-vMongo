@@ -210,10 +210,11 @@ async function sendCatalystBroadcast(client, guild, message, broadcast, clan) {
   catch(err) { console.log(`Failed to send catalyst broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendTriumphBroadcast(client, guild, message, broadcast, clan) {
+  var manifestRecord = ManifestHandler.getManifest().DestinyRecordDefinition[broadcast.hash];
   let embed = new Discord.MessageEmbed()
   .setColor(0xFFE000)
   .setTitle(`Clan Broadcast - ${ clan.clanName }`)
-  .setDescription(message)
+  .setDescription(`${ broadcast.displayName } has obtained the ${ broadcast.broadcast } triumph!${ manifestRecord?.displayProperties?.description ? `\n\n**How to obtain:**\n ${ manifestRecord.displayProperties.description }` : "" }`)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
   try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }

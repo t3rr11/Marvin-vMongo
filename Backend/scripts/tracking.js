@@ -188,6 +188,7 @@ async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
         if(!oldPlayerData.User.firstLoad && !oldPlayerData.User.isPrivate && oldPlayerData.Titles?.titles && oldPlayerData.Items?.items) {
           await CheckItems(clan, season, memberData, playerData, oldPlayerData, guilds);
           await CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds);
+          await CheckTriumphs(clan, season, memberData, playerData, oldPlayerData, guilds);
         }
 
         //Finally update player and save new data.
@@ -281,6 +282,25 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   }
   else { Log.SaveLog("Backend", "Error", `Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
+async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData, guilds) {
+  if(oldPlayerData.User.challenges) {
+    var characterIds = playerData.profile.data.characterIds;
+    let challenges = {
+      s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete }
+    }
+    let triumphs = {
+      //cabal: { hash: 1607758397, old: oldPlayerData.User.triumphs.cabals, new: playerData.characterRecords.data[characterIds[0]].records[1607758397].objectives[1].complete }
+    }
+  
+    //Check for triumph completion
+    if(!challenges.s13.old && challenges.s13.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season); } }
+    
+    if(clan.clanID === 2603670) {
+      //if(!triumphs.cabals.old && triumphs.cabals.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], triumphs.cabals.hash, oldPlayerData, season); } }
+    }
+  }
+  else { Log.SaveLog("Backend", "Error", `Could not find triumphs for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
+}
 
 async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
   const AccountInfo = FormatAccountInfo(clan, memberData, playerData, oldPlayerData);
@@ -306,6 +326,8 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       seasonRank: Seasonal.seasonRank,
       powerBonus: Seasonal.powerBonus,
       dawning2020: Triumphs.dawning2020,
+      challenges: Triumphs.challenges,
+      triumphs: Triumphs.triumphs,
       lightLevels: AccountInfo.lightLevels,
       ironBanner: Rankings.ironBanner,
       raids: Raids.raids,
@@ -476,9 +498,12 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   //Calulate total raids
   var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions + dscCompletions;
 
-  if(oldPlayerData?.User?.membershipID == "4611686018475621200") {
+  if(oldPlayerData?.User?.membershipID === "4611686018475621200") {
     if(oldPlayerData.User.raids.dsc < dscCompletions) {
-      BroadcastHandler.sendCustomBroadcast(null, null, null, oldPlayerData, null);
+      var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
+      if(!recentItems.includes(753200559)) {
+        BroadcastHandler.sendCustomBroadcast(null, null, null, oldPlayerData, null);
+      }
     }
   }
 
@@ -557,21 +582,21 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
-  var theDarkPriestess = 0; try { theDarkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
-  var theWarrior = 0; try { theWarrior = playerData.profileRecords.data.records["869599000"].objectives[0].progress; } catch (err) { }
-  var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
-  var masterHunts = 0; try { masterHunts = playerData.profileRecords.data.records["1363459558"].objectives[0].progress; } catch (err) { }
-  var dawning2020 = 0; try { dawning2020 = playerData.characterRecords.data[characterIds[0]].records["3692735918"].intervalObjectives[3].progress; } catch (err) { }
-  
+  var challenges = {
+    s13: false
+  };
+  var triumphs = {
+    cabals: false,
+  }
+
+  //Set challenge completion values
+  try { challenges.s13 = playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete; } catch (err) { }
+
+  //Set triumph completion values
+
   return {
-    empireHunts: {
-      theDarkPriestess,
-      theWarrior,
-      theTechnocrat,
-      masterHunts,
-      total: (theDarkPriestess+theWarrior+theTechnocrat)
-    },
-    dawning2020
+    challenges,
+    triumphs
   }
 }
 function FormatOthers(clan, memberData, playerData, oldPlayerData) {
@@ -586,6 +611,11 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var epsCompleted = 0; try { epsCompleted = playerData.profileRecords.data.records["3350489579"].objectives[0].progress; } catch (err) { }
   var presageNormal = 0; try { presageNormal = playerData.profileRecords.data.records["1622888137"].objectives[0].progress; } catch (err) { }
   var presageMaster = 0; try { presageMaster = playerData.profileRecords.data.records["2396534184"].objectives[0].progress; } catch (err) { }
+  var theDarkPriestess = 0; try { theDarkPriestess = playerData.profileRecords.data.records["575251332"].objectives[0].progress; } catch (err) { }
+  var theWarrior = 0; try { theWarrior = playerData.profileRecords.data.records["869599000"].objectives[0].progress; } catch (err) { }
+  var theTechnocrat = 0; try { theTechnocrat = playerData.profileRecords.data.records["1345853611"].objectives[0].progress; } catch (err) { }
+  var masterHunts = 0; try { masterHunts = playerData.profileRecords.data.records["1363459558"].objectives[0].progress; } catch (err) { }
+  var dawning2020 = 0; try { dawning2020 = playerData.characterRecords.data[characterIds[0]].records["3692735918"].intervalObjectives[3].progress; } catch (err) { }
 
   //Shattered Throne
   var st_completions = 0; try { st_completions = playerData.metrics.data.metrics["1339818929"].objectiveProgress.progress; } catch (err) { }
@@ -618,7 +648,15 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
     "presage": {
       "normal": presageNormal,
       "master": presageMaster
-    }
+    },
+    "empireHunts": {
+      theDarkPriestess,
+      theWarrior,
+      theTechnocrat,
+      masterHunts,
+      "total": (theDarkPriestess+theWarrior+theTechnocrat)
+    },
+    dawning2020
   }
 }
 

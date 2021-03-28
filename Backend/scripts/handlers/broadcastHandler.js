@@ -93,6 +93,19 @@ function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {
     }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
   }
 }
+function sendTriumphBroadcast(clan, guild, recordHash, playerData, season) {
+  let recordDef = ManifestHandler.getManifest().DestinyRecordDefinition[recordHash];
+  Database.addAwaitingBroadcast({
+    clanID: clan.clanID,
+    guildID: guild.guildID,
+    displayName: playerData.User.displayName,
+    membershipID: playerData.User.membershipID,
+    season: season,
+    type: "triumph",
+    broadcast: recordDef.displayProperties.name,
+    hash: recordHash,
+  }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
+}
 function sendCustomBroadcast(clan, guild, hash, playerData, season) {
   Database.addAwaitingBroadcast({
     clanID: 2603670,
@@ -101,9 +114,9 @@ function sendCustomBroadcast(clan, guild, hash, playerData, season) {
     membershipID: "4611686018475621200",
     season: 13,
     type: "custom",
-    broadcast: `BARRY McCOCKINNER has done ${ parseInt(playerData.User.raids.dsc)+1 } raids without getting Eyes Of Tomorrow, what a scrub.`,
+    broadcast: `BARRY McCOCKINNER has done ${ parseInt(playerData.User.raids.dsc)-8 } raids without getting Eyes Of Tomorrow, what a scrub.`,
     hash: 753200559,
   }, function(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
 
-module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast, sendCustomBroadcast }
+module.exports = { sendClanBroadcast, sendItemBroadcast, sendTitleBroadcast, sendTriumphBroadcast, sendCustomBroadcast }

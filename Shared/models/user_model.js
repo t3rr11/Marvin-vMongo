@@ -96,6 +96,12 @@ var userSchema = new Schema({
       carries: DefaultNumber
     }
   },
+  challenges: {
+    s13: { type: Boolean, default: false }
+  },
+  triumphs: {
+    cabals: { type: Boolean, default: false }
+  },
   lastActivity: {
     currentActivityHash: { type: Number, default: 0 },
     dateActivityStarted: Date
