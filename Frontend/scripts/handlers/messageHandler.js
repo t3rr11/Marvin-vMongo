@@ -940,12 +940,11 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
 async function GetObtainedTitles(prefix, message, command, type, users, registeredUser) {
   let players = [];
   let playerTitles = [];
-  let obtained = [];
   let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
   //Get title
   var requestedTitleName = type === "obtained" ? command.substr("title ".length) : command.substr("!title ".length);
-  var title = ManifestHandler.getManifestTitleByName(requestedTitleName);
+  var titleDefs = ManifestHandler.getManifestTitleByName(requestedTitleName);
 
   //Get players
   var GetGuildPlayers = () => new Promise(resolve => Database.getGuildPlayers(message.guild.id, function GetGuildPlayers(isError, isFound, data) {
@@ -959,33 +958,45 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
     resolve(true);
   }));
 
-  //Promise all
-  if(title.length > 0) {
+  //Check to see if any title names match
+  if(titleDefs.length > 0) {
     await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]);
+    let playersWithReqTitles = [];
+    let playersWithoutReqTitles = [];
 
-    if(title.length === 1) {
-      for(var i in playerTitles) {
-        let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
-        if(type === "obtained") { if(playerTitles[i].titles.find(e => e === title[0].hash)) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
-        else { if(!playerTitles[i].titles.find(e => e === title[0].hash)) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
+    for(let i in playerTitles) {
+      let user = players.find(e => e.membershipID === playerTitles[i].membershipID);
+      //Check if user is requesting obtained titles or missing titles
+      if(type === "obtained") {
+        for(let j in titleDefs) {
+          if(playerTitles[i].titles.find(e => e === titleDefs[j].hash)) {
+            if(user) {
+              let displayName = user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x });
+              let membershipID = user.membershipID;
+              let isGilded = titleDefs[j].forTitleGilding;
+              Misc.upsertArray(playersWithReqTitles, { id: i, displayName, membershipID, isGilded, seen: 1 });
+            }
+          }
+        }
       }
-    }
-    else {
-      for(let i in title) {
-        for(var j in playerTitles) {
-          let user = players.find(e => e.membershipID === playerTitles[j].membershipID);
-          if(type === "obtained") { if(playerTitles[j].titles.find(e => e === title[i].hash)) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
-          else { if(!playerTitles[j].titles.find(e => e === title[i].hash)) { obtained.push(user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })); } }
+      else {
+        if(!playerTitles[i].titles.find(e => e === titleDefs[0].hash)) {
+          if(user) {
+            let displayName = user.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x });
+            let membershipID = user.membershipID;
+            let isGilded = titleDefs[0].forTitleGilding;
+            Misc.upsertArray(playersWithoutReqTitles, { id: i, displayName, membershipID, isGilded, seen: 1 });
+          }
         }
       }
     }
 
-    SendTitlesLeaderboard(prefix, msg, command, type, players, obtained, title);
+    SendTitlesLeaderboard(prefix, msg, command, type, players, type === "obtained" ? playersWithReqTitles : playersWithoutReqTitles, titleDefs);
   }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     errorEmbed.setAuthor("Uhh oh...");
-    errorEmbed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqourer use: Flawless S10, Conqourer S11, Etc.`);
+    errorEmbed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqueror just use tha name; Flawless or Conqueror. Previously you had to add the season but this has since changed.`);
     msg.edit(errorEmbed);
   }
 }
@@ -2164,27 +2175,34 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
 
   message.edit(embed);
 }
-function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, title) {
+function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, titleDefs) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   
-  playerTitles.sort((a, b) => a.localeCompare(b));
-  var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, title, index) => { 
+  playerTitles.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  playerTitles.sort((a, b) => b.seen - a.seen);
+  var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, titleDefs, index) => { 
     const chunkIndex = Math.floor(index / 15);
     if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
-    resultArray[chunkIndex].push(title)
+    resultArray[chunkIndex].push(titleDefs)
     return resultArray
   }, []);
 
   if(playerTitles.length > 0) {
-    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
+    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
     embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
-    if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
-    for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+    if(titleDefs[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ titleDefs[0].displayProperties.icon }`); }
+    for(var i in chunkArray) {
+      embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].map(e => e.displayName), true);
+      if(type === "obtained") {
+        embed.addField("Gilded", chunkArray[i].map(e => { return e.isGilded ? ":white_check_mark: ".repeat(e.seen-1) : "\u200b" }), true);
+        embed.addField("\u200b", "\u200b", true);
+      }
+    }
   }
   else {
-    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ title[0].titleInfo.titlesByGender.Male }`);
+    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
     embed.setDescription(`Nobody has it yet.`);
-    if(title[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ title[0].displayProperties.icon }`); }
+    if(titleDefs[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ titleDefs[0].displayProperties.icon }`); }
   }
 
   message.edit(embed);

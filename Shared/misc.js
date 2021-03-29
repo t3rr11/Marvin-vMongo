@@ -1,6 +1,6 @@
 module.exports = {
   GetDateString, GetReadableDateTime, GetReadableDate, formatTime, IsJSON, GetClassName, AddCommas,
-  cleanString, addOrdinal, GetItemState, capitalize, nextDayAndTime
+  cleanString, addOrdinal, GetItemState, capitalize, nextDayAndTime, upsertArray
 };
 
 function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
@@ -118,4 +118,9 @@ function nextDayAndTime(dayOfWeek, hour, minute) {
   var result = new Date(new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 + dayOfWeek - now.getDay()) % 7, hour, minute) - now.getTimezoneOffset() * 60000);
   if (result < now) { result.setDate(result.getDate() + 7) }
   return result;
+}
+function upsertArray(array, item) {
+  const i = array.findIndex(e => e.id === item.id);
+  if(i > -1) { item.seen++; array[i] = item; }
+  else { array.push(item); }
 }

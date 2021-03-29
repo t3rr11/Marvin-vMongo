@@ -28,15 +28,13 @@ getManifestTitleByName = (name) => {
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   let seals = sealsParents.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash] });
   let legacySeals = legacysealsParents.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash] });
+  let gildedSeals = seals.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyRecordDefinition[e.hash].titleInfo.gildingTrackingRecordHash] });
+  let legacyGildedSeals = legacySeals.map(e => { return getManifest().DestinyRecordDefinition[getManifest().DestinyRecordDefinition[e.hash].titleInfo.gildingTrackingRecordHash] });
   let allSeals = seals.concat(legacySeals);
+  let allGildedSeals = gildedSeals.concat(legacyGildedSeals.filter(e => e !== undefined));
+  let allSealsCombined = allSeals.concat(allGildedSeals.filter(e => e !== undefined));
 
-  if(name === "conqueror s10") { return allSeals.filter(e => e.hash === 1983630873); }
-  else if(name === "conqueror s11") { return allSeals.filter(e => e.hash === 4081738395); }
-  else if(name === "conqueror s12") { return allSeals.filter(e => e.hash === 4167244320); }
-  else if(name === "flawless s10") { return allSeals.filter(e => e.hash === 2945528800); }
-  else if(name === "flawless s11") { return allSeals.filter(e => e.hash === 1547272082); }
-  else if(name === "flawless s12") { return allSeals.filter(e => e.hash === 2126548397); }
-  else { return allSeals.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase()); }
+  return allSealsCombined.filter(e => e.titleInfo.titlesByGender.Male.toUpperCase() === name.toUpperCase());
 }
 
 
