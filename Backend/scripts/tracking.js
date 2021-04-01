@@ -525,7 +525,6 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   }
 }
 function FormatTitles(clan, memberData, playerData, oldPlayerData) {
-  //TODO
   const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
   const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   const sealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[616318467];

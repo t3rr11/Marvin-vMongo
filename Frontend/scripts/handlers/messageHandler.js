@@ -2177,11 +2177,11 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
 }
 function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, titleDefs) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-  
+  let amount = type === "obtained" ? 50 : 100;
   playerTitles.sort((a, b) => a.displayName.localeCompare(b.displayName));
   playerTitles.sort((a, b) => b.seen - a.seen);
-  var chunkArray = playerTitles.slice(0, 100).reduce((resultArray, titleDefs, index) => { 
-    const chunkIndex = Math.floor(index / 15);
+  var chunkArray = playerTitles.slice(0, amount).reduce((resultArray, titleDefs, index) => { 
+    const chunkIndex = Math.floor(index / (type === "obtained" ? amount : 15));
     if(!resultArray[chunkIndex]) { resultArray[chunkIndex] = []; }
     resultArray[chunkIndex].push(titleDefs)
     return resultArray
@@ -2189,13 +2189,12 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
 
   if(playerTitles.length > 0) {
     embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
-    embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > 100 ? `100 / ${ playerTitles.length }` : ` ${ playerTitles.length } / 100` }`);
+    embed.setDescription(`This list can only show ${ amount } players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > amount ? `${ amount } / ${ playerTitles.length }` : ` ${ playerTitles.length } / ${ amount }` }`);
     if(titleDefs[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ titleDefs[0].displayProperties.icon }`); }
     for(var i in chunkArray) {
       embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].map(e => e.displayName), true);
       if(type === "obtained") {
         embed.addField("Gilded", chunkArray[i].map(e => { return e.isGilded ? ":white_check_mark: ".repeat(e.seen-1) : "\u200b" }), true);
-        embed.addField("\u200b", "\u200b", true);
       }
     }
   }
