@@ -59,18 +59,21 @@ async function init() {
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
-  //Get next reset and set timer to update gunsmith mods, this function is also used for other daily broadcasts.
-  Database.getGunsmithMods((isError, isFound, data) => {
-    if(!isError && isFound) {
-      ResetTime = data.nextRefreshDate;
-      let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
-      let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
-      setTimeout(() => {
-        //Update the mod slots to stop this check.
-        updateGunsmithMods();
-      }, millisUntil + resetOffset);
-    }
-  });
+  //Starting Season 14 gunsmith mods will be removed/moved. This is to avoid checking for them come the new season.
+  if(new Date() < new Date("2021-05-10T17:00:00Z")) {
+    //Get next reset and set timer to update gunsmith mods, this function is also used for other daily broadcasts.
+    Database.getGunsmithMods((isError, isFound, data) => {
+      if(!isError && isFound) {
+        ResetTime = data.nextRefreshDate;
+        let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
+        let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
+        setTimeout(() => {
+          //Update the mod slots to stop this check.
+          updateGunsmithMods();
+        }, millisUntil + resetOffset);
+      }
+    });
+  }
 
   //Start Logger
   //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
