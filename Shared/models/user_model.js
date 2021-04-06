@@ -102,6 +102,20 @@ var userSchema = new Schema({
   triumphs: {
     cabals: { type: Boolean, default: false }
   },
+  grandmasters: {
+    theDevilsLair: { type: Number, default: 0 },
+    theArmsDealer: { type: Number, default: 0 },
+    provingGrounds: { type: Number, default: 0 },
+    wardenOfNothing: { type: Number, default: 0 },
+    fallenSABER: { type: Number, default: 0 },
+    theInsightTerminus: { type: Number, default: 0 },
+    broodhold: { type: Number, default: 0 },
+    theGlassway: { type: Number, default: 0 },
+    invertedSpire: { type: Number, default: 0 },
+    exodusCrash: { type: Number, default: 0 },
+    theDisgraced: { type: Number, default: 0 },
+    scarletKeep: { type: Number, default: 0 }
+  },
   lastActivity: {
     currentActivityHash: { type: Number, default: 0 },
     dateActivityStarted: Date

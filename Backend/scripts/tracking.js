@@ -327,6 +327,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       powerBonus: Seasonal.powerBonus,
       dawning2020: Triumphs.dawning2020,
       challenges: Triumphs.challenges,
+      grandmasters: Triumphs.grandmasters,
       triumphs: Triumphs.triumphs,
       lightLevels: AccountInfo.lightLevels,
       ironBanner: Rankings.ironBanner,
@@ -581,6 +582,20 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
 }
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
+  var grandmasters = {
+    theDevilsLair: playerData.profileRecords.data.records[1820446245]?.objectives[0]?.progress,
+    theArmsDealer: playerData.profileRecords.data.records[1404404279]?.objectives[0]?.progress,
+    provingGrounds: playerData.profileRecords.data.records[2867134615]?.objectives[0]?.progress,
+    wardenOfNothing: playerData.profileRecords.data.records[4018693329]?.objectives[0]?.progress,
+    fallenSABER: playerData.profileRecords.data.records[8651357]?.objectives[0]?.progress,
+    theInsightTerminus: playerData.profileRecords.data.records[1451485767]?.objectives[0]?.progress,
+    broodhold: playerData.profileRecords.data.records[467599901]?.objectives[0]?.progress,
+    theGlassway: playerData.profileRecords.data.records[1260338084]?.objectives[0]?.progress,
+    invertedSpire: playerData.profileRecords.data.records[3716806862]?.objectives[0]?.progress,
+    exodusCrash: playerData.profileRecords.data.records[3054857469]?.objectives[0]?.progress,
+    theDisgraced: playerData.profileRecords.data.records[632127367]?.objectives[0]?.progress,
+    scarletKeep: playerData.profileRecords.data.records[2363370539]?.objectives[0]?.progress
+  }
   var challenges = {
     s13: false
   };
@@ -595,7 +610,8 @@ function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
 
   return {
     challenges,
-    triumphs
+    triumphs,
+    grandmasters
   }
 }
 function FormatOthers(clan, memberData, playerData, oldPlayerData) {
