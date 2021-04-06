@@ -2514,20 +2514,27 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("profile -g"): case command.startsWith("profile -grandmaster"): case command.startsWith("profile -grandmasters"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-              embed.setDescription("Grandmaster Completions (If they aren't GMs this season they'll show as 0 completions. I assume bungie reset the data each season)");
-              const grandmasters = {
-                names: ["The Devils' Lair", "The Arms Dealer", "Proving Grounds", "Warden of Nothing", "Fallen S.A.B.E.R", "The Insight Terminus", "Broodhold", "The Glassway", "The Inverted Spire", "Exodus Crash", "The Disgraced", "Scarlet Keep"],
-                counts: [
-                  registeredPlayer.User.grandmasters.theDevilsLair, registeredPlayer.User.grandmasters.theArmsDealer, registeredPlayer.User.grandmasters.provingGrounds,
-                  registeredPlayer.User.grandmasters.wardenOfNothing, registeredPlayer.User.grandmasters.fallenSABER, registeredPlayer.User.grandmasters.theInsightTerminus,
-                  registeredPlayer.User.grandmasters.broodhold, registeredPlayer.User.grandmasters.theGlassway, registeredPlayer.User.grandmasters.invertedSpire,
-                  registeredPlayer.User.grandmasters.exodusCrash, registeredPlayer.User.grandmasters.theDisgraced, registeredPlayer.User.grandmasters.scarletKeep
-                ]
+              if(registeredPlayer.User.grandmasters) {
+                embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+                embed.setDescription("Grandmaster Completions (If they aren't GMs this season they'll show as 0 completions. I assume bungie reset the data each season)");
+                const grandmasters = {
+                  names: ["The Devils' Lair", "The Arms Dealer", "Proving Grounds", "Warden of Nothing", "Fallen S.A.B.E.R", "The Insight Terminus", "Broodhold", "The Glassway", "The Inverted Spire", "Exodus Crash", "The Disgraced", "Scarlet Keep"],
+                  counts: [
+                    registeredPlayer.User.grandmasters.theDevilsLair, registeredPlayer.User.grandmasters.theArmsDealer, registeredPlayer.User.grandmasters.provingGrounds,
+                    registeredPlayer.User.grandmasters.wardenOfNothing, registeredPlayer.User.grandmasters.fallenSABER, registeredPlayer.User.grandmasters.theInsightTerminus,
+                    registeredPlayer.User.grandmasters.broodhold, registeredPlayer.User.grandmasters.theGlassway, registeredPlayer.User.grandmasters.invertedSpire,
+                    registeredPlayer.User.grandmasters.exodusCrash, registeredPlayer.User.grandmasters.theDisgraced, registeredPlayer.User.grandmasters.scarletKeep
+                  ]
+                }
+                embed.addField("Strike", grandmasters.names, true);
+                embed.addField("Completions", grandmasters.counts, true);
+                break;
               }
-              embed.addField("Strike", grandmasters.names, true);
-              embed.addField("Completions", grandmasters.counts, true);
-              break;
+              else {
+                embed.setAuthor("Uhh oh...");
+                embed.setDescription(`Found User but I have no grandmaster data for you yet, Most likely still scanning.`);
+                break;
+              }
             }
             else {
               embed.setAuthor("Uhh oh...");
