@@ -544,13 +544,14 @@ async function ItemInfo(prefix, message, command) {
   if(item) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
-    embed.setAuthor(`${ item.displayProperties.name }`);
+    embed.setAuthor(`${ item.displayProperties.name }`, null, `https://www.light.gg/db/items/${ item.hash }`);
     if(item.flavorText) { embed.setDescription(`${ item.flavorText }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
     embed.addField(`Collectible Hash`, item.collectibleHash ? item.collectibleHash : "None", true);
     embed.addField(`Trackable`, item.collectibleHash ? "Yes" : "No", true);
     embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`);
+    if(item.hash) { embed.setURL(`https://www.light.gg/db/items/${ item.hash }`); }
     if(item.screenshot) { embed.setImage(`https://bungie.net${ item.screenshot }`); }
 
     msg.edit(embed);
