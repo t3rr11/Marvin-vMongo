@@ -937,7 +937,7 @@ const updatePrivacyByID = async (membershipID, data, callback) => {
   else { callback(true, "Low", `NoUser`); }
 }
 const updateClanByID = async (clanID, data, callback) => {
-  Clan.updateOne({ clanID, isTracking: true }, data, { }, (err, numAffected) => {
+  Clan.updateOne({ clanID }, data, { }, (err, numAffected) => {
     if(err || numAffected < 1) { callback(true, "Med", err); }
     else { callback(false); }
   });
