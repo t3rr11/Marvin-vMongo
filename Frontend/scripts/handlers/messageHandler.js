@@ -101,6 +101,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
+        case command.startsWith("nuke"): { message.channel.send("https://tenor.com/view/nuke-press-the-button-bomb-them-nuke-them-cat-gif-16361990"); break; }
         case command === "claninfo": { ClanInfo(prefix, message, command, guild); break; }
         case command === "playing": case command === "activity": case command === "clan activity": { ClanActivity(prefix, message, command, guild); break; }
 
