@@ -18,7 +18,14 @@ function checkForBroadcasts(client) {
           //This array will hold the broadcasts processed from the awaiting_broadcasts list. This is to avoid sending duplicate broadcasts in the same scan.
           var processed_broadcasts = [];
           for(var i in broadcasts) {
-            if(!processed_broadcasts.find(e => e.clanID === broadcasts[i].clanID && e.membershipID === broadcasts[i].membershipID && e.season === broadcasts[i].season && e.broadcast === broadcasts[i].broadcast && e.guildID === broadcasts[i].guildID)) {
+            if(!processed_broadcasts.find(e => 
+                e.clanID === broadcasts[i].clanID && 
+                e.membershipID === broadcasts[i].membershipID && 
+                e.season === broadcasts[i].season && 
+                e.broadcast === broadcasts[i].broadcast && 
+                e.type === broadcasts[i].type && 
+                e.guildID === broadcasts[i].guildID))    
+            {
               //Check to see if it is a new broadcast
               await new Promise(resolve =>
                 Database.findBroadcast(broadcasts[i], function FindBroadcast(isError, isFound, data) {

@@ -283,23 +283,25 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   else { Log.SaveLog("Backend", "Error", `Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
 async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData, guilds) {
-  if(oldPlayerData.User.challenges) {
-    var characterIds = playerData.profile.data.characterIds;
-    let challenges = {
-      s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete }
-    }
-    let triumphs = {
-      //cabal: { hash: 1607758397, old: oldPlayerData.User.triumphs.cabals, new: playerData.characterRecords.data[characterIds[0]].records[1607758397].objectives[1].complete }
-    }
-  
-    //Check for triumph completion
-    if(!challenges.s13.old && challenges.s13.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season); } }
+  if(playerData.characterRecords?.data) {
+    if(oldPlayerData.User.challenges) {
+      var characterIds = playerData.profile.data.characterIds;
+      let challenges = {
+        s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete }
+      }
+      let triumphs = {
+        //cabal: { hash: 1607758397, old: oldPlayerData.User.triumphs.cabals, new: playerData.characterRecords.data[characterIds[0]].records[1607758397].objectives[1].complete }
+      }
     
-    if(clan.clanID === 2603670) {
-      //if(!triumphs.cabals.old && triumphs.cabals.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], triumphs.cabals.hash, oldPlayerData, season); } }
+      //Check for triumph completion
+      if(!challenges.s13.old && challenges.s13.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season); } }
+      
+      if(clan.clanID === 2603670) {
+        //if(!triumphs.cabals.old && triumphs.cabals.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], triumphs.cabals.hash, oldPlayerData, season); } }
+      }
     }
+    else { Log.SaveLog("Backend", "Error", `Could not find triumphs for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
   }
-  else { Log.SaveLog("Backend", "Error", `Could not find triumphs for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
 
 async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {

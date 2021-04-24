@@ -63,8 +63,6 @@ function sendTitleBroadcast(clan, guild, titleHash, playerData, season) {
   if(titleDef.forTitleGilding) {
     const GlobalItems = GlobalItemsHandler.getGlobalItems();
     const globalTitleDef = GlobalItems.find(e => e.hash == titleHash);
-    console.log(globalTitleDef.parentHash);
-    console.log(globalTitleDef["_doc"].parentHash);
     if(globalTitleDef) {
       Database.addAwaitingBroadcast({
         clanID: clan.clanID,
