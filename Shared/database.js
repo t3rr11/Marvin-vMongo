@@ -301,7 +301,7 @@ const findClanByID = async (clanID, callback) => {
 }
 const findBroadcast = async (broadcast, callback) => {
   //Callback fields { isError, isFound, data }
-  await Broadcast.find({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, guildID: broadcast.guildID }, (err, array) => {
+  await Broadcast.find({ membershipID: broadcast.membershipID, season: broadcast.season, broadcast: broadcast.broadcast, type: broadcast.type, guildID: broadcast.guildID }, (err, array) => {
     if(err) { callback(true, false, err); }
     else {
       if(array.length > 0) { callback(false, true, array[0]); }
