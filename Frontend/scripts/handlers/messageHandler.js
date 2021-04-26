@@ -2519,7 +2519,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               if(registeredPlayer.User.grandmasters) {
                 embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
                 embed.setDescription("Grandmaster Completions (If they aren't GMs this season they'll show as 0 completions. I assume bungie reset the data each season)");
-                const grandmasters = {
+                let grandmasters = {
                   names: ["The Devils' Lair", "The Arms Dealer", "Proving Grounds", "Warden of Nothing", "Fallen S.A.B.E.R", "The Insight Terminus", "Broodhold", "The Glassway", "The Inverted Spire", "Exodus Crash", "The Disgraced", "Scarlet Keep"],
                   counts: [
                     registeredPlayer.User.grandmasters.theDevilsLair, registeredPlayer.User.grandmasters.theArmsDealer, registeredPlayer.User.grandmasters.provingGrounds,
@@ -2528,6 +2528,8 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
                     registeredPlayer.User.grandmasters.exodusCrash, registeredPlayer.User.grandmasters.theDisgraced, registeredPlayer.User.grandmasters.scarletKeep
                   ]
                 }
+                grandmasters.names.push("", "Total");
+                grandmasters.counts.push("", grandmasters.counts.reduce((a,b) => a+b));
                 embed.addField("Strike", grandmasters.names, true);
                 embed.addField("Completions", grandmasters.counts, true);
                 break;
