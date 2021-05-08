@@ -27,7 +27,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
     if(message.content.startsWith("~~")) return;
 
     const args = message.content.slice(prefix.length);
-    const command = args.toString().toLowerCase();
+    const lowercased = args.toString().toLowerCase();
+    const command = lowercased.replace(/[\u2018\u2019]/g, "'");
     let registeredUser = null;
 
     Log.SaveDiscordLog("Frontend", message);
