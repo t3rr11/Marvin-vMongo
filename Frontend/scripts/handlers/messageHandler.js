@@ -50,7 +50,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
         case message.author.id === "194972321168097280" && command.startsWith("broadcast test"): { BroadcastHandler.sendItemBroadcast(client, guild, "Test", { hash: 1258579677 }, { clanName: "Test" }); break; }
-        case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(); message.channel.send("Manifest Update Forced"); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(false); message.channel.send("Manifest Update Forced"); break; }
         case message.author.id === "194972321168097280" && command.startsWith("test sector"): { AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, guilds); break; }
         case message.author.id === "194972321168097280" && command === "force rescan": {
           Database.forceFullRescan(function ForceFullRescan(isError, severity, err) {
@@ -59,6 +59,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
           });
           break;
         }
+        case message.author.id === "194972321168097280" && command === "verify manifest": { VerifyManifest(prefix, message, false); break; }
 
         //Help
         case command.startsWith("help"): { GetHelp(prefix, message, command); break; }
@@ -724,6 +725,33 @@ async function ClanActivity(prefix, message, command, guild) {
       if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
       else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
     });
+  });
+}
+async function VerifyManifest(prefix, message, retried) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  ManifestHandler.verifyManifest((verification) => {
+    let passedChecks = verification.filter(e => !e.passed).length > 0 ? false : true;
+    embed.setAuthor(`Manifest Validation - ${ ManifestHandler.getManifestVersion() }`);
+    embed.setDescription(`I've checked the Manifest for errors or issues, Here is the result.`);
+    embed.addField("Manifest Component", verification.map(e => e.component), true);
+    embed.addField("Status", verification.map(e => e.passed ? "Passed":"Failed"), true);
+    embed.addField("Outcome", passedChecks ? "Passed all checks, Manifest is working as intended." : "Failed one or more checks, Fixing manifest now, re-validating in 30 seconds.");
+    
+    //Send validation check repsonse
+    message.channel.send(embed);
+
+    //Check if it passed all checks
+    if(!passedChecks) {
+      if(!retried) {
+        ManifestHandler.updateManifest(false);
+        message.channel.send("Manifest Update Forced");
+  
+        setTimeout(() => { VerifyManifest(prefix, message, true); }, 30000);
+      }
+      else {
+        message.channel.send("Failed to restore Manifest after automatic repair attempt. Please contact @Terrii");
+      }
+    }
   });
 }
 

@@ -2,6 +2,7 @@ const Database = require('../database');
 const Log = require('../log');
 const { ErrorHandler } = require('./errorHandler');
 const APIRequest = require('./requestHandler');
+const Config = require('../configs/Config.json');
 const fs = require('fs');
 
 let Manifest = { };
@@ -82,7 +83,7 @@ checkManifestUpdate = async function CheckManifestUpdate(location) {
             if(!isError) {
               if(version[0].version !== newVersion.Response.version) {
                 Log.SaveLog("Backend", "Info", `Frontend: Manifest is different updating... (${ version[0].version }) to (${ newVersion.Response.version })`);
-                updateManifest();
+                updateManifest(false);
               }
               else { if(!checkManifestMounted()) { storeManifest(); } }
             }
@@ -90,12 +91,12 @@ checkManifestUpdate = async function CheckManifestUpdate(location) {
           });
         }
       }
-      else { updateManifest(); }
+      else { updateManifest(false); }
     }
     else { ErrorHandler("High", `Failed to get manifest version: ${ version }`) }
   });
 }
-updateManifest = async function UpdateManifest() {
+updateManifest = async function UpdateManifest(retried) {
   APIRequest.GetManifestVersion(function GetManifestVersion(isError, data) {
     const manifest = data.Response;
     const manifestVersion = manifest.version;
@@ -115,32 +116,48 @@ updateManifest = async function UpdateManifest() {
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyTalentGridDefinition + "?43q65jngqgab4jg"),
         APIRequest.GetManifest(manifest.jsonWorldComponentContentPaths['en'].DestinyVendorDefinition + "?43q65jngqgab4jg")
       ]).then(async (values) => {
-        //Write the files
+        let didValidateError = false;
         let didError = false;
-        fs.writeFile('../Shared/manifest/DestinyActivityDefinition.json', JSON.stringify(values[0].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyActivityTypeDefinition.json', JSON.stringify(values[1].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyActivityModeDefinition.json', JSON.stringify(values[2].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyActivityModifierDefinition.json', JSON.stringify(values[3].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyCollectibleDefinition.json', JSON.stringify(values[4].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyPresentationNodeDefinition.json', JSON.stringify(values[5].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyRecordDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyInventoryItemDefinition.json', JSON.stringify(values[7].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyInventoryBucketDefinition.json', JSON.stringify(values[8].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyObjectiveDefinition.json', JSON.stringify(values[9].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyProgressionDefinition.json', JSON.stringify(values[10].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyTalentGridDefinition.json', JSON.stringify(values[11].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
-        fs.writeFile('../Shared/manifest/DestinyVendorDefinition.json', JSON.stringify(values[12].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+
+        //Validate the values
+        values.map((e, index) => {
+          if(Object.keys(e.Data).length > 0) {}
+          else { didValidateError = true }
+        });
+
+        //If no validation errors then write the files
+        if(!didValidateError) {
+          fs.writeFile('../Shared/manifest/DestinyActivityDefinition.json', JSON.stringify(values[0].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyActivityTypeDefinition.json', JSON.stringify(values[1].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyActivityModeDefinition.json', JSON.stringify(values[2].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyActivityModifierDefinition.json', JSON.stringify(values[3].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyCollectibleDefinition.json', JSON.stringify(values[4].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyPresentationNodeDefinition.json', JSON.stringify(values[5].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyRecordDefinition.json', JSON.stringify(values[6].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyInventoryItemDefinition.json', JSON.stringify(values[7].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyInventoryBucketDefinition.json', JSON.stringify(values[8].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyObjectiveDefinition.json', JSON.stringify(values[9].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyProgressionDefinition.json', JSON.stringify(values[10].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyTalentGridDefinition.json', JSON.stringify(values[11].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+          fs.writeFile('../Shared/manifest/DestinyVendorDefinition.json', JSON.stringify(values[12].Data), function (err) { if (err) { ErrorHandler("High", err); didError = true; } });
+        }
+        else { ErrorHandler("High", "Failed to update Manifest, Validation Error"); }
 
         //Update version in database
-        if(!didError) {
-          Database.updateManifestVersion("Version", { name: "Version", version: manifestVersion }, 
-          function UpdateManifestVersion(isError, severity, data) {
-            if(isError) { ErrorHandler(severity, data); }
-            else {
-              //Set manifest
-              storeManifest();
-            }
-          });
+        if(!didError && !didValidateError) {
+          //Check if isLocal before updating records.
+          if(!Config.isLocal) {
+            Database.updateManifestVersion("Version", { name: "Version", version: manifestVersion }, 
+            function UpdateManifestVersion(isError, severity, data) {
+              if(isError) { ErrorHandler(severity, data); }
+              else { storeManifest(); }
+            });
+          }
+          else { storeManifest(); }
+        }
+        else {
+          ErrorHandler("High", `Failed to update Manifest - Validation: ${ didValidateError ? 'failed' : 'passed' }, WriteError: ${ didError ? 'failed' : 'passed' } - ${ retried ? 'Not Retrying' : 'Retrying' }`);
+          if(!retried) { updateManifest(true); }
         }
       }).catch((error) => { ErrorHandler("High", error); });
     }
@@ -148,9 +165,20 @@ updateManifest = async function UpdateManifest() {
   });
 }
 
+verifyManifest = (callback) => {
+  let validation = Object.keys(Manifest).map(e => {
+    if(Manifest[e]) {
+      if(Object.keys(Manifest[e]).length > 0) { return { component: e, passed: true } }
+      else { return { component: e, passed: false } }
+    }
+    else { return { component: e, passed: false } }
+  });
+  callback(validation);
+}
+
 checkManifestUpdate();
 
 module.exports = {
   getManifest, getManifestVersion, getManifestItemByName, getManifestItemByHash, getManifestItemByCollectibleHash,
-  getManifestTitleByName, checkManifestMounted, checkManifestUpdate, updateManifest
+  getManifestTitleByName, checkManifestMounted, checkManifestUpdate, updateManifest, verifyManifest
 }
