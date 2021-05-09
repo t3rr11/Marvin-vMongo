@@ -59,7 +59,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
           });
           break;
         }
-        case message.author.id === "194972321168097280" && command === "verify manifest": { VerifyManifest(prefix, message, false); break; }
+        case (message.author.id === "194972321168097280" || message.author.id === "289210933501493258") && command === "verify manifest": { VerifyManifest(prefix, message, false); break; }
 
         //Help
         case command.startsWith("help"): { GetHelp(prefix, message, command); break; }
