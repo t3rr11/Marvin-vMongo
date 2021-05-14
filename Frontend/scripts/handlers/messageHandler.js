@@ -108,7 +108,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command === "playing": case command === "activity": case command === "clan activity": { ClanActivity(prefix, message, command, guild); break; }
 
         //Vendors
-        case command.startsWith("gunsmith"): { GunsmithMods(guild, message); break; }
+        case command.startsWith("gunsmith"): { DailyMods(guild, message); break; }
+        case command.startsWith("ada"): case command.startsWith("ada-1"): case command.startsWith("ada1"): { DailyMods(guild, message); break; }
 
         //Rankings
         case command.startsWith("clan wars"): { message.channel.send(`The command is used without a space: \`${ prefix }Clanwars\`. It's for stability issues sorry.`); break; }
@@ -565,15 +566,16 @@ async function ItemInfo(prefix, message, command) {
     msg.edit(errorEmbed);
   }
 }
-async function GunsmithMods(guild, message) {
+async function DailyMods(guild, message) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Vendor - Gunsmith Mods").setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Vendor - Daily Mods").setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
 
-  function GetGunsmithMods() {
+  function GetDailyMods() {
     function FormatText(string) {
       let name = string;
       if(string.split(" ").length > 3) {
-        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
+        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + 
+        string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
       }
       return name;
     }
@@ -582,13 +584,13 @@ async function GunsmithMods(guild, message) {
       if(string.split(" ").length > 3) { height = 130; }
       return height;
     }
-    Database.getGunsmithMods(async function(isError, isFound, data) {    
+    Database.getDailyMods(async function(isError, isFound, data) {    
       if(!isError && isFound) {
         //Canvasing the mod images
         const canvas = Canvas.createCanvas(500, 210);
         const ctx = canvas.getContext('2d');
     
-        const background = await Canvas.loadImage(`./images/banshee-44.png`);
+        const background = await Canvas.loadImage(`./images/ada-1.png`);
         const mod1Image = await Canvas.loadImage(`https://bungie.net${ data.mods[0].icon }`);
         const mod2Image = await Canvas.loadImage(`https://bungie.net${ data.mods[1].icon }`);
     
@@ -599,7 +601,7 @@ async function GunsmithMods(guild, message) {
 
         //Add Text Backgrounds
         ctx.beginPath();
-        ctx.globalAlpha = 0.1;
+        ctx.globalAlpha = 0.2;
         ctx.rect((canvas.width / 2) - 25, 25, (canvas.width / 2) + 10, 74);
         ctx.fill(0,0,0);
         ctx.globalAlpha = 0.2;
@@ -630,7 +632,7 @@ async function GunsmithMods(guild, message) {
     });
   }
 
-  GetGunsmithMods();
+  GetDailyMods();
 }
 async function LostSectors(message, type) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();

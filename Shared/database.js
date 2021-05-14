@@ -24,7 +24,7 @@ const HourlyFrontendStatusLog = require('./models/hourlyFrontendStatus_model');
 const BackendStatusLog = require('./models/backendStatus_model');
 const HourlyBackendStatusLog = require('./models/hourlyBackendStatus_model');
 const ScanTimeLog = require('./models/log_time_model');
-const GunsmithMods = require('./models/gunsmithMods_model');
+const DailyMods = require('./models/dailyMods_model');
 const Cookies = require('./models/log_cookies_model');
 const Auth = require('./models/auth_model');
 
@@ -237,8 +237,8 @@ const addTimeLog = async (logData, callback) => {
 const addCookieLog = async (logData) => {
   if(!Config.isLocal) { await new Cookies(logData).save((err, doc) => { }); }
 }
-const addGunsmithMods = async (data, callback) => {
-  await new GunsmithMods(data).save((err, doc) => {
+const addDailyMods = async (data, callback) => {
+  await new DailyMods(data).save((err, doc) => {
     if(err) { callback(true, "High", err) }
     else { callback(false); }
   });
@@ -822,9 +822,9 @@ const getLastCookieLog = async (callback) => {
     }
   });
 }
-const getGunsmithMods = async (callback) => {
+const getDailyMods = async (callback) => {
   //Callback fields { isError, isFound, data }
-  await GunsmithMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
+  await DailyMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array) { callback(false, true, array); }
@@ -1084,12 +1084,12 @@ module.exports = {
   checkSSHConnection, checkDBConnection,
   FrontendConnect, BackendConnect, ExpressConnect, GlobalsConnect,
   addGuild, addClan, addGlobalItem, addBannedUser, addAwaitingBroadcast, addBroadcast, addRegisteredUser, addManifest, addLog, addBackendStatusLog, addFrontendStatusLog,
-  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addTimeLog, addCookieLog, addGunsmithMods, addAuth, 
+  addHourlyFrontendStatusLog, addHourlyBackendStatusLog, addTimeLog, addCookieLog, addDailyMods, addAuth, 
   findUserByID, findGuildByID, findClanByID, findBroadcast, findRegisteredUserByID, 
   getAllGuilds, getClanGuilds, getAllClans, getAllUsers, getAllRegisteredUsers, getGlobalItems, getAllGlobalItems, getAllTrackedUsers,
   getTrackedGuilds, getTrackedClanGuilds, getTrackedClans, getUsersByClanIDArrayList, getGuildsByGuildIDArrayList, getClansFromGuildID, getUsersFromGuildID, getUserItems, getUserTitles, getUserBroadcasts, getAllBannedUsers, 
   getAwaitingBroadcasts, getManifestVersion, getGuildPlayers, getGuildTitles, getGuildItems, getGuildBroadcasts, getGuildItemBroadcasts, getClanUsers,
-  getBackendLogs, getFrontendLogs, getDiscordUserLogs, getDiscordGuildLogs, getUserDetails, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getGunsmithMods, getGuildDashboard,
+  getBackendLogs, getFrontendLogs, getDiscordUserLogs, getDiscordGuildLogs, getUserDetails, getBroadcastLogs, getBroadcasts, getLogs, getAPIStatus, getDailyMods, getGuildDashboard,
   getWeeklyFrontendLogs, getWeeklyBackendLogs, getScanTimeLogs, getAggregateWeeklyFrontendLogs,
   removeBannedUser, removeAwaitingBroadcast, removeAllAwaitingBroadcasts, removeClanFromPlayer,
   updateUserByID, updateBannerUserByID, updatePrivacyByID, updateClanByID, updateManifestVersion, updateGuildByID,

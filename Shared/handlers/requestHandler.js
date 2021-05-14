@@ -80,7 +80,7 @@ const GetGlobalHighestPowerMinusArtifactLeaderboard = async (callback) => { cons
 const GetGlobalDawning2020Leaderboard = async (callback) => { const { isError, Data } = await NormalReq(`http://${ expressHost }:3000/GetGlobalDawning2020Leaderboard`); callback(isError, Data); }
 const GetMembershipsById = async (membershipId, callback) => { const { isError, Data } = await BungieReq(`/Platform/User/GetMembershipsById/${membershipId}/1/`); callback(isError, Data); }
 const SearchDestinyPlayer = async (username, callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/SearchDestinyPlayer/-1/${username}/`); callback(isError, Data); }
-const GetGunsmithMods = async (callback) => { const { isError, Data } = await NormalReq(`https://b.vlsp.network/vendor/?hash=672118013`); callback(isError, Data); }
+const GetDailyMods = async (callback) => { const { isError, Data } = await NormalReq(`https://b.vlsp.network/vendor/?hash=350061650`); callback(isError, Data); }
 const GetCookies = async (callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/3/Profile/4611686018484014881/?components=202`); callback(isError, Data); }
 
 module.exports = {
@@ -89,5 +89,5 @@ module.exports = {
   GetGlobalTimePlayedLeaderboard, GetGlobalSeasonRankLeaderboard, GetGlobalTriumphScoreLeaderboard, GetGlobalValorLeaderboard, GetGlobalInfamyLeaderboard, GetGlobalLeviLeaderboard,
   GetGlobalEoWLeaderboard, GetGlobalSoSLeaderboard, GetGlobalLeviPrestigeLeaderboard, GetGlobalEoWPrestigeLeaderboard, GetGlobalSoSPrestigeLeaderboard,
   GetGlobalLastWishLeaderboard, GetGlobalScourgeLeaderboard, GetGlobalSorrowsLeaderboard, GetGlobalGardenLeaderboard, GetGlobalDSCLeaderboard, GetGlobalTotalRaidsLeaderboard, GetGlobalHighestPowerLeaderboard,
-  GetGlobalHighestPowerMinusArtifactLeaderboard, GetGlobalDawning2020Leaderboard, GetGunsmithMods, GetCookies
+  GetGlobalHighestPowerMinusArtifactLeaderboard, GetGlobalDawning2020Leaderboard, GetDailyMods, GetCookies
 }

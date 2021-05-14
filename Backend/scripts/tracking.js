@@ -287,14 +287,14 @@ async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData
     if(oldPlayerData.User.challenges) {
       var characterIds = playerData.profile.data.characterIds;
       let challenges = {
-        s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete }
+        //s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete }
       }
       let triumphs = {
         //cabal: { hash: 1607758397, old: oldPlayerData.User.triumphs.cabals, new: playerData.characterRecords.data[characterIds[0]].records[1607758397].objectives[1].complete }
       }
     
       //Check for triumph completion
-      if(!challenges.s13.old && challenges.s13.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season); } }
+      //if(!challenges.s13.old && challenges.s13.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season); } }
       
       if(clan.clanID === 2603670) {
         //if(!triumphs.cabals.old && triumphs.cabals.new) { for(let i in guilds) { BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], triumphs.cabals.hash, oldPlayerData, season); } }
@@ -571,13 +571,14 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var season11Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["1627914615"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["4021269753"].level; season11Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season12Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["477676543"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2304468497"].level; season12Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season13Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["4030656982"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2068785426"].level; season13Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
+  var season14Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2726092061"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["3977762715"].level; season14Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
   var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
   var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
   var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["1113384427"].intervalObjectives[2].progress; } catch (err) { }
 
   return {
-    "seasonRank": season13Rank,
+    "seasonRank": season14Rank,
     "xp": { "dailyXP": dailyXP, "weeklyXP": weeklyXP, "overallXP": overallXP },
     "powerBonus": powerBonus,
   }

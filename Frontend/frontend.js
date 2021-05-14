@@ -59,21 +59,18 @@ async function init() {
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
-  //Starting Season 14 gunsmith mods will be removed/moved. This is to avoid checking for them come the new season.
-  if(new Date() < new Date("2021-05-10T17:00:00Z")) {
-    //Get next reset and set timer to update gunsmith mods, this function is also used for other daily broadcasts.
-    Database.getGunsmithMods((isError, isFound, data) => {
-      if(!isError && isFound) {
-        ResetTime = data.nextRefreshDate;
-        let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
-        let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
-        setTimeout(() => {
-          //Update the mod slots to stop this check.
-          updateGunsmithMods();
-        }, millisUntil + resetOffset);
-      }
-    });
-  }
+  //Get next reset and set timer to update daily mods, this function is also used for other daily broadcasts.
+  Database.getDailyMods((isError, isFound, data) => {
+    if(!isError && isFound) {
+      ResetTime = data.nextRefreshDate;
+      let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
+      let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
+      setTimeout(() => {
+        //Update the mod slots to stop this check.
+        updateDailyMods();
+      }, millisUntil + resetOffset);
+    }
+  });
 
   //Start Logger
   //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
@@ -170,14 +167,15 @@ async function setupInteractions() {
   const request = await fetch(url, { headers: { "Authorization": `Bot ${ DiscordConfig.token }`, 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify(Interactions) }).then(async (req) => { console.log(req); return true; }).catch((err) => { return false; });
   console.log(request);
 }
-async function updateGunsmithMods() {
-  RequestHandler.GetGunsmithMods(async function(isError, Gunsmith) {    
-    if(!isError && Gunsmith?.Response?.sales?.data) {
-      const gunsmithSales = Gunsmith.Response.sales.data;
-      const refreshDate = Gunsmith.Response.vendor.data.nextRefreshDate;
-      const modsRaw = Object.values(gunsmithSales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
+async function updateDailyMods() {
+  RequestHandler.GetDailyMods(async function(isError, DailyMods) {    
+    if(!isError && DailyMods?.Response?.sales?.data) {
+      const dailySales = DailyMods.Response.sales.data;
+      const refreshDate = DailyMods.Response.vendor.data.nextRefreshDate;
+      const modsRaw = Object.values(dailySales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
       const mods = Object.values(modsRaw).map(e => {
         let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
+        if(mod.overrideNextRefreshDate) { nextRefreshDate = mod.overrideNextRefreshDate; }
         return {
           name: mod.displayProperties.name,
           icon: mod.displayProperties.icon,
@@ -188,26 +186,26 @@ async function updateGunsmithMods() {
       });
 
       //Add new database entry.
-      Database.addGunsmithMods({ mods: mods, nextRefreshDate: refreshDate }, function addGunsmithMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+      Database.addDailyMods({ mods: mods, nextRefreshDate: nextRefreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
       //Finally send the announcement out to all discords that have them enabled.
-      AnnouncementsHandler.sendGunsmithBroadcasts(client, Guilds, mods);
+      //AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods);
 
       //Send other daily announcements
-      try {
-        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      }
-      catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
+      // try {
+      //   AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      // }
+      // catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
 
       //Reset the announcement to broadcast again the next day
       let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
       let resetOffset = 1000 * 60 * 15;
-      setTimeout(() => updateGunsmithMods(), millisUntil + resetOffset);
+      setTimeout(() => updateDailyMods(), millisUntil + resetOffset);
     }
     else {
       //If failed for some reason, set a timeout to retry and log error.
-      ErrorHandler("Med", `Failed to update Gunsmith mods, retrying in 60 seconds.`);
-      setTimeout(() => { updateGunsmithMods(); }, 60000);
+      ErrorHandler("Med", `Failed to update Daily mods, retrying in 60 seconds.`);
+      setTimeout(() => { updateDailyMods(); }, 60000);
     }
   });
 }
