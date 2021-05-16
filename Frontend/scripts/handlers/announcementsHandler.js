@@ -56,7 +56,7 @@ async function sendModsBroadcasts(client, guilds, mods) {
 
   for(let i in guilds) {
     let guild = guilds[i];
-    if(guild.announcements.gunsmiths && guild.announcements.channel !== "0") {
+    if(guild.announcements.dailyMods && guild.announcements.channel !== "0") {
       embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
       try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
       catch(err) { console.log(`Failed to send daily mods broadcast to ${ guild.guildID } because of ${ err }`); }
