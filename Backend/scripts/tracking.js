@@ -420,7 +420,7 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
   var valor = 0; try { valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress; } catch (err) { }
-  var glory = 0; try { glory = playerData.characterProgressions.data[characterIds[0]].progressions["2679551909"].currentProgress; } catch (err) { }
+  var glory = 0; try { glory = playerData.characterProgressions.data[characterIds[0]].progressions["1647151960"].currentProgress; } catch (err) { }
   var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["999240767"].intervalObjectives[2].progress; } catch (err) { }
   var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["2096302465"].intervalObjectives[2].progress; } catch (err) { }
 

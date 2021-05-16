@@ -51,7 +51,7 @@ app.get("/GetFrontendStartup", async function(req, res) { await DatabaseFunction
 app.get("/GetBackendStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Backend", type: "Startup" }); });
 app.get("/GetGlobalsStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Globals", type: "Startup" }); });
 app.get("/GetExpressStartup", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 1 }, { location: "Express", type: "Startup" }); });
-app.get("/GetFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Frontend", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
+app.get("/GetFrontendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 600 }, { location: "Frontend", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetBackendLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Backend", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetExpressLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Express", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
 app.get("/GetDatabaseLogs", async function(req, res) { await DatabaseFunction(req, res, { func: "getLogs", amount: 300 }, { location: "Database", date: { $gte: req.query.date ? new Date(req.query.date.toString()) : new Date() } }); });
@@ -103,16 +103,16 @@ async function DatabaseFunction(req, res, options, data) {
     Database[options.func](options, data, (isError, isFound, response) => {
       if(!isError) {
         if(isFound) { res.status(200).send({ "isError": false, "message": "Success", "code": 200, data: response }); }
-        else { res.status(200).send({ "isError": false, "message": "Not Found", "code": 404, data: [] }); }
+        else { res.status(404).send({ "isError": false, "message": "Not Found", "code": 404, data: [] }); }
       }
       else {
-        res.status(200).send({ "isError": true, "message": data, "code": 500 });
+        res.status(400).send({ "isError": true, "message": data, "code": 500 });
         ErrorHandler("Med", data);
       }
     });
   }
   catch (err) {
-    res.status(200).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
+    res.status(500).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
     ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`);
   }
 }

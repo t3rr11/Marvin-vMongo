@@ -574,8 +574,7 @@ async function DailyMods(guild, message) {
     function FormatText(string) {
       let name = string;
       if(string.split(" ").length > 3) {
-        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + 
-        string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
+        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
       }
       return name;
     }

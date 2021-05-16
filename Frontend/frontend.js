@@ -170,12 +170,12 @@ async function setupInteractions() {
 async function updateDailyMods() {
   RequestHandler.GetDailyMods(async function(isError, DailyMods) {    
     if(!isError && DailyMods?.Response?.sales?.data) {
+      let refreshDate = DailyMods.Response.vendor.data.nextRefreshDate;
       const dailySales = DailyMods.Response.sales.data;
-      const refreshDate = DailyMods.Response.vendor.data.nextRefreshDate;
       const modsRaw = Object.values(dailySales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
       const mods = Object.values(modsRaw).map(e => {
         let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
-        if(mod.overrideNextRefreshDate) { nextRefreshDate = mod.overrideNextRefreshDate; }
+        if(e.overrideNextRefreshDate) { refreshDate = e.overrideNextRefreshDate; }
         return {
           name: mod.displayProperties.name,
           icon: mod.displayProperties.icon,
@@ -186,7 +186,7 @@ async function updateDailyMods() {
       });
 
       //Add new database entry.
-      Database.addDailyMods({ mods: mods, nextRefreshDate: nextRefreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+      Database.addDailyMods({ mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
       //Finally send the announcement out to all discords that have them enabled.
       //AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods);
