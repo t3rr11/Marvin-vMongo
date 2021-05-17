@@ -189,7 +189,7 @@ async function updateDailyMods() {
       Database.addDailyMods({ mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
 
       //Finally send the announcement out to all discords that have them enabled.
-      //AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods);
+      AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods);
 
       //Send other daily announcements
       // try {

@@ -46,8 +46,8 @@ async function sendModsBroadcasts(client, guilds, mods) {
   ctx.globalAlpha = 1;
   ctx.font = '16px sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(FormatText(mods[0].name), (canvas.width / 2) + 54, FormatHeight(mods[0].name, 66));
-  ctx.fillText(FormatText(mods[1].name), (canvas.width / 2) + 54, FormatHeight(mods[1].name, 150));
+  ctx.fillText(FormatText(mods[0].name), (canvas.width / 2) + 54, 60);
+  ctx.fillText(FormatText(mods[1].name), (canvas.width / 2) + 54, 150);
 
   //Add Image to Embed
   const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
