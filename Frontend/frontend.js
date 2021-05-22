@@ -71,8 +71,7 @@ async function init() {
     let resetOffset = 1000 * 60 * 15; //15 minute offset after reset.
   
     //Define daily reset functions
-    setTimeout(() => { updateDailyMods(DailyResetTime); }, millisUntilDailyReset + resetOffset);
-    setTimeout(() => { AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds); }, millisUntilDailyReset + resetOffset);
+    setTimeout(() => { updateDailyAnnouncements(DailyResetTime); }, millisUntilDailyReset + resetOffset);
   
     //Define weekly reset functions - Currently there are no weekly reset functions
     //setTimeout(() => { //They go here }, millisUntil + resetOffset);
@@ -173,7 +172,7 @@ async function setupInteractions() {
   const request = await fetch(url, { headers: { "Authorization": `Bot ${ DiscordConfig.token }`, 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify(Interactions) }).then(async (req) => { console.log(req); return true; }).catch((err) => { return false; });
   console.log(request);
 }
-async function updateDailyMods(ResetTime) {
+async function updateDailyAnnouncements(ResetTime) {
   //Loop through vendors
   const vendors = [{ name: "Gunsmith", hash: "672118013" }, { name: "Ada-1", hash: "350061650" }];
   for(let vendor of vendors) {
@@ -202,6 +201,14 @@ async function updateDailyMods(ResetTime) {
         
           //Send mod broadcasts.
           AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
+
+          //Send other daily broadcasts
+          AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+
+          //Reset the announcement to broadcast again the next day
+          let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
+          let resetOffset = 1000 * 60 * 15;
+          setTimeout(() => updateDailyAnnouncements(), millisUntil + resetOffset);
         }
         else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.name }. Ignored.`); }
       }
