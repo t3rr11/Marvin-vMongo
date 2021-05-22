@@ -640,7 +640,13 @@ async function DailyMods(guild, message, vendor) {
 async function LostSectors(message, type) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   const lostSector = dailyCycleInfo(type);
-  const sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
+  let sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
+  if(type === "masterLostSector") { sector.displayProperties.name = sector.displayProperties.name.replace("Legend", "Master") }
+  
+  //process description from lost sector
+  let description = sector.displayProperties.description.match(/[^\r\n]+/g);
+  let formattedDesc = description.map(e => { let arr = e.split(": "); return { key: arr[0], value: arr[1] } });
+  let filteredDesc = formattedDesc.splice(1, formattedDesc.length-1);
 
   //Canvasing the mod images
   const canvas = Canvas.createCanvas(640, 360);
@@ -655,7 +661,7 @@ async function LostSectors(message, type) {
   embed.setImage('attachment://lostSector.png');
 
   embed.setAuthor(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
-  embed.setDescription(sector.displayProperties.description);
+  embed.setDescription(`${ formattedDesc[0].value }\n ${ filteredDesc.map(e => `**${ e.key }**: ${ e.value }\n`).join('') }`);
 
   message.channel.send(embed);
 }
