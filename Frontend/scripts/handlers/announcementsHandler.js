@@ -5,8 +5,8 @@ const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'loca
 const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 
-async function sendModsBroadcasts(client, guilds, mods) {
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - Daily Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+async function sendModsBroadcasts(client, guilds, mods, vendor) {
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
   function FormatText(string) {
     let name = string;
     if(string.split(" ").length > 3) {
@@ -23,7 +23,7 @@ async function sendModsBroadcasts(client, guilds, mods) {
   const canvas = Canvas.createCanvas(500, 210);
   const ctx = canvas.getContext('2d');
 
-  const background = await Canvas.loadImage(`./images/ada-1.png`);
+  const background = await Canvas.loadImage(`./images/${ vendor.name }.png`);
   const mod1Image = await Canvas.loadImage(`https://bungie.net${ mods[0].icon }`);
   const mod2Image = await Canvas.loadImage(`https://bungie.net${ mods[1].icon }`);
 
@@ -56,10 +56,19 @@ async function sendModsBroadcasts(client, guilds, mods) {
 
   for(let i in guilds) {
     let guild = guilds[i];
-    if(guild.announcements.dailyMods && guild.announcements.channel !== "0") {
-      embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
-      try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
-      catch(err) { console.log(`Failed to send daily mods broadcast to ${ guild.guildID } because of ${ err }`); }
+    if(vendor === "Ada-1") {
+      if(guild.announcements.adas && guild.announcements.channel !== "0") {
+        embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
+        catch(err) { console.log(`Failed to send ada-1 mods broadcast to ${ guild.guildID } because of ${ err }`); }
+      }
+    }
+    if(vendor === "Gunsmith") {
+      if(guild.announcements.gunsmiths && guild.announcements.channel !== "0") {
+        embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
+        catch(err) { console.log(`Failed to send gunsmith mods broadcast to ${ guild.guildID } because of ${ err }`); }
+      }
     }
   }
 }

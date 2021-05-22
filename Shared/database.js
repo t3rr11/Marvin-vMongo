@@ -822,9 +822,9 @@ const getLastCookieLog = async (callback) => {
     }
   });
 }
-const getDailyMods = async (callback) => {
+const getDailyMods = async (vendor, callback) => {
   //Callback fields { isError, isFound, data }
-  await DailyMods.findOne({}, {}, { sort: { _id: -1 } }, function (err, array) {
+  await DailyMods.findOne({ vendor }, {}, { sort: { _id: -1 } }, function (err, array) {
     if(err) { callback(true, false, err); }
     else {
       if(array) { callback(false, true, array); }

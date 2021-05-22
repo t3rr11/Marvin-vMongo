@@ -60,14 +60,14 @@ async function init() {
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
   //Get next reset and set timer to update daily mods, this function is also used for other daily broadcasts.
-  Database.getDailyMods((isError, isFound, data) => {
+  Database.getDailyMods("Ada-1", (isError, isFound, data) => {
     if(!isError && isFound) {
       ResetTime = data.nextRefreshDate;
       let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
       let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
       setTimeout(() => {
         //Update the mod slots to stop this check.
-        updateDailyMods();
+        updateDailyMods(ResetTime);
       }, millisUntil + resetOffset);
     }
   });
@@ -167,47 +167,47 @@ async function setupInteractions() {
   const request = await fetch(url, { headers: { "Authorization": `Bot ${ DiscordConfig.token }`, 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify(Interactions) }).then(async (req) => { console.log(req); return true; }).catch((err) => { return false; });
   console.log(request);
 }
-async function updateDailyMods() {
-  RequestHandler.GetDailyMods(async function(isError, DailyMods) {    
-    if(!isError && DailyMods?.Response?.sales?.data) {
-      let refreshDate = DailyMods.Response.vendor.data.nextRefreshDate;
-      const dailySales = DailyMods.Response.sales.data;
-      const modsRaw = Object.values(dailySales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
-      const mods = Object.values(modsRaw).map(e => {
-        let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
-        if(e.overrideNextRefreshDate) { refreshDate = e.overrideNextRefreshDate; }
-        return {
-          name: mod.displayProperties.name,
-          icon: mod.displayProperties.icon,
-          description: mod.displayProperties.description,
-          hash: mod.hash,
-          collectibleHash: mod.collectibleHash
+async function updateDailyMods(ResetTime) {
+  //Loop through vendors
+  const vendors = [{ name: "Gunsmith", hash: "672118013" }, { name: "Ada-1", hash: "350061650" }];
+  for(let vendor of vendors) {
+    const getVendor = (vendor) => RequestHandler.GetVendor(vendor.hash, async function(isError, ModData) {
+      if(!isError && ModData?.Response?.sales?.data) {
+        //Get mods and new refresh date.
+        let refreshDate = ModData.Response.vendor.data.nextRefreshDate;
+        const dailySales = ModData.Response.sales.data;
+        const modsRaw = Object.values(dailySales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
+        const mods = Object.values(modsRaw).map(e => {
+          let mod = ManifestHandler.getManifestItemByHash(e.itemHash);
+          if(e.overrideNextRefreshDate) { refreshDate = e.overrideNextRefreshDate; }
+          return {
+            name: mod.displayProperties.name,
+            icon: mod.displayProperties.icon,
+            description: mod.displayProperties.description,
+            hash: mod.hash,
+            collectibleHash: mod.collectibleHash
+          }
+        });
+
+        //Only proceed if the reset times are different otherwise you're re-entering the duplicte data
+        if(ResetTime !== refreshDate) {
+          //Add new database entry.
+          Database.addDailyMods({ vendor: vendor.name, mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+        
+          //Send mod broadcasts.
+          AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
         }
-      });
+        else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.name }. Ignored.`); }
+      }
+      else {
+        //If failed for some reason, set a timeout to retry and log error.
+        ErrorHandler("Med", `Failed to update mods for ${ vendor.name }, retrying in 60 seconds.`);
+        setTimeout(() => { getVendor(vendor); }, 60000);
+      }
+    });
 
-      //Add new database entry.
-      Database.addDailyMods({ mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
-
-      //Finally send the announcement out to all discords that have them enabled.
-      AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods);
-
-      //Send other daily announcements
-      // try {
-      //   AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      // }
-      // catch(err) { ErrorHandler("High", `Failed to run other daily announcements.`); }
-
-      //Reset the announcement to broadcast again the next day
-      let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
-      let resetOffset = 1000 * 60 * 15;
-      setTimeout(() => updateDailyMods(), millisUntil + resetOffset);
-    }
-    else {
-      //If failed for some reason, set a timeout to retry and log error.
-      ErrorHandler("Med", `Failed to update Daily mods, retrying in 60 seconds.`);
-      setTimeout(() => { updateDailyMods(); }, 60000);
-    }
-  });
+    getVendor(vendor);
+  }
 }
 
 //Joined a server

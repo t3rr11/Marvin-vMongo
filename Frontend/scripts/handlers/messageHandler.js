@@ -97,7 +97,9 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("remove announcements"): { ManageAnnouncements(prefix, message, "remove", command, guild); break; }
         case command.startsWith("manage announcements"): { ManageAnnouncements(prefix, message, "manage", command, guild); break; }
         case command.startsWith("toggle update announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
-        case command.startsWith("toggle mods announcements"): case command.startsWith("toggle daily mods announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle gunsmith announcements"): case command.startsWith("toggle gunsmiths announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle ada announcements"): case command.startsWith("toggle adas announcements"):
+        case command.startsWith("toggle ada1 announcements"): case command.startsWith("toggle ada-1 announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle lost sector announcements"): case command.startsWith("toggle lostsector announcements"): 
         case command.startsWith("toggle lost sectors announcements"): case command.startsWith("toggle lostsectors announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
@@ -108,8 +110,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command === "playing": case command === "activity": case command === "clan activity": { ClanActivity(prefix, message, command, guild); break; }
 
         //Vendors
-        case command.startsWith("gunsmith"): { DailyMods(guild, message); break; }
-        case command.startsWith("ada"): case command.startsWith("ada-1"): case command.startsWith("ada1"): { DailyMods(guild, message); break; }
+        case command.startsWith("gunsmith"): { DailyMods(guild, message, "Gunsmith"); break; }
+        case command.startsWith("ada"): case command.startsWith("ada-1"): case command.startsWith("ada1"): { DailyMods(guild, message, "Ada-1"); break; }
 
         //Rankings
         case command.startsWith("clan wars"): { message.channel.send(`The command is used without a space: \`${ prefix }Clanwars\`. It's for stability issues sorry.`); break; }
@@ -472,7 +474,8 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
         if(guild) {
           let toggle = command.split('toggle ').pop().split(' announcements')[0];
           if(toggle === "lost sectors" || toggle === "lostsectors" || toggle === "lost sector" || toggle === "lostsector") { toggle = "lostSector" }
-          else if(toggle === "daily mods" || toggle === "mods") { toggle = "dailyMods" }
+          else if(toggle === "ada" || toggle === "adas" || toggle === "ada1" || toggle === "ada-1") { toggle = "ada" }
+          else if(toggle === "gunsmiths" || toggle === "gunsmith") { toggle = "gunsmith" }
           guild.announcements[`${ toggle }s`] = !guild.announcements[`${ toggle }s`];
           Database.updateGuildByID(message.guild.id, { announcements: guild.announcements }, function updateGuildByID(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle announcements. Please try again.`); }
@@ -494,7 +497,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
       }
       case "manage": {
         if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
-        else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nDaily Mod Announcements: **${ guild.announcements.dailyMods ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
+        else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
         message.channel.send({embed});
         break;
       }
@@ -567,9 +570,9 @@ async function ItemInfo(prefix, message, command) {
     msg.edit(errorEmbed);
   }
 }
-async function DailyMods(guild, message) {
+async function DailyMods(guild, message, vendor) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Vendor - Daily Mods").setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
 
   function GetDailyMods() {
     function FormatText(string) {
@@ -584,13 +587,13 @@ async function DailyMods(guild, message) {
       if(string.split(" ").length > 3) { height = 130; }
       return height;
     }
-    Database.getDailyMods(async function(isError, isFound, data) {    
+    Database.getDailyMods(vendor, async function(isError, isFound, data) {    
       if(!isError && isFound) {
         //Canvasing the mod images
         const canvas = Canvas.createCanvas(500, 210);
         const ctx = canvas.getContext('2d');
     
-        const background = await Canvas.loadImage(`./images/ada-1.png`);
+        const background = await Canvas.loadImage(`./images/${ vendor }.png`);
         const mod1Image = await Canvas.loadImage(`https://bungie.net${ data.mods[0].icon }`);
         const mod2Image = await Canvas.loadImage(`https://bungie.net${ data.mods[1].icon }`);
     
