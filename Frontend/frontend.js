@@ -59,18 +59,24 @@ async function init() {
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
   setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
-  //Get next reset and set timer to update daily mods, this function is also used for other daily broadcasts.
-  Database.getDailyMods("Ada-1", (isError, isFound, data) => {
-    if(!isError && isFound) {
-      ResetTime = data.nextRefreshDate;
-      let millisUntil = (new Date(ResetTime).getTime() - new Date().getTime());
-      let resetOffset = 1000 * 60 * 15; //This is just to wait a few minutes after reset before grabbing data.
-      setTimeout(() => {
-        //Update the mod slots to stop this check.
-        updateDailyMods(ResetTime);
-      }, millisUntil + resetOffset);
-    }
-  });
+  //Handle reset functions
+  ResetHandler();
+
+  function ResetHandler() {
+    //Define Reset Time and Weekly Reset as today at 17:00 UTC and 17:00 UTC on Tuesday
+    let DailyResetTime = Misc.nextDayAndTime(new Date().getDay(), 17, 0);
+    let WeeklyResetTime = Misc.nextDayAndTime(2, 17, 0);
+    let millisUntilDailyReset = (new Date(DailyResetTime).getTime() - new Date().getTime());
+    let millisUntilWeeklyReset = (new Date(WeeklyResetTime).getTime() - new Date().getTime());
+    let resetOffset = 1000 * 60 * 15; //15 minute offset after reset.
+  
+    //Define daily reset functions
+    setTimeout(() => { updateDailyMods(DailyResetTime); }, millisUntilDailyReset + resetOffset);
+    setTimeout(() => { AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds); }, millisUntilDailyReset + resetOffset);
+  
+    //Define weekly reset functions - Currently there are no weekly reset functions
+    //setTimeout(() => { //They go here }, millisUntil + resetOffset);
+  }
 
   //Start Logger
   //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
