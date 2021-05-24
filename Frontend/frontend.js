@@ -71,10 +71,17 @@ async function init() {
     let resetOffset = 1000 * 60 * 15; //15 minute offset after reset.
   
     //Define daily reset functions
-    setTimeout(() => { updateDailyAnnouncements(DailyResetTime); }, millisUntilDailyReset + resetOffset);
-  
-    //Define weekly reset functions - Currently there are no weekly reset functions
-    //setTimeout(() => { //They go here }, millisUntil + resetOffset);
+    setTimeout(() => {
+      //Send daily broadcasts for the first time
+      AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      updateDailyAnnouncements(DailyResetTime); 
+
+      setInterval(() => {
+        //Send them daily from now on.
+        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+        updateDailyAnnouncements(DailyResetTime); 
+      }, 1000 * 60 * 60 * 24);
+    }, millisUntilDailyReset + resetOffset);
   }
 
   //Start Logger
@@ -201,14 +208,6 @@ async function updateDailyAnnouncements(ResetTime) {
         
           //Send mod broadcasts.
           AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
-
-          //Send other daily broadcasts
-          AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-
-          //Reset the announcement to broadcast again the next day
-          let millisUntil = (new Date(refreshDate).getTime() - new Date().getTime());
-          let resetOffset = 1000 * 60 * 15;
-          setTimeout(() => updateDailyAnnouncements(), millisUntil + resetOffset);
         }
         else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.name }. Ignored.`); }
       }
