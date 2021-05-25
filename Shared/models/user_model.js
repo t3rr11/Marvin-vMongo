@@ -37,7 +37,8 @@ var userSchema = new Schema({
     scourge: DefaultNumber,
     sorrows: DefaultNumber,
     garden: DefaultNumber,
-    dsc: DefaultNumber
+    dsc: DefaultNumber,
+    vog: DefaultNumber
   },
   totalRaids: DefaultNumber,
   empireHunts: {

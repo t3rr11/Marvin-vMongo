@@ -108,6 +108,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("nuke"): { message.channel.send("https://tenor.com/view/nuke-press-the-button-bomb-them-nuke-them-cat-gif-16361990"); break; }
         case command === "claninfo": { ClanInfo(prefix, message, command, guild); break; }
         case command === "playing": case command === "activity": case command === "clan activity": { ClanActivity(prefix, message, command, guild); break; }
+        case command === "tools": case command === "things": { Tools(client, message); break; }
 
         //Vendors
         case command.startsWith("gunsmith"): { DailyMods(guild, message, "Gunsmith"); break; }
@@ -131,6 +132,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("cos"): case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"):
         case command.startsWith("dsc"): case command.startsWith("deep stone crypt"):
         case command.startsWith("gos"): case command.startsWith("garden"): case command.startsWith("garden of salvation"):
+        case command.startsWith("vog"): case command.startsWith("vaultofglass"): case command.startsWith("vault of glass"):
         case command.startsWith("sr"): case command.startsWith("season rank"):
         case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"):
         case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
@@ -184,6 +186,20 @@ async function Donate(client, message) {
   embed.addField("Patreon <:patreon:779549421851377665>", "https://www.patreon.com/Terrii");
   embed.addField("Ko-fi <:kofi:779548939975131157>", "https://ko-fi.com/terrii_dev");
   embed.addField("Paypal <:paypal:779549835522080768>", "https://paypal.me/guardianstats");
+  message.channel.send(embed);
+}
+async function Tools(client, message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  embed.setThumbnail(DiscordConfig.defaultLogoURL);
+  embed.setAuthor("Want more? Here is a list of other cool things!");
+  embed.setDescription(`Go check out these other cool things and tools.`);
+  embed.addField("DIM", "https://destinyitemmanager.com");
+  embed.addField("Charlemagne", "https://warmind.io");
+  embed.addField("Braytech", "https://braytech.org");
+  embed.addField("Power Bars", "https://destiny-power-bars.corke.dev/");
+  embed.addField("Light.gg", "https://light.gg");
+  embed.addField("Reports", "https://raid.report\nhttps://trials.report\nhttps://crucible.report\nhttps://grandmaster.report\nhttps://dungeon.report");
+  embed.addField("Collection of other tools", "https://cosmodrome.page/");
   message.channel.send(embed);
 }
 async function Request(prefix, client, message, command) {
@@ -814,7 +830,7 @@ async function GetHelp(prefix, message, command) {
     case "help announcements": case "announcements": {
       embed.setAuthor("Globals Help Menu");
       embed.setDescription(`Here is a list of announcements commands! Example: \`${prefix}Set announcements #channel\``);
-      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle daily mods announcements\`\n\`${prefix}Toggle lost sector announcements\``); 
+      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\`\n\`${prefix}Toggle ada announcements\`\n\`${prefix}Toggle lost sector announcements\``); 
       break;
     }
     case "help globals": case "globals": {
@@ -843,13 +859,13 @@ async function GetHelp(prefix, message, command) {
     case "help others": case "others": {
       embed.setAuthor("Others Help Menu");
       embed.setDescription(`Here is a list of other commands! Example: \`${prefix}Donate\``);
-      embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Clan Activity\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Profile -grandmasters\`, \`${prefix}Profile -g\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\``);
+      embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Clan Activity\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Profile -grandmasters\`, \`${prefix}Profile -g\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\`\n\`${prefix}Things\`\n\`${prefix}Tools\``);
       break;
     }
-    case "help drystreaks": case "drystreaks": {
+    case "help drystreaks": case "help drystreak": case "drystreaks": {
       embed.setAuthor("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
-      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\``);
       break;
     }
     default: {
@@ -1211,6 +1227,8 @@ async function GetDrystreak(prefix, message, command) {
     case "TARRABAH": case "2329697053": { collectibleHash = 2329697053; isFound = true; break; }
     case "LUXURIOUS TOAST": case "1866399776": { collectibleHash = 1866399776; isFound = true; break; }
     case "EYES OF TOMORROW": case "753200559": { collectibleHash = 753200559; isFound = true; break; }
+    case "VEX MYTHOCLAST": case "2300465938": { collectibleHash = 2300465938; isFound = true; break; }
+    case "VEX MYTHOCAST": case "2300465938": { collectibleHash = 2300465938; isFound = true; break; }
     default: { break; }
   }
 
@@ -1257,6 +1275,7 @@ async function GetDrystreak(prefix, message, command) {
         else if(collectibleHash === 2329697053) { completions = user.raids.sorrows }
         else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
         else if(collectibleHash === 753200559) { completions = user.raids.dsc }
+        else if(collectibleHash === 2300465938) { completions = user.raids.vog }
         if(Misc.GetItemState(itemState).notAcquired) {
           drystreaks.push({
             "displayName": user.displayName,
@@ -1608,6 +1627,23 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/dsc/)`); }
       if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
       embed.setAuthor("Top 10 Deep Stone Crypt Completions");
+      embed.addField("Name", leaderboard.names, true);
+      embed.addField("Completions", leaderboard.first, true);
+      break;
+    }
+    case command.startsWith("vog"): case command.startsWith("vault of glass"): case command.startsWith("vaultofglass"): {
+      let top = players.sort((a, b) => { return b.raids.vog - a.raids.vog }).slice(0, 10);
+      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.raids.vog) }` });
+      if(registeredPlayer) {
+        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.vog) }`);
+        embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/vog/?hl=${ registeredPlayer.User.membershipID })`);
+      }
+      else { embed.setDescription(`[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/vog/)`); }
+      if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+      embed.setAuthor("Top 10 Vault of Glass Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
