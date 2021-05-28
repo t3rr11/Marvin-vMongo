@@ -74,13 +74,8 @@ async function init() {
     setTimeout(() => {
       //Send daily broadcasts for the first time
       AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      updateDailyAnnouncements(DailyResetTime); 
-
-      setInterval(() => {
-        //Send them daily from now on.
-        AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-        updateDailyAnnouncements(DailyResetTime); 
-      }, 1000 * 60 * 60 * 24);
+      updateDailyAnnouncements(DailyResetTime);
+      ResetHandler();
     }, millisUntilDailyReset + resetOffset);
   }
 
