@@ -64,17 +64,24 @@ async function init() {
 
   function ResetHandler() {
     //Define Reset Time and Weekly Reset as today at 17:00 UTC and 17:00 UTC on Tuesday
-    let DailyResetTime = Misc.nextDayAndTime(new Date().getDay(), 17, 0);
-    let WeeklyResetTime = Misc.nextDayAndTime(2, 17, 0);
-    let millisUntilDailyReset = (new Date(DailyResetTime).getTime() - new Date().getTime());
-    let millisUntilWeeklyReset = (new Date(WeeklyResetTime).getTime() - new Date().getTime());
+    //let DailyResetTime = () => Misc.nextDayAndTime(new Date().getDay(), 17, 0);
+    var d = new Date(); 
+    var tomorrow =  Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1, 17, 0, 0);
+    let millisUntilDailyReset = (new Date(tomorrow).getTime() - new Date().getTime());
     let resetOffset = 1000 * 60 * 15; //15 minute offset after reset.
+    Log.SaveLog("Frontend", "Info", `Next reset: ${ new Date(tomorrow).toUTCString() }`);
+    //let WeeklyResetTime = Misc.nextDayAndTime(2, 17, 0);
+    //let millisUntilWeeklyReset = (new Date(WeeklyResetTime).getTime() - new Date().getTime());
   
     //Define daily reset functions
     setTimeout(() => {
+      Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
+
       //Send daily broadcasts for the first time
       AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      updateDailyAnnouncements(DailyResetTime);
+      updateDailyAnnouncements(tomorrow);
+
+      //Reset the handler for tomorrow.
       ResetHandler();
     }, millisUntilDailyReset + resetOffset);
   }

@@ -28,7 +28,7 @@ var guildSchema = new Schema({
     updates: { type: Boolean, default: true },
     gunsmiths: { type: Boolean, default: true },
     adas: { type: Boolean, default: true },
-    lostSectors: { type: Boolean, default: false }
+    lostSectors: { type: Boolean, default: true }
   }
 });
 
