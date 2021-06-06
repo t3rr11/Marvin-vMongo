@@ -20,7 +20,7 @@ async function Register(prefix, message, command, users, registeredUser) {
           if(!isError) {
             if(data.Response) {
               if(data.Response.destinyMemberships.length === 0) {
-                message.channel.send(`Could not find a user with that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
+                message.channel.send(`Could not find a Destiny 2 account that matches that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
                 Log.SaveLog("Frontend", "Error", `Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
               }
               else {
@@ -32,11 +32,19 @@ async function Register(prefix, message, command, users, registeredUser) {
               }
             }
             else {
-              message.channel.send(`Could not find a user with that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
+              message.channel.send(`Could not find a Destiny 2 account that matches that ID, This has been logged, just check and make sure it starts with: 46116860\*\*\*\*\*\*\*`);
               Log.SaveLog("Frontend", "Error", `Could not find a user with the ID: ${ username }, Error: ${ JSON.stringify(data) }`);
             }
           }
-          else { ErrorHandler("Med", data); message.channel.send(`There was an issue getting data for the requested user. Please try again, if it persits please report with \`${prefix}request\``); }
+          else {
+            ErrorHandler("Med", data);
+            if(data.ErrorCode === 217) {
+              message.channel.send(`Could not find a Destiny 2 account that matches that ID. Try another ID? or Request help using \`${prefix}request\``);
+            }
+            else {
+              message.channel.send(`There was an issue getting data for the requested user. Please try again, if it persits please report with \`${prefix}request\``);
+            }
+          }
         });
       }
       else { message.reply('This is your Steam ID not your Membership ID, Please follow these steps to get your Membership ID: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your Membership ID.'); }
