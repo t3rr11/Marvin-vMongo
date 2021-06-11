@@ -26,7 +26,7 @@ async function BungieReq(path) {
   }).catch((err) => { return { "isError": true, "Data": err } });
 }
 async function NormalReq(path) {
-  return await fetch(`${ path }`, { agent }).then(async (request) => {
+  return await fetch(`${ path }`, { agent, headers: { "x-api-key": "marvin" } }).then(async (request) => {
     try {
       const response = await request.text();
       if(Misc.IsJSON(response)) {

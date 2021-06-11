@@ -64,26 +64,30 @@ async function init() {
 
   function ResetHandler() {
     //Define Reset Time and Weekly Reset as today at 17:00 UTC and 17:00 UTC on Tuesday
-    //let DailyResetTime = () => Misc.nextDayAndTime(new Date().getDay(), 17, 0);
-    var d = new Date(); 
-    var tomorrow =  Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1, 17, 0, 0);
-    let millisUntilDailyReset = (new Date(tomorrow).getTime() - new Date().getTime());
-    let resetOffset = 1000 * 60 * 15; //15 minute offset after reset.
-    Log.SaveLog("Frontend", "Info", `Next reset: ${ new Date(tomorrow).toUTCString() }`);
-    //let WeeklyResetTime = Misc.nextDayAndTime(2, 17, 0);
-    //let millisUntilWeeklyReset = (new Date(WeeklyResetTime).getTime() - new Date().getTime());
-  
+    var timeNow = new Date();
+    var resetTime = new Date().setUTCHours(17,0,0,0);
+    let resetOffset = 1000 * 60 * 15;
+    let trueReset;
+
+    if(timeNow > resetTime) { trueReset = resetTime.setDate(resetTime.getUTCDate() + 1); }
+    else { trueReset = resetTime; }
+
+    let millisUntilReset = trueReset - timeNow;
+
+    Log.SaveLog("Frontend", "Info", `Next reset: ${ new Date(trueReset).toUTCString() }`);
+    Log.SaveLog("Frontend", "Info", `Time until: ${ Misc.formatTime("big", millisUntilReset / 1000) }`);
+
     //Define daily reset functions
     setTimeout(() => {
       Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
 
       //Send daily broadcasts for the first time
-      AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      updateDailyAnnouncements(tomorrow);
+      //AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      //updateDailyAnnouncements(tomorrow);
 
       //Reset the handler for tomorrow.
       ResetHandler();
-    }, millisUntilDailyReset + resetOffset);
+    }, millisUntilReset + resetOffset);
   }
 
   //Start Logger
@@ -286,7 +290,16 @@ client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Frontend", "Info
 
 //On Message
 client.on("message", async message => {
-  MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
+  const args = message.content.slice("~".length);
+  const lowercased = args.toString().toLowerCase();
+  const command = lowercased.replace(/[\u2018\u2019]/g, "'");
+  if(message.author.id === "194972321168097280" && command.startsWith("force announcements")) {
+    AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+    updateDailyAnnouncements(new Date().getTime());
+  }
+  else {
+    MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
+  }
 });
 
 //On Error
