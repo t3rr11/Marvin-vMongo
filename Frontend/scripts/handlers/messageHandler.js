@@ -22,6 +22,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
     var guild = guilds.find(e => e.guildID == message.guild.id);
     var prefix = guild ? guild.prefix : "~";
     if(message.guild.id === "110373943822540800" || message.guild.id === "264445053596991498") return;
+    if(!message.guild.me.permissionsIn(message.channel.id).has('VIEW_CHANNEL')) return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('SEND_MESSAGES')) return;
     if(!message.content.startsWith(prefix) || message.author.bot && message.author.id !== "159985870458322944") return;
     if(message.content.startsWith("~~")) return;
@@ -2664,7 +2665,6 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
       break;
     }
     case command.startsWith("trials profile"): {
-      console.log(registeredPlayer);
       switch(true) {
         case command.startsWith("trials profile weekly"): {
           if(registeredUser) {

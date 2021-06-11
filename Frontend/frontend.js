@@ -69,7 +69,7 @@ async function init() {
     let resetOffset = 1000 * 60 * 15;
     let trueReset;
 
-    if(timeNow > resetTime) { trueReset = resetTime.setDate(resetTime.getUTCDate() + 1); }
+    if(timeNow > resetTime) { trueReset = new Date(resetTime).setDate(new Date(resetTime).getUTCDate() +1); }
     else { trueReset = resetTime; }
 
     let millisUntilReset = trueReset - timeNow;
