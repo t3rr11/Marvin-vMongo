@@ -7,13 +7,13 @@ const Checks = require('../Shared/checks');
 const Log = require('../Shared/log');
 const Misc = require('../Shared/misc');
 const { MessageHandler } = require('./scripts/handlers/messageHandler');
+const { StartUpInteractions, InteractionsHandler } = require('./scripts/handlers/interactionsHandler');
 const BroadcastHandler = require('./scripts/handlers/broadcastsHandler');
 const AnnouncementsHandler = require('./scripts/handlers/announcementsHandler');
 const GlobalItemsHandler = require('../Shared/handlers/globalItemsHandler');
 const ManifestHandler = require('../Shared/handlers/manifestHandler');
 const RequestHandler = require('../Shared/handlers/requestHandler');
 const Config = require('../Shared/configs/Config.json');
-const Interactions = require('../Shared/configs/Interactions.json');
 const { ErrorHandler } = require('../Shared/handlers/errorHandler');
 const DiscordConfig = require(`../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 const DBL = require("dblapi.js");
@@ -179,12 +179,7 @@ async function update() {
   //Check for broadcasts
   if(!Config.isLocal) { BroadcastHandler.checkForBroadcasts(client); }
 }
-async function setupInteractions() {
-  //const url = `https://discord.com/api/v8/applications/${ DiscordConfig.client_id }/commands`;
-  const url = `https://discord.com/api/v8/applications/${ DiscordConfig.client_id }/guilds/305561313675968513/commands`;
-  const request = await fetch(url, { headers: { "Authorization": `Bot ${ DiscordConfig.token }`, 'Content-Type': 'application/json' }, method: 'POST', body: JSON.stringify(Interactions) }).then(async (req) => { console.log(req); return true; }).catch((err) => { return false; });
-  console.log(request);
-}
+
 async function updateDailyAnnouncements(ResetTime) {
   //Loop through vendors
   const vendors = [{ name: "Gunsmith", hash: "672118013" }, { name: "Ada-1", hash: "350061650" }];
@@ -279,9 +274,11 @@ client.on("interactionCreate", (interaction) => {
 
 //Check if discord bot is ready and shard info
 client.on("ready", async () => {
-  DiscordReady = true;
   if(!Config.isLocal) { setInterval(() => { try { dbl.postStats(client.guilds.cache.size) } catch (err) { console.log("Failed to update top.gg stats."); } }, 1800000); }
+  DiscordReady = true;
+  StartUpInteractions(client);
 });
+
 client.on('shardDisconnect', (event, id) => { Log.SaveLog("Frontend", "Error", `Shard has disconnected and will no longer reconnect: ${ id }`); });
 client.on('shardError', (error, shardID) => { Log.SaveLog("Frontend", "Error", `Shard encounted an error: ${ id }, ${ error }`); });
 client.on('shardReady', (id, unavailableGuilds) => { Log.SaveLog("Frontend", "Info", `Shard is ready: ${ id }`); });
@@ -300,6 +297,11 @@ client.on("message", async message => {
   else {
     MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
   }
+});
+
+//On Interaction
+client.ws.on('INTERACTION_CREATE', async (interaction) => {
+  InteractionsHandler(client, interaction);
 });
 
 //On Error
