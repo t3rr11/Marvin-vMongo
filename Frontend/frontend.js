@@ -82,8 +82,8 @@ async function init() {
       Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
 
       //Send daily broadcasts for the first time
-      //AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      //updateDailyAnnouncements(tomorrow);
+      AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      updateDailyAnnouncements(new Date(trueReset));
 
       //Reset the handler for tomorrow.
       ResetHandler();
