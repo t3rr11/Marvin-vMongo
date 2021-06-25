@@ -213,7 +213,7 @@ async function Request(prefix, client, message, command) {
     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
     .setTimestamp()
     client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({embed});
-    message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://guardianstats.com/JoinMarvin");
+    message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://marvin.gg/Discord");
   }
   else { message.reply(`Please add some context along with the request, something like: \`${prefix}request please add season rank tracking\``); }
 }
