@@ -98,7 +98,8 @@ var userSchema = new Schema({
     }
   },
   challenges: {
-    s13: { type: Boolean, default: false }
+    s13: { type: Boolean, default: false },
+    s14: { type: Boolean, default: false }
   },
   triumphs: {
     cabals: { type: Boolean, default: false }
