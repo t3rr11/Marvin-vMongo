@@ -15,7 +15,11 @@ function checkManifestMounted() {
 
 getManifest = () => { return Manifest; }
 getManifestVersion = () => { return ManifestVersion; }
-getManifestItemByName = (name) => { return Object.values(Manifest.DestinyInventoryItemDefinition).find(e => e.displayProperties.name.toUpperCase() === name.toUpperCase()) }
+getManifestItemByName = (name) => {
+  let searchResults = Object.values(Manifest.DestinyInventoryItemDefinition).filter(e => e.displayProperties.name.toUpperCase() === name.toUpperCase());
+  let filterCollectibles = searchResults.filter(e => e.collectibleHash);
+  return filterCollectibles[0];
+}
 getManifestItemByHash = (hash) => { return Manifest.DestinyInventoryItemDefinition[hash] }
 getManifestItemByCollectibleHash = (collectibleHash) => {
   let collectible = Manifest.DestinyCollectibleDefinition[collectibleHash];
