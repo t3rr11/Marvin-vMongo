@@ -5,7 +5,7 @@ const msPerDay = 86400000;
 const cycleInfo = {
   epoch: {
     zeroHour: new Date(`May 7 2019 ${ resetTime }`).getTime(),
-    lostSector: new Date(`May 19 2021 ${ resetTime }`).getTime(),
+    lostSector: new Date(`July 10 2021 ${ resetTime }`).getTime(),
     grandMaster: new Date(`December 22 2020 ${ resetTime }`).getTime(),
   },
   cycle: {
