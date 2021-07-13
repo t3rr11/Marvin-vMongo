@@ -34,7 +34,7 @@ let startupCheck = setInterval(async function Startup() {
 }, 1000);
 
 app.get("/Test", async function(req, res) { res.status(200).send("Hello World"); });
-app.get("/GetAllClans", async function(req, res) { await DatabaseFunction(req, res, { func: "getAllClansForExpress", amount: 1000 }); });
+app.get("/GetAllClans", async function(req, res) { await DatabaseFunction(req, res, { func: "getAllClansForExpress", amount: 3000 }); });
 app.get("/GetDailyUsers", async function(req, res) { await DatabaseFunction(req, res, { func: "getDailyUsers" }); });
 app.get("/GetGlobals", async function(req, res) { await DatabaseFunction(req, res, { func: "getGlobalItems" }); });
 app.get("/GetClan", async function(req, res) { await DatabaseFunction(req, res, { func: "getClanByID", amount: 1 }, { clanID: req.query.clanID }); });
@@ -225,21 +225,23 @@ async function CallbackDatabaseFunction(req, options, data, callback) {
 }
 
 async function SoT(path, user) {
+  const cookie = (rat) => `ApplicationGatewayAffinity=736b9cbe90c59efbda77eeee6e7da48e; ApplicationGatewayAffinityCORS=736b9cbe90c59efbda77eeee6e7da48e; rat=${encodeURI(rat)}`
   return await fetch(`${ path }`, {
     headers: {
       "Referer": `https://www.seaofthieves.com`,
       "Host": "www.seaofthieves.com",
-      "cookie": `rat=${ user?.rat }; Domain=.seaofthieves.com; Path=/; Expires=Tue, 02 Feb 2021 07:43:19 GMT; HttpOnly; Secure`
+      "cookie": cookie(user.rat)
     }
   }).then(async (request) => {
     try {
+      console.log(request);
       const response = await request.text();
       if(Misc.IsJSON(response)) {
         const res = JSON.parse(response);
         if(request.ok && res.ErrorCode && res.ErrorCode !== 1) { return { "isError": true, "Data": res } }
         else if(request.ok) { return { "isError": false, "Data": res } }
         else { return { "isError": true, "Data": res } }
-      } else { return { "isError": true, "Data": "Did not recieve json" } }
+      } else { return { "isError": true, "Data": "Did not recieve json 2" } }
     } catch (err) { return { "isError": true, "Data": err } } 
   }).catch((err) => { return { "isError": true, "Data": err } });
 }
