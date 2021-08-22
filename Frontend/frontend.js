@@ -82,7 +82,7 @@ async function init() {
       Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
 
       //Send daily broadcasts for the first time
-      AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+      //AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
       updateDailyAnnouncements(new Date(trueReset));
 
       //Reset the handler for tomorrow.
@@ -208,7 +208,7 @@ async function updateDailyAnnouncements(ResetTime) {
           Database.addDailyMods({ vendor: vendor.name, mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
         
           //Send mod broadcasts.
-          AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
+          //AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
         }
         else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.name }. Ignored.`); }
       }
