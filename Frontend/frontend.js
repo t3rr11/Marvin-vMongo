@@ -55,52 +55,55 @@ async function init() {
   Log.SaveLog("Frontend", "Startup", `Bot has started, with ${ Users } users, in ${ client.guilds.cache.size } guilds. Tracking ${ Clans.length } clans!`);
 
   setInterval(() => { update() }, 1000 * 10); //Every 10 seconds
-  setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
   setInterval(() => { UpdateActivityList() }, 1000 * 20); //Every 20 seconds
-  setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
 
-  //Handle reset functions
-  ResetHandler();
-
-  function ResetHandler() {
-    //Define Reset Time and Weekly Reset as today at 17:00 UTC and 17:00 UTC on Tuesday
-    var timeNow = new Date();
-    var resetTime = new Date().setUTCHours(17,0,0,0);
-    let resetOffset = 1000 * 60 * 15;
-    let trueReset;
-
-    if(timeNow > resetTime) { trueReset = new Date(resetTime).setDate(new Date(resetTime).getUTCDate() +1); }
-    else { trueReset = resetTime; }
-
-    let millisUntilReset = trueReset - timeNow;
-
-    Log.SaveLog("Frontend", "Info", `Next reset: ${ new Date(trueReset).toUTCString() }`);
-    Log.SaveLog("Frontend", "Info", `Time until: ${ Misc.formatTime("big", millisUntilReset / 1000) }`);
-
-    //Define daily reset functions
+  if(!Config.isLocal) {
+    setInterval(() => { Log.LogFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime)) }, 1000); //Every 1 second
+    setInterval(() => { ManifestHandler.checkManifestUpdate("frontend"); }, 1000 * 60 * 10); //10 Minute Interval
+  
+    //Handle reset functions
+    ResetHandler();
+  
+    function ResetHandler() {
+      //Define Reset Time and Weekly Reset as today at 17:00 UTC and 17:00 UTC on Tuesday
+      var timeNow = new Date();
+      var resetTime = new Date().setUTCHours(17,0,0,0);
+      let resetOffset = 1000 * 60 * 15;
+      let trueReset;
+  
+      if(timeNow > resetTime) { trueReset = new Date(resetTime).setDate(new Date(resetTime).getUTCDate() +1); }
+      else { trueReset = resetTime; }
+  
+      let millisUntilReset = trueReset - timeNow;
+  
+      Log.SaveLog("Frontend", "Info", `Next reset: ${ new Date(trueReset).toUTCString() }`);
+      Log.SaveLog("Frontend", "Info", `Time until: ${ Misc.formatTime("big", millisUntilReset / 1000) }`);
+  
+      //Define daily reset functions
+      setTimeout(() => {
+        Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
+  
+        //Send daily broadcasts for the first time
+        //AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+        updateDailyAnnouncements(new Date(trueReset));
+  
+        //Reset the handler for tomorrow.
+        ResetHandler();
+      }, millisUntilReset + resetOffset);
+    }
+  
+    //Start Logger
+    //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
+    //Then it'll start the hourly interval which logs like normal every hour.
     setTimeout(() => {
-      Log.SaveLog("Frontend", "Info", `Fired the daily reset handler: ${ new Date().toUTCString() }`);
-
-      //Send daily broadcasts for the first time
-      //AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-      updateDailyAnnouncements(new Date(trueReset));
-
-      //Reset the handler for tomorrow.
-      ResetHandler();
-    }, millisUntilReset + resetOffset);
-  }
-
-  //Start Logger
-  //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
-  //Then it'll start the hourly interval which logs like normal every hour.
-  setTimeout(() => {
-    Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
-    commandsInput = 0;
-    setInterval(() => {
       Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
       commandsInput = 0;
-    }, 1000 * 60 * 60);
-  }, 3600000 - new Date().getTime() % 3600000);
+      setInterval(() => {
+        Log.LogHourlyFrontendStatus(Users, client.guilds.cache.size, commandsInput, (new Date().getTime() - InitializationTime));
+        commandsInput = 0;
+      }, 1000 * 60 * 60);
+    }, 3600000 - new Date().getTime() % 3600000); 
+  }
 }
 
 //Functions
