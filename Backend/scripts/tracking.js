@@ -590,7 +590,7 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
   var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
   var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
-  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["1193340946"].intervalObjectives[2].progress; } catch (err) { }
+  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["1495470829"].intervalObjectives[2].progress; } catch (err) { }
 
   return {
     "seasonRank": season15Rank,
