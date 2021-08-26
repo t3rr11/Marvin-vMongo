@@ -2547,7 +2547,6 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               embed.addField("Garden of Salvation", `${ Misc.AddCommas(registeredPlayerStats.garden.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.garden.rank) })*`, true);
               embed.addField("Deep Stone Crypt", `${ Misc.AddCommas(registeredPlayerStats.dsc.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.dsc.rank) })*`, true);
               embed.addField("Vault of Glass", `${ Misc.AddCommas(registeredPlayerStats.vog.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.vog.rank) })*`, true);
-              embed.addField("\u200b", `\u200b`, true);
               embed.addField("See more at", `https://guardianstats.com/profile/${ registeredUser.membershipID }`);
               break;
             }
