@@ -188,6 +188,182 @@ const Commands = [
     ]
   },
 
+  // Season rank
+  { 
+    name: 'Season Rank',
+    size: 10,
+    title: 'Top 10 Season Rank Rankings',
+    leaderboardURL: 'seasonRank',
+    sorting: 'seasonRank',
+    commands: ['sr', 'season rank'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Rank', type: 'Leaderboard', data: 'seasonRank', inline: true }
+    ]
+  },
+
+  // Highest power
+  { 
+    name: 'Highest Power',
+    size: 10,
+    title: 'Top 10 Highest Power',
+    leaderboardURL: 'highestPower',
+    sorting: ['highestPower', 'powerBonus'],
+    commands: ['power', 'light', 'max power', 'max light', 'highest power', 'highest light'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Power + Artifact', type: 'PowerLeaderboard', data: ['highestPower', 'powerBonus'], inline: true }
+    ]
+  },
+
+  // Highest base power
+  { 
+    name: 'Highest Base Power',
+    size: 10,
+    title: 'Top 10 Highest Base Power',
+    leaderboardURL: 'highestPower',
+    sorting: 'highestPower',
+    commands: ['power -a', 'light -a', 'max power -a', 'max light -a', 'highest power -a', 'highest light -a'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Power', type: 'Leaderboard', data: 'highestPower', inline: true }
+    ]
+  },
+
+  // Shattered throne
+  { 
+    name: 'Shattered Throne',
+    description: 'Completions (Normal - Flawless)',
+    size: 10,
+    title: 'Top 10 Shattered Throne Completions',
+    leaderboardURL: 'shatteredThrone',
+    sorting: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'],
+    commands: ['shattered throne', 'throne'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'], inline: true }
+    ]
+  },
+
+  // Pit of heresy
+  { 
+    name: 'Pit of Heresy',
+    description: 'Completions (Normal - Flawless)',
+    size: 10,
+    title: 'Top 10 Pit of Heresy Completions',
+    leaderboardURL: 'pitOfHeresy',
+    sorting: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'],
+    commands: ['pit', 'pit of heresy'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'], inline: true }
+    ]
+  },
+
+  // Prophecy
+  { 
+    name: 'Prophecy',
+    description: 'Completions (Normal - Flawless)',
+    size: 10,
+    title: 'Top 10 Prophecy Completions',
+    leaderboardURL: 'prophecy',
+    sorting: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'],
+    commands: ['prophecy'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'], inline: true }
+    ]
+  },
+
+  // Presage
+  { 
+    name: 'Presage',
+    description: 'Completions (Normal - Master)',
+    size: 10,
+    title: 'Top 10 Presage Completions',
+    leaderboardURL: 'presage',
+    sorting: ['presage.normal', 'presage.master'],
+    commands: ['presage', 'master presage', 'presage master'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['presage.normal', 'presage.master'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['presage.normal', 'presage.master'], inline: true }
+    ]
+  },
+
+  // Active triumph score
+  { 
+    name: 'Active Triumph Score',
+    size: 10,
+    title: 'Top 10 Active Triumph Score Rankings',
+    leaderboardURL: 'activeScore',
+    sorting: 'triumphScore.activeScore',
+    commands: ['triumph score', 'triumphscore', 'triumph score -active', 'triumphscore -active'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Score', type: 'Leaderboard', data: 'triumphScore.activeScore', inline: true }
+    ]
+  },
+
+  // Legacy triumph score
+  { 
+    name: 'Legacy Triumph Score',
+    size: 10,
+    title: 'Top 10 Legacy Triumph Score Rankings',
+    leaderboardURL: 'legacyScore',
+    sorting: 'triumphScore.legacyScore',
+    commands: ['triumph score -legacy', 'triumphscore -legacy'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Score', type: 'Leaderboard', data: 'triumphScore.legacyScore', inline: true }
+    ]
+  },
+
+  // Lifetime triumph score
+  { 
+    name: 'Legacy Triumph Score',
+    size: 10,
+    title: 'Top 10 Lifetime Triumph Score Rankings',
+    leaderboardURL: 'lifetimeScore',
+    sorting: 'triumphScore.lifetimeScore',
+    commands: ['triumph score -lifetime', 'triumphscore -lifetime'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Score', type: 'Leaderboard', data: 'triumphScore.lifetimeScore', inline: true }
+    ]
+  },
+
+  // Time played
+  { 
+    name: 'Time Played',
+    size: 10,
+    title: 'Top 10 Most Time Played',
+    leaderboardURL: 'timePlayed',
+    sorting: 'timePlayed',
+    commands: ['time', 'time played', 'total time'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Hours', type: 'TimeLeaderboard', data: 'timePlayed', inline: true }
+    ]
+  },
+
+  // Total raids
+  { 
+    name: 'Total Raids',
+    size: 10,
+    title: 'Top 10 Total Raid Completions',
+    leaderboardURL: 'totalRaids',
+    sorting: 'totalRaids',
+    commands: ['raids total', 'total raids'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Raids', type: 'Leaderboard', data: 'totalRaids', inline: true }
+    ]
+  },
+
 ];
 
 module.exports = Commands
