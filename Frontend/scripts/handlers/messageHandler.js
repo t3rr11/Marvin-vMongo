@@ -8,13 +8,28 @@ const AnnouncementsHandler = require('./announcementsHandler');
 const Database = require('../../../Shared/database');
 const Misc = require('../../../Shared/misc');
 const Log = require('../../../Shared/log');
-const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
+const { dailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
 const { ErrorHandler } = require('../../../Shared/handlers/errorHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 const RequestHandler = require('../../../Shared/handlers/requestHandler');
-const GlobalItemsHandler = require('../../../Shared/handlers/globalItemsHandler');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
+const Commands = require('./commands');
+
+Object.byString = function(o, s) {
+  s = s.replace(/\[(\w+)\]/g, '.$1');       // convert indexes to properties
+  s = s.replace(/^\./, '');                 // strip a leading dot
+  var a = s.split('.');
+  for (var i = 0, n = a.length; i < n; ++i) {
+    var k = a[i];
+    if (k in o) {
+      o = o[k];
+    } else {
+      return;
+    }
+  }
+  return o;
+}
 
 function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
   let related = true;
@@ -1402,9 +1417,86 @@ async function GetBroadcastItems(prefix, message, command) {
   });
 }
 
-async function SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
-  let leaderboard = { names: [], first: [], second: [] }
+function BuildLeaderboard(command, message, players) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let sortedPlayers = [];
+
+  if(!Array.isArray(command.sorting)) {
+    sortedPlayers = players.sort((a, b) => {
+      return Object.byString(b, command.sorting) - Object.byString(a, command.sorting)
+    }).slice(0, command.size);
+  }
+  else {
+    sortedPlayers = players.sort((a, b) => {
+      return (Object.byString(b, command.sorting[0]) + Object.byString(b, command.sorting[1])) - (Object.byString(a, command.sorting[0]) + Object.byString(a, command.sorting[1]))
+    }).slice(0, command.size);
+  }
+
+  embed.setAuthor(command.title);
+  embed.setDescription(
+    `${ command.description ? command.description : '' }` + '\n' +
+    `[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${ command.leaderboardURL }/)`
+  );
+
+  for(let field of command.fields) {
+    embed.addField(field.name, BuildField(field, sortedPlayers), field.inline);
+  }
+
+  return embed;
+}
+
+function BuildField(field, sortedPlayers) {
+  switch(field.type) {
+    case 'Name': {
+      return sortedPlayers.map((e, index) => `${parseInt(index)+1}: ${e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })}`);
+    }
+    case 'Leaderboard': {
+      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data)) }`);
+    }
+    case 'SplitLeaderboard': {
+      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data[0])) } - ${ Misc.AddCommas(Object.byString(e, field.data[1])) }`);
+    }
+    case 'SplitTotal': {
+      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data[0]) + Object.byString(e, field.data[1])) }`);
+    }
+    case 'Reset': {
+      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data) / field.divisibleBy) }`);
+    }
+  }
+}
+
+async function SendLeaderboard(prefix, message, input, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
+  // Look for command
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let command = Commands.find(e => e.commands.includes(input));
+
+  if(command) {
+    // Build leaderboard embed
+    try { embed = BuildLeaderboard(command, message, players) } catch(err) {
+      Log.SaveLog("Frontend", "Error", err);
+      embed.setAuthor("Uhh oh...");
+      embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
+    };
+
+    // Attempt to send it
+    message.channel.send({ embed }).catch(err => {
+      if(err.code === 50035) {
+        message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message.");
+      }
+      else {
+        Log.SaveLog("Frontend", "Error", err);
+        message.channel.send("There was an error, this has been logged.");
+      }
+    });
+  }
+  else {
+    // Return message letting them know that the command was not found
+    message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => {
+      msg.delete({ timeout: 3000 });
+    }).catch();
+  }
+
+  return;
 
   switch(true) {
     //Pvp
@@ -1650,9 +1742,6 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       embed.addField("Completions", leaderboard.first, true);
       break;
     }
-
-    //Items and Titles
-
 
     //Seasonal - seasonRank, maxPower
     case command.startsWith("sr"): case command.startsWith("season rank"): {
@@ -2203,11 +2292,6 @@ async function SendLeaderboard(prefix, message, command, players, privatePlayers
       break;
     }
   }
-
-  message.channel.send({embed}).catch(err => {
-    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
-    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
-  });
 }
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
