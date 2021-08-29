@@ -211,7 +211,7 @@ async function updateDailyAnnouncements(ResetTime) {
           Database.addDailyMods({ vendor: vendor.name, mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
         
           //Send mod broadcasts.
-          //AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
+          AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
         }
         else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.name }. Ignored.`); }
       }
