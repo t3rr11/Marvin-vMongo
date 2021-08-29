@@ -138,40 +138,15 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("!item "): { GetObtainedItems(prefix, message, command, "not", users, registeredUser); break; }
         case command.startsWith("title "): { GetObtainedTitles(prefix, message, command, "obtained", users, registeredUser); break; }
         case command.startsWith("!title "): { GetObtainedTitles(prefix, message, command, "not", users, registeredUser); break; }
-        case command.startsWith("valor"): case command.startsWith("glory"): case command.startsWith("infamy"): 
-        case command.startsWith("iron banner"): case command.startsWith("ib"): 
-        case command.startsWith("levi"): case command.startsWith("leviathan"):
-        case command.startsWith("eow"): case command.startsWith("eater of worlds"):
-        case command.startsWith("sos"): case command.startsWith("spire of stars"):
-        case command.startsWith("lw"): case command.startsWith("last wish"):
-        case command.startsWith("sotp"): case command.startsWith("scourge"): case command.startsWith("scourge of the past"):
-        case command.startsWith("cos"): case command.startsWith("sorrows"): case command.startsWith("crown of sorrows"):
-        case command.startsWith("dsc"): case command.startsWith("deep stone crypt"):
-        case command.startsWith("gos"): case command.startsWith("garden"): case command.startsWith("garden of salvation"):
-        case command.startsWith("vog"): case command.startsWith("vaultofglass"): case command.startsWith("vault of glass"):
-        case command.startsWith("sr"): case command.startsWith("season rank"):
-        case command.startsWith("power"): case command.startsWith("light"): case command.startsWith("highest power"): case command.startsWith("max power"): case command.startsWith("max light"):
-        case command.startsWith("throne"): case command.startsWith("shattered throne"): case command.startsWith("pit"): case command.startsWith("pit of heresy"): case command.startsWith("prophecy"): 
-        case command.startsWith("empire hunts"): case command.startsWith("empire hunt"):
-        case command.startsWith("presage"): case command.startsWith("master presage"): case command.startsWith("presage master"):
-        case command.startsWith("triumph score"): case command.startsWith("triumph"): case command.startsWith("triumphs"):
-        case command.startsWith("time"): case command.startsWith("time played"): case command.startsWith("total time"):
-        case command.startsWith("raids total"): case command.startsWith("total raids"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("profile"): { GetProfile(prefix, message, command, "profile", users, registeredUser); break; }
         case command.startsWith("drystreak "): { GetDrystreak(prefix, message, command); break; }
         case command.startsWith("when "): { GetBroadcastDates(prefix, message, command); break; }
+        case command.startsWith("titles total"): case command.startsWith("total titles"): {
+          GetTitleLeaderboard(prefix, message, command, users, registeredUser);
+          break;
+        }
 
         //Trials
-        case command.startsWith("trials wins"): case command.startsWith("trials flawless"): case command.startsWith("trials final blows"): 
-        case command.startsWith("trials post wins"): case command.startsWith("trials carries"): 
-        case command.startsWith("trials weekly win streak"): case command.startsWith("trials seasonal win streak"): 
-        case command.startsWith("trials weekly wins"): case command.startsWith("trials seasonal wins"): case command.startsWith("trials overall wins"): 
-        case command.startsWith("trials weekly flawless"): case command.startsWith("trials seasonal flawless"): case command.startsWith("trials overall flawless"): 
-        case command.startsWith("trials weekly final blows"): case command.startsWith("trials seasonal final blows"): case command.startsWith("trials overall final blows"): 
-        case command.startsWith("trials weekly post wins"): case command.startsWith("trials seasonal post wins"): 
-        case command.startsWith("trials weekly carries"): case command.startsWith("trials overall post wins"): 
-        case command.startsWith("trials seasonal carries"): case command.startsWith("trials overall carries"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
-        case command.startsWith("titles total"): case command.startsWith("total titles"): { GetTitleLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("trials profile"):
         case command.startsWith("trials profile weekly"):
         case command.startsWith("trials profile seasonal"):
@@ -181,10 +156,12 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("support"): { Donate(client, message); break; }
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
-        case command.startsWith("cookies"): case command.startsWith("event"): case command.startsWith("dawning 2020"): { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
         case command.startsWith("legend"): { LostSectors(message, "legendLostSector"); break; }
         case command.startsWith("master"): { LostSectors(message, "masterLostSector"); break; }
         //case command.startsWith("grandmaster"): { GrandMaster(message); break; }
+
+        //Check if leaderboard
+        case Commands.filter(c => c.commands.find(cm => command.startsWith(cm)))[0] !== undefined: { GetLeaderboard(prefix, message, command, users, registeredUser); break; }
 
         //Default - Unknown commands
         default: { related = false; message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => { msg.delete({ timeout: 3000 }) }).catch(); break; }
@@ -956,7 +933,7 @@ async function GetTitleLeaderboard(prefix, message, command, users, registeredUs
   if(registeredUser && registeredUser !== "NoUser") { await Promise.all([await GetGuildPlayers(), await GetGuildTitles(), await GetRegisteredUserInfo()]); }
   else { await Promise.all([await GetGuildPlayers(), await GetGuildTitles()]); }
 
-  SendLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
+  SendTotalTitlesLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles);
 }
 async function GetObtainedItems(prefix, message, command, type, users, registeredUser) {
   let players = [];
@@ -1417,68 +1394,95 @@ async function GetBroadcastItems(prefix, message, command) {
   });
 }
 
-function BuildLeaderboard(command, message, players) {
+function BuildLeaderboard(command, message, players, registeredPlayer) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   let sortedPlayers = [];
 
   if(!Array.isArray(command.sorting)) {
     sortedPlayers = players.sort((a, b) => {
       return Object.byString(b, command.sorting) - Object.byString(a, command.sorting)
-    }).slice(0, command.size);
+    });
   }
   else {
     sortedPlayers = players.sort((a, b) => {
       return (Object.byString(b, command.sorting[0]) + Object.byString(b, command.sorting[1])) - (Object.byString(a, command.sorting[0]) + Object.byString(a, command.sorting[1]))
-    }).slice(0, command.size);
+    });
   }
 
   embed.setAuthor(command.title);
   embed.setDescription(
     `${ command.description ? command.description : '' }` + '\n' +
-    `[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${ command.leaderboardURL }/)`
+    `${ command.leaderboardURL ? `[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${ command.leaderboardURL }/)` : '' }`
   );
 
   for(let field of command.fields) {
-    embed.addField(field.name, BuildField(field, sortedPlayers), field.inline);
+    embed.addField(field.name, BuildField(field, sortedPlayers, registeredPlayer, command.size), field.inline);
   }
 
   return embed;
 }
-
-function BuildField(field, sortedPlayers) {
+function BuildField(field, sortedPlayers, registeredPlayer, size) {
   switch(field.type) {
     case 'Name': {
-      return sortedPlayers.map((e, index) => `${parseInt(index)+1}: ${e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })}`);
+      let builtField = sortedPlayers.map((e, index) => `${parseInt(index)+1}: ${e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x })}`).slice(0, size);
+      if(registeredPlayer) {
+        var rank = sortedPlayers.indexOf(sortedPlayers.find(e => e.membershipID === registeredPlayer.User.membershipID));
+        builtField.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+      }
+      return builtField;
     }
     case 'Leaderboard': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data)) }`);
+      let builtField = sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data))) }`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data))) }`);
+      }
+      return builtField;
     }
     case 'SplitLeaderboard': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data[0])) } - ${ Misc.AddCommas(Object.byString(e, field.data[1])) }`);
+      let builtField =  sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data[0]))) } - ${ Misc.AddCommas(Math.floor(Object.byString(e, field.data[1]))) }`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data[0]))) } - ${ Misc.AddCommas(Math.floor(Object.byString(registeredPlayer.User, field.data[1]))) }`);
+      }
+      return builtField;
     }
     case 'PowerLeaderboard': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data[0]) + Object.byString(e, field.data[1])) } (${ Misc.AddCommas(Object.byString(e, field.data[0])) } + ${ Misc.AddCommas(Object.byString(e, field.data[1])) })`);
+      let builtField =  sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data[0]) + Object.byString(e, field.data[1]))) } (${ Misc.AddCommas(Object.byString(e, field.data[0])) } + ${ Misc.AddCommas(Object.byString(e, field.data[1])) })`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data[0]) + Object.byString(registeredPlayer.User, field.data[1]))) } (${ Misc.AddCommas(Object.byString(registeredPlayer.User, field.data[0])) } + ${ Misc.AddCommas(Object.byString(registeredPlayer.User, field.data[1])) })`);
+      }
+      return builtField;
     }
     case 'TimeLeaderboard': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.round(Object.byString(e, field.data)/60)) } Hrs`);
+      let builtField =  sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data)/60)) } Hrs`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data)/60)) } Hrs`);
+      }
+      return builtField;
     }
     case 'SplitTotal': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data[0]) + Object.byString(e, field.data[1])) }`);
+      let builtField =  sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data[0]) + Object.byString(e, field.data[1]))) }`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data[0]) + Object.byString(registeredPlayer.User, field.data[1]))) }`);
+      }
+      return builtField;
     }
     case 'Reset': {
-      return sortedPlayers.map((e, index) => `${ Misc.AddCommas(Object.byString(e, field.data) / field.divisibleBy) }`);
+      let builtField = sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data) / field.divisibleBy)) }`).slice(0, size);
+      if(registeredPlayer) {
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data) / field.divisibleBy)) }`);
+      }
+      return builtField;
     }
   }
 }
-
-async function SendLeaderboard(prefix, message, input, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
+async function SendLeaderboard(prefix, message, input, players, privatePlayers, registeredUser, registeredPlayer) {
   // Look for command
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-  let command = Commands.find(e => e.commands.includes(input));
+  let command = Commands.filter(c => c.commands.find(cm => input.startsWith(cm)))[0];
 
   if(command) {
     // Build leaderboard embed
-    try { embed = BuildLeaderboard(command, message, players) } catch(err) {
+    try { embed = BuildLeaderboard(command, message, players, registeredPlayer) } catch(err) {
       Log.SaveLog("Frontend", "Error", err);
       embed.setAuthor("Uhh oh...");
       embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
@@ -1501,285 +1505,30 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
       msg.delete({ timeout: 3000 });
     }).catch();
   }
-
-  return;
-
-  switch(true) { 
-    //Trials
-    case command.startsWith("trials wins"): case command.startsWith("trials weekly wins"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.wins - a.trials.weekly.wins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.wins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.wins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials win streak"): case command.startsWith("trials weekly win streak"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.winStreak - a.trials.weekly.winStreak }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.winStreak) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.winStreak) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Win Streak");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials flawless"): case command.startsWith("trials weekly flawless"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.flawlessTickets - a.trials.weekly.flawlessTickets }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.flawlessTickets) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.flawlessTickets) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Flawless Tickets");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials final blows"): case command.startsWith("trials weekly final blows"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.finalBlows - a.trials.weekly.finalBlows }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.finalBlows) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.finalBlows) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Final Blows");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials post wins"): case command.startsWith("trials weekly post wins"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.postFlawlessWins - a.trials.weekly.postFlawlessWins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.postFlawlessWins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.postFlawlessWins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Post Flawless Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials carries"): case command.startsWith("trials weekly carries"): {
-      let top = players.sort((a, b) => { return b.trials.weekly.carries - a.trials.weekly.carries }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.weekly.carries) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.weekly.carries) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Weekly Carries");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal wins"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.wins - a.trials.seasonal.wins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.wins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.wins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal win streak"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.winStreak - a.trials.seasonal.winStreak }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.winStreak) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.winStreak) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Win Streak");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal flawless"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.flawlessTickets - a.trials.seasonal.flawlessTickets }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.flawlessTickets) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.flawlessTickets) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Flawless Tickets");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal final blows"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.finalBlows - a.trials.seasonal.finalBlows }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.finalBlows) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.finalBlows) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Final Blows");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal post wins"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.postFlawlessWins - a.trials.seasonal.postFlawlessWins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.postFlawlessWins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.postFlawlessWins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Post Flawless Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials seasonal carries"): {
-      let top = players.sort((a, b) => { return b.trials.seasonal.carries - a.trials.seasonal.carries }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.seasonal.carries) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.seasonal.carries) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Seasonal Carries");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials overall wins"): {
-      let top = players.sort((a, b) => { return b.trials.overall.wins - a.trials.overall.wins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.overall.wins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.overall.wins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Overall Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials overall flawless"): {
-      let top = players.sort((a, b) => { return b.trials.overall.flawlessTickets - a.trials.overall.flawlessTickets }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.overall.flawlessTickets) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.overall.flawlessTickets) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Overall Flawless Tickets");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials overall final blows"): {
-      let top = players.sort((a, b) => { return b.trials.overall.finalBlows - a.trials.overall.finalBlows }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.overall.finalBlows) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.overall.finalBlows) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Overall Final Blows");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials overall post wins"): {
-      let top = players.sort((a, b) => { return b.trials.overall.postFlawlessWins - a.trials.overall.postFlawlessWins }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.overall.postFlawlessWins) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.overall.postFlawlessWins) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Overall Post Flawless Wins");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-    case command.startsWith("trials overall carries"): {
-      let top = players.sort((a, b) => { return b.trials.overall.carries - a.trials.overall.carries }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.trials.overall.carries) }` });
-      if(registeredPlayer) {
-        var rank = players.indexOf(players.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.trials.overall.carries) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Trials Overall Carries");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-
-    //Others - totalTitles
-    case command.startsWith("titles total"): case command.startsWith("total titles"): {
-      let top = playerTitles.sort((a, b) => { return b.titles.length - a.titles.length }).slice(0, 10);
-      leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ players.find(player => player.membershipID === e.membershipID).displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
-      leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.titles.length) }` });
-      if(registeredPlayer) {
-        var rank = playerTitles.indexOf(playerTitles.find(e => e.membershipID === registeredPlayer.User.membershipID));
-        leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
-        leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.Titles.titles.length) }`);
-      }
-      else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Total Titles");
-      embed.addField("Name", leaderboard.names, true);
-      embed.addField("Total", leaderboard.first, true);
-      break;
-    }
-  }
 }
+function SendTotalTitlesLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
+  let leaderboard = { names: [], first: [], second: [] }
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+  let top = playerTitles.sort((a, b) => { return b.titles.length - a.titles.length }).slice(0, 10);
+  leaderboard.names = top.map((e, index) => { return `${parseInt(index)+1}: ${ players.find(player => player.membershipID === e.membershipID).displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
+  leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.titles.length) }` });
+  if(registeredPlayer) {
+    var rank = playerTitles.indexOf(playerTitles.find(e => e.membershipID === registeredPlayer.User.membershipID));
+    leaderboard.names.push("", `${ rank+1 }: ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
+    leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.Titles.titles.length) }`);
+  }
+  else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
+  embed.setAuthor("Top 10 Total Titles");
+  embed.addField("Name", leaderboard.names, true);
+  embed.addField("Total", leaderboard.first, true);
+
+  message.channel.send({embed}).catch(err => {
+    if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
+    else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
+  });
+}
+
 function SendItemsLeaderboard(prefix, message, command, type, players, playerItems, item, dataType) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   
