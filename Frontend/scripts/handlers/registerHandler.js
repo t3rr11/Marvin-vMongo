@@ -66,7 +66,6 @@ async function Register(prefix, message, command, users, registeredUser) {
       });
       await new Promise(resolve => {
         RequestHandler.SearchDestinyPlayer(encodeURIComponent(username), async (isError, data) => {
-          console.log(data);
           search2 = !data.isError ? data.Response : [];
           resolve();
         });
