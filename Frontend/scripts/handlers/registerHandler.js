@@ -50,37 +50,58 @@ async function Register(prefix, message, command, users, registeredUser) {
       else { message.reply('This is your Steam ID not your Membership ID, Please follow these steps to get your Membership ID: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your Membership ID.'); }
     }
     else {
-      RequestHandler.SearchDestinyPlayer(encodeURIComponent(username), async (isError, data) => {
-        if(data.Response.length > 1) {
-          let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          let usernames = [];
-          let ids = [];
-          let clans = [];
-
-          embed.setAuthor("Too many results...");
-          embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\``);
-
-          for(let i in data.Response) {
-            usernames.push(`${ GetPlatformEmoji(data.Response[i].membershipType) } ${ data.Response[i].displayName }`);
-            ids.push(data.Response[i].membershipId);
-            await RequestHandler.GetClanFromMbmID(data.Response[i].membershipType, data.Response[i].membershipId, async function GetClanFromMbmID(isError, data) {
-              if(!isError) {
-                if(data.Response.results.length > 0) { clans.push(data.Response.results[0].group.name); }
-                else { clans.push("-"); }
-              }
-              else { clans.push("-"); }
+      let search1 = [];
+      let search2 = [];
+      await new Promise(resolve => {
+        RequestHandler.SearchPrefixDestinyPlayer(encodeURIComponent(username), async (isError, data) => {
+          if(data.isError) { return; }
+          const searchResults = data.Response.searchResults;
+          await searchResults.map(e => {
+            e.destinyMemberships.forEach(membership => {
+              search1.push(membership);
             });
-          }
-
-          embed.addField("Username", usernames, true);
-          embed.addField("Clan", clans, true);
-          embed.addField("Bungie ID", ids, true);
-
-          message.channel.send({embed});
-        }
-        else if(data.Response.length === 0) { message.reply(`No users with that name found... Try this: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this \`${prefix}Register 1234567890\`.`); }
-        else { FinishRegistration(message, command, users, registeredUser, data.Response[0]); }
+          });
+          resolve();
+        });
       });
+      await new Promise(resolve => {
+        RequestHandler.SearchDestinyPlayer(encodeURIComponent(username), async (isError, data) => {
+          console.log(data);
+          search2 = !data.isError ? data.Response : [];
+          resolve();
+        });
+      });
+
+      let searchResults = [...search1, ...search2];
+      if(searchResults.length > 1) {
+        let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        let usernames = [];
+        let ids = [];
+        let clans = [];
+
+        embed.setAuthor("Too many results...");
+        embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\``);
+
+        for(let i in searchResults) {
+          usernames.push(`${ GetPlatformEmoji(searchResults[i].membershipType) } ${ searchResults[i].displayName }`);
+          ids.push(searchResults[i].membershipId);
+          await RequestHandler.GetClanFromMbmID(searchResults[i].membershipType, searchResults[i].membershipId, async function GetClanFromMbmID(isError, data) {
+            if(!isError) {
+              if(data.Response.results.length > 0) { clans.push(data.Response.results[0].group.name); }
+              else { clans.push("-"); }
+            }
+            else { clans.push("-"); }
+          });
+        }
+
+        embed.addField("Username", usernames, true);
+        embed.addField("Clan", clans, true);
+        embed.addField("Bungie ID", ids, true);
+
+        message.channel.send({embed});
+      }
+      else if(searchResults.length === 0) { message.reply(`No users with that name found... Try this: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this \`${prefix}Register 1234567890\`.`); }
+      else { FinishRegistration(message, command, users, registeredUser, searchResults[0]); }
     } 
   }
 }
