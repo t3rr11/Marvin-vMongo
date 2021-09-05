@@ -11,7 +11,20 @@ const BroadcastHandler = require('./handlers/broadcastHandler');
 const Config = require('../../Shared/configs/Config.json');
 
 const flagEnum = (state, value) => !!(state & value);
-function GetItemState(state) { return { none: flagEnum(state, 0), notAcquired: flagEnum(state, 1), obscured: flagEnum(state, 2), invisible: flagEnum(state, 4), cannotAffordMaterialRequirements: flagEnum(state, 8), inventorySpaceUnavailable: flagEnum(state, 16), uniquenessViolation: flagEnum(state, 32), purchaseDisabled: flagEnum(state, 64) }; }
+
+const GetItemState = (state) => {
+  return {
+    none: flagEnum(state, 0),
+    notAcquired: flagEnum(state, 1),
+    obscured: flagEnum(state, 2),
+    invisible: flagEnum(state, 4),
+    cannotAffordMaterialRequirements: flagEnum(state, 8),
+    inventorySpaceUnavailable: flagEnum(state, 16),
+    uniquenessViolation: flagEnum(state, 32),
+    purchaseDisabled: flagEnum(state, 64)
+  };
+}
+
 async function UpdateClan(clan, season, callback) {
   //Get clan details
   const ifSucessful = await new Promise(resolve => 
@@ -149,8 +162,8 @@ async function UpdateClan(clan, season, callback) {
 async function ProcessClanData(clan, guilds, season, clanData, onlineMembers) {
   let clanDetails = clanData.Response.detail;
   let currentClanLevel = clanDetails.clanInfo.d2ClanProgressions["584850370"].level;
+  
   //Process clan data, look for changes
-  // TODO
   for(let i in guilds) {
     if(clan.clanName !== clanDetails.name) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "name_change", season); }
     if(clan.clanCallsign !== clanDetails.clanInfo.clanCallsign) { BroadcastHandler.sendClanBroadcast(clan, guilds[i], clanDetails, "tag_change", season); }
@@ -180,6 +193,7 @@ async function ProcessClanData(clan, guilds, season, clanData, onlineMembers) {
     lastScan: new Date()
   }, function UpdateClanByID(isError, severity, err) { if(isError) { ErrorHandler(severity, err) } });
 }
+
 async function ProcessPlayer(clan, season, memberData, playerData, guilds) {
   Database.findUserByID(memberData.destinyUserInfo.membershipId, async function FindUserByID(isError, isFound, oldPlayerData) {
     if(!isError) {
@@ -240,6 +254,7 @@ async function CheckItems(clan, season, memberData, playerData, oldPlayerData, g
     //differences.length > 0 ? console.log(`User: ${ memberData.destinyUserInfo.displayName }: Found: ${ differences }`) : null
   }
 }
+
 async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, guilds) {
   const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
   const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
@@ -282,6 +297,7 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   }
   else { Log.SaveLog("Backend", "Error", `Could not find titles for ${ oldPlayerData.displayName } (${ oldPlayerData.membershipID })`); }
 }
+
 async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData, guilds) {
   if(playerData.characterRecords?.data) {
     if(oldPlayerData.User.challenges) {
@@ -428,6 +444,7 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     "lastActivity": lastActivity
   }
 }
+
 function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
@@ -492,6 +509,7 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
     }
   }
 }
+
 function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   var leviCompletions = 0; try { leviCompletions = playerData.metrics.data.metrics["2486745106"].objectiveProgress.progress; } catch (err) { }
   var eowCompletions = 0; try { eowCompletions = playerData.metrics.data.metrics["2659534585"].objectiveProgress.progress; } catch (err) { }
@@ -541,6 +559,7 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
     "totalRaids": totalRaids
   }
 }
+
 function FormatTitles(clan, memberData, playerData, oldPlayerData) {
   const legacySealsNode = ManifestHandler.getManifest().DestinyPresentationNodeDefinition[1881970629];
   const legacysealsParents = legacySealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
@@ -576,6 +595,7 @@ function FormatTitles(clan, memberData, playerData, oldPlayerData) {
   } else { return titles; }
   
 }
+
 function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   //Season Ranks
   var characterIds = playerData.profile.data.characterIds;
@@ -598,6 +618,7 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
     "powerBonus": powerBonus,
   }
 }
+
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var grandmasters = {
@@ -630,6 +651,7 @@ function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
     grandmasters
   }
 }
+
 function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var menageire = 0; try { menageire = playerData.profileRecords.data.records["1363982253"].objectives[0].progress; } catch (err) { }
