@@ -44,7 +44,7 @@ async function UpdateClan(clan, season, callback) {
                   for(let i in players) {
                     if(!members.find(e => e.destinyUserInfo.membershipId === players[i].membershipID)) {
                       Database.removeClanFromPlayer(players[i].membershipID);
-                      Log.SaveLog("Backend", "Clan", `${ players[i].bungieGlobalDisplayName }${ players[i].bungieGlobalDisplayNameCode } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
+                      Log.SaveLog("Backend", "Clan", `${ players[i].destinyUserInfo.bungieGlobalDisplayName }${ players[i].destinyUserInfo.bungieGlobalDisplayNameCode } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
                     }
                   }
                 }
