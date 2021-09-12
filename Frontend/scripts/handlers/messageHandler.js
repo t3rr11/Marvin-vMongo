@@ -1492,7 +1492,7 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   let command = Commands.filter(c => c.commands.find(cm => input.startsWith(cm)))[0];
 
-  if(players.filter(e => e?.membershipID === registeredPlayer?.membershipID).length > 0) {
+  if(players.filter(e => e?.membershipID !== registeredPlayer?.User?.membershipID).length > 0) {
     if(command) {
       // Build leaderboard embed
       try { embed = BuildLeaderboard(command, message, players, registeredPlayer) } catch(err) {

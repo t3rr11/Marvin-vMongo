@@ -23,7 +23,7 @@ const StartUpInteractions = async (client) => {
     }
   });
 
-  console.log(commands);
+  //console.log(commands);
   //GetApp(client, "305561313675968513").commands("853062909411590174").delete();
 }
 
