@@ -338,7 +338,7 @@ function ChangePrefix(prefix, message, command, guild) {
           function updateGuildByID(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
             else {
-              message.channel.send(`Too easy Marvin will only react to your new prefix \`${newPrefix}\`, Example: \`${newPrefix}help\`.`);
+              message.channel.send(`Too easy. Marvin will only react to your new prefix \`${newPrefix}\`, Example: \`${newPrefix}help\`.`);
               Log.SaveLog("Frontend", "Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
             }
           }
@@ -351,7 +351,7 @@ function ChangePrefix(prefix, message, command, guild) {
           function addGuild(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
             else {
-              message.channel.send(`Too easy in a few seconds Marvin will only react to the prefix \`${newPrefix}\`, Example: \`${newPrefix}help\``);
+              message.channel.send(`Too easy. In a few seconds Marvin will only react to the prefix \`${newPrefix}\`, Example: \`${newPrefix}help\``);
               Log.SaveLog("Frontend", "Info", `Prefix for ${message.guild.id} was changed from ${prefix} to ${newPrefix}`);
             }
           }
@@ -1480,30 +1480,37 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   let command = Commands.filter(c => c.commands.find(cm => input.startsWith(cm)))[0];
 
-  if(command) {
-    // Build leaderboard embed
-    try { embed = BuildLeaderboard(command, message, players, registeredPlayer) } catch(err) {
-      Log.SaveLog("Frontend", "Error", err);
-      embed.setAuthor("Uhh oh...");
-      embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
-    };
-
-    // Attempt to send it
-    message.channel.send({ embed }).catch(err => {
-      if(err.code === 50035) {
-        message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message.");
-      }
-      else {
+  if(players.length > 0) {
+    if(command) {
+      // Build leaderboard embed
+      try { embed = BuildLeaderboard(command, message, players, registeredPlayer) } catch(err) {
         Log.SaveLog("Frontend", "Error", err);
-        message.channel.send("There was an error, this has been logged.");
-      }
-    });
+        embed.setAuthor("Uhh oh...");
+        embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
+      };
+  
+      // Attempt to send it
+      message.channel.send({ embed }).catch(err => {
+        if(err.code === 50035) {
+          message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message.");
+        }
+        else {
+          Log.SaveLog("Frontend", "Error", err);
+          message.channel.send("There was an error, this has been logged.");
+        }
+      });
+    }
+    else {
+      // Return message letting them know that the command was not found
+      message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => {
+        msg.delete({ timeout: 3000 });
+      }).catch();
+    }
   }
   else {
-    // Return message letting them know that the command was not found
-    message.channel.send(`I\'m not sure what that commands is sorry. Use \`${ prefix }help\` to see commands.`).then(msg => {
-      msg.delete({ timeout: 3000 });
-    }).catch();
+    // Return message letting them know that the there was no players were returned.
+    embed.setDescription(`No players found, this usually happen 1 of 2 reasons. \n\nFirstly you may not have setup the bot correctly, make sure you that you've registered yourself and used \`${ prefix }set clan\` to setup the bot. \n\nIf you have done this then the reason I found no players is that I haven't scanned your clan yet. Because I serve so many clans it does take time before your inital clan setup would be complete. \n\nTry again in about 15-30 minutes if this is the case.`);
+    message.channel.send(embed);
   }
 }
 function SendTotalTitlesLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
