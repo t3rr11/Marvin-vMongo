@@ -79,10 +79,10 @@ async function Register(prefix, message, command, users, registeredUser) {
         let clans = [];
 
         embed.setAuthor("Too many results...");
-        embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\``);
+        embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\` \n\n**Make sure you select the right platform if you play on more than 1 platform**`);
 
         for(let i in searchResults) {
-          usernames.push(`${ GetPlatformEmoji(searchResults[i].membershipType) } ${ searchResults[i].displayName }`);
+          usernames.push(`${ GetPlatformEmoji(searchResults[i].membershipType) } ${ searchResults[i].bungieGlobalDisplayName }#${ searchResults[i].bungieGlobalDisplayNameCode }`);
           ids.push(searchResults[i].membershipId);
           await RequestHandler.GetClanFromMbmID(searchResults[i].membershipType, searchResults[i].membershipId, async function GetClanFromMbmID(isError, data) {
             if(!isError) {
@@ -106,14 +106,14 @@ async function Register(prefix, message, command, users, registeredUser) {
 }
 
 async function FinishRegistration(message, command, users, registeredUser, data) {
-  Database.addRegisteredUser({ discordID: message.author.id, username: data.displayName, membershipID: data.membershipId, platform: data.membershipType }, function(isError, isAdded, isUpdated) {
+  Database.addRegisteredUser({ discordID: message.author.id, username: `${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode }`, membershipID: data.membershipId, platform: data.membershipType }, function(isError, isAdded, isUpdated) {
     if(!isError) {
-      if(isAdded) { Log.SaveLog("Frontend", "Account", `${ data.displayName } has just registered!`); message.reply(`Your username has been set to: ${ data.displayName }. This takes a few seconds to update.`); }
-      if(isUpdated) { Log.SaveLog("Frontend", "Account", `${ data.displayName } has updated their details!`); message.reply(`Your username has been updated to: ${ data.displayName }. This takes a few seconds to update.`); }
+      if(isAdded) { Log.SaveLog("Frontend", "Account", `${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode } has just registered!`); message.reply(`Your username has been set to: ${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode }. This takes a few seconds to update.`); }
+      if(isUpdated) { Log.SaveLog("Frontend", "Account", `${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode } has updated their details!`); message.reply(`Your username has been updated to: ${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode }. This takes a few seconds to update.`); }
     }
     else {
-      Log.SaveLog("Frontend", "Error", `Failed to set username for: ${ data.displayName }, Discord: ${ message.author.name } (${ message.author.id })`);
-      message.reply(`Failed to set your username to: ${ data.displayName } this has been logged.`);
+      Log.SaveLog("Frontend", "Error", `Failed to set username for: ${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode }, Discord: ${ message.author.name } (${ message.author.id })`);
+      message.reply(`Failed to set your username to: ${ data.bungieGlobalDisplayName }#${ data.bungieGlobalDisplayNameCode } this has been logged.`);
     }
   });
 }

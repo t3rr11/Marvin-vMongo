@@ -44,7 +44,7 @@ async function UpdateClan(clan, season, callback) {
                   for(let i in players) {
                     if(!members.find(e => e.destinyUserInfo.membershipId === players[i].membershipID)) {
                       Database.removeClanFromPlayer(players[i].membershipID);
-                      Log.SaveLog("Backend", "Clan", `${ players[i].displayName } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
+                      Log.SaveLog("Backend", "Clan", `${ players[i].bungieGlobalDisplayName }${ players[i].bungieGlobalDisplayNameCode } (${ players[i].membershipID }) has left the clan ${ clan.clanID }`);
                     }
                   }
                 }
@@ -81,7 +81,7 @@ async function UpdateClan(clan, season, callback) {
                               Database.updateUserByID(onlineMembers[i].destinyUserInfo.membershipId, {
                                 user: {
                                   clanID: clan.clanID,
-                                  displayName: onlineMembers[i].destinyUserInfo.displayName,
+                                  displayName: `${onlineMembers[i].destinyUserInfo.bungieGlobalDisplayName}#${onlineMembers[i].destinyUserInfo.bungieGlobalDisplayNameCode}`,
                                   membershipID: onlineMembers[i].destinyUserInfo.membershipId,
                                   joinDate: onlineMembers[i].joinDate,
                                   lastUpdated: new Date(),
@@ -344,7 +344,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
   Database.updateUserByID(memberData.destinyUserInfo.membershipId, {
     user: {
       clanID: clan.clanID,
-      displayName: memberData.destinyUserInfo.displayName,
+      displayName: `${ memberData.destinyUserInfo.bungieGlobalDisplayName }#${ memberData.destinyUserInfo.bungieGlobalDisplayNameCode }`,
       membershipID: memberData.destinyUserInfo.membershipId,
       currentClass: AccountInfo.currentClass,
       highestPower: AccountInfo.highestPower,

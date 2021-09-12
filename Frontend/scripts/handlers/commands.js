@@ -11,7 +11,7 @@ const Commands = [
     fields: [
       { name: 'Name', type: 'Name', inline: true },
       { name: 'Valor', type: 'Leaderboard', data: 'valor.current', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'valor.current', divisibleBy: 2000, inline: true }
+      { name: 'Resets', type: 'Reset', data: 'valor.current', divisibleBy: 10000, inline: true }
     ]
   },
 
@@ -27,7 +27,7 @@ const Commands = [
     fields: [
       { name: 'Name', type: 'Name', inline: true },
       { name: 'Infamy', type: 'Leaderboard', data: 'infamy.current', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'infamy.current', divisibleBy: 15000, inline: true }
+      { name: 'Resets', type: 'Reset', data: 'infamy.current', divisibleBy: 10000, inline: true }
     ]
   },
 
