@@ -523,7 +523,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
     else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
   }
   else {
-    embed.setDescription(`You're missing some steps. Please setup a clan first using \`${prefix}set clan\` before trying to enable broadcasts.`);
+    embed.setDescription(`You're missing some steps. Please setup a clan first using \`${prefix}set clan\` before trying to enable announcements.`);
     message.channel.send({embed});
   }
 }
