@@ -794,7 +794,7 @@ async function GetHelp(prefix, message, command) {
     case "help rankings": case "rankings": {
       embed.setAuthor("Rankings Help Menu");
       embed.setDescription(`Here is a list of ranking commands! Example: \`${prefix}Iron Banner\``);
-      embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Triumph Score -legacy\`\n\`${prefix}Triumph Score -lifetime\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\`\n\`${prefix}Empire Hunts\`\n\`${prefix}Presage\`\n\`${prefix}Master Presage\``);
+      embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Trials Rank\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Triumph Score -legacy\`\n\`${prefix}Triumph Score -lifetime\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\`\n\`${prefix}Empire Hunts\`\n\`${prefix}Presage\`\n\`${prefix}Master Presage\``);
       break;
     }
     case "help dungeons": case "dungeons": {

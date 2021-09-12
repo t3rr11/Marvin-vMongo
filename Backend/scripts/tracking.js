@@ -349,8 +349,9 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       currentClass: AccountInfo.currentClass,
       highestPower: AccountInfo.highestPower,
       timePlayed: AccountInfo.timePlayed,
-      infamy: { current: Rankings.infamy, resets: Math.floor(Rankings.infamy / 15000) },
-      valor: { current: Rankings.valor, resets: Math.floor(Rankings.valor / 2000) },
+      infamy: { current: Rankings.infamy, resets: Math.floor(Rankings.infamy / 10000) },
+      valor: { current: Rankings.valor, resets: Math.floor(Rankings.valor / 10000) },
+      trialsRank: { current: Rankings.trialsRank, resets: Math.floor(Rankings.trialsRank / 10000) },
       glory: Rankings.glory,
       triumphScore: Others.triumphScore,
       seasonRank: Seasonal.seasonRank,
@@ -452,6 +453,8 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var glory = 0; try { glory = playerData.metrics.data.metrics["268448617"].objectiveProgress.progress; } catch (err) { }
   var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["999240767"].intervalObjectives[2].progress; } catch (err) { }
   var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["2096302465"].intervalObjectives[2].progress; } catch (err) { }
+  var trialsRank = "0"; try { trialsRank = playerData.characterProgressions.data[characterIds[0]].progressions["2755675426"].currentProgress; } catch (err) { }
+
 
   //Trials
   var overall_trialsWins = 0; try { overall_trialsWins = playerData.metrics.data.metrics["1365664208"].objectiveProgress.progress; } catch (err) { }
@@ -478,6 +481,7 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
     "infamy": infamy,
     "valor": valor,
     "glory": glory,
+    "trialsRank": trialsRank,
     "ironBanner": {
       "kills": ibKills,
       "wins": ibWins,

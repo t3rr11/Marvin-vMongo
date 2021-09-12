@@ -31,6 +31,22 @@ const Commands = [
     ]
   },
 
+  // Trials Rank
+  { 
+    name: 'Trials Rank',
+    size: 10,
+    title: 'Top 10 Seasonal Trials Rank Rankings',
+    helpMenus: ['Rankings', 'Trials'],
+    leaderboardURL: 'trialsRank',
+    sorting: 'trialsRank.current',
+    commands: ['trials rank', 'trialsRank'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Trials Rank', type: 'Leaderboard', data: 'trialsRank.current', inline: true },
+      { name: 'Resets', type: 'Reset', data: 'trialsRank.current', divisibleBy: 10000, inline: true }
+    ]
+  },
+
   // Glory
   { 
     name: 'Glory',

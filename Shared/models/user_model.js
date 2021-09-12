@@ -12,6 +12,7 @@ var userSchema = new Schema({
   timePlayed: DefaultNumber,
   infamy: { current: DefaultNumber, resets: DefaultNumber },
   valor: { current: DefaultNumber, resets: DefaultNumber },
+  trialsRank: { current: DefaultNumber, resets: DefaultNumber },
   glory: DefaultNumber,
   triumphScore: {
     score: DefaultNumber,
