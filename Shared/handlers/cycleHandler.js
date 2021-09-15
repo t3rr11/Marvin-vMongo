@@ -5,12 +5,12 @@ const msPerDay = 86400000;
 const cycleInfo = {
   epoch: {
     zeroHour: new Date(`May 7 2019 ${ resetTime }`).getTime(),
-    lostSector: new Date(`July 10 2021 ${ resetTime }`).getTime(),
+    lostSector: new Date(`Sept 15 2021 ${ resetTime }`).getTime(),
     grandMaster: new Date(`December 22 2020 ${ resetTime }`).getTime(),
   },
   cycle: {
     zeroHour: 3,
-    lostSector: 48,
+    lostSector: 44,
     grandMaster: 6
   },
   elapsed: { },
@@ -20,28 +20,31 @@ const cycleInfo = {
 
 const getLoot = (type) => {
   switch(type) {
-    case 0: { return { type: "Chest", loot: [] } }
-    case 1: { return { type: "Helmet", loot: [] } }
-    case 2: { return { type: "Legs", loot: [] } }
-    case 3: { return { type: "Arms", loot: [] } }
+    case 0: { return { type: "Legs", loot: [] } }
+    case 1: { return { type: "Arms", loot: [] } }
+    case 2: { return { type: "Chest", loot: [] } }
+    case 3: { return { type: "Helmet", loot: [] } }
   }
 }
 
 const getSector = (type) => {
   switch(type) {
-    case 0: { return { name: "K1 Communion", masterHash: 2829206720, legendHash: 2829206727, planet: "Moon" } }
-    case 1: { return { name: "K1 Crew Quarters", masterHash: 184186578, legendHash: 184186581, planet: "Moon" } }
-    case 2: { return { name: "K1 Revelations", masterHash: 3911969238, legendHash: 3911969233, planet: "Moon" } }
-    case 3: { return { name: "Consealed Void", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
-    case 4: { return { name: "Bunker E15", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
-    case 5: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
-    case 6: { return { name: "The Quarry", masterHash: 3253890600, legendHash: 3253890607, planet: "EDZ" } }
-    case 7: { return { name: "Scavengers Den", masterHash: 1905792146, legendHash: 1905792149, planet: "EDZ" } }
-    case 8: { return { name: "Excavation Site XII", masterHash: 548616653, legendHash: 548616650, planet: "EDZ" } }
-    case 9: { return { name: "Exodus Garden 2A", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
-    case 10: { return { name: "Veles Labyrinth", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
-    case 11: { return { name: "Empty Tank", masterHash: 2019961993, legendHash: 2019961998, planet: "Tangled Shore" } }
-    case 12: { return { name: "K1 Logistics", masterHash: 567131519, legendHash: 567131512, planet: "Moon" } }
+    case 0: { return { name: "Bay of Drowned Wishes", masterHash: 660710120, legendHash: 660710127, planet: "The Dreaming City" } }
+    case 1: { return { name: "Chamber of Starlight", masterHash: 4206916276, legendHash: 4206916275, planet: "The Dreaming City" } }
+    case 2: { return { name: "Aphelion's Rest", masterHash: 1898610131, legendHash: 1898610132, planet: "The Dreaming City" } }
+    case 3: { return { name: "The Empty Tank", masterHash: 2019961993, legendHash: 2019961998, planet: "Tangled Shore" } }
+    case 4: { return { name: "K1 Logistics", masterHash: 567131519, legendHash: 567131512, planet: "Moon" } }
+    case 5: { return { name: "K1 Communion", masterHash: 2829206720, legendHash: 2829206727, planet: "Moon" } }
+    case 6: { return { name: "K1 Crew Quarters", masterHash: 184186578, legendHash: 184186581, planet: "Moon" } }
+    case 7: { return { name: "K1 Revelations", masterHash: 3911969238, legendHash: 3911969233, planet: "Moon" } }
+    case 8: { return { name: "Consealed Void", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
+    case 9: { return { name: "Bunker E15", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
+    case 10: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
+    // case 6: { return { name: "The Quarry", masterHash: 3253890600, legendHash: 3253890607, planet: "EDZ" } }
+    // case 7: { return { name: "Scavengers Den", masterHash: 1905792146, legendHash: 1905792149, planet: "EDZ" } }
+    // case 8: { return { name: "Excavation Site XII", masterHash: 548616653, legendHash: 548616650, planet: "EDZ" } }
+    // case 9: { return { name: "Exodus Garden 2A", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
+    // case 10: { return { name: "Veles Labyrinth", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
   }
 }
 
@@ -58,51 +61,42 @@ const rotations = {
     8:  { sector: getSector(8), loot: getLoot(0) },
     9:  { sector: getSector(9), loot: getLoot(1) },
     10:  { sector: getSector(10), loot: getLoot(2) },
-    11:  { sector: getSector(11), loot: getLoot(3) },
-    12:  { sector: getSector(12), loot: getLoot(0) },
 
-    
-    13:  { sector: getSector(0), loot: getLoot(1) },
-    14:  { sector: getSector(1), loot: getLoot(2) },
-    15:  { sector: getSector(2), loot: getLoot(3) },
-    16:  { sector: getSector(3), loot: getLoot(0) },
-    17:  { sector: getSector(4), loot: getLoot(1) },
-    18:  { sector: getSector(5), loot: getLoot(2) },
-    19:  { sector: getSector(6), loot: getLoot(3) },
-    20:  { sector: getSector(7), loot: getLoot(0) },
-    21:  { sector: getSector(8), loot: getLoot(1) },
-    22:  { sector: getSector(9), loot: getLoot(2) },
-    23:  { sector: getSector(10), loot: getLoot(3) },
-    24:  { sector: getSector(11), loot: getLoot(0) },
-    25:  { sector: getSector(12), loot: getLoot(1) },
+    11:  { sector: getSector(0), loot: getLoot(3) },
+    12:  { sector: getSector(1), loot: getLoot(0) },
+    13:  { sector: getSector(2), loot: getLoot(1) },
+    14:  { sector: getSector(3), loot: getLoot(2) },
+    15:  { sector: getSector(4), loot: getLoot(3) },
+    16:  { sector: getSector(5), loot: getLoot(0) },
+    17:  { sector: getSector(6), loot: getLoot(1) },
+    18:  { sector: getSector(7), loot: getLoot(2) },
+    19:  { sector: getSector(8), loot: getLoot(3) },
+    20:  { sector: getSector(9), loot: getLoot(0) },
+    21:  { sector: getSector(10), loot: getLoot(1) },
 
-    26:  { sector: getSector(0), loot: getLoot(2) },
-    27:  { sector: getSector(1), loot: getLoot(3) },
-    28:  { sector: getSector(2), loot: getLoot(0) },
-    29:  { sector: getSector(3), loot: getLoot(1) },
-    30:  { sector: getSector(4), loot: getLoot(2) },
-    31:  { sector: getSector(5), loot: getLoot(3) },
-    32:  { sector: getSector(6), loot: getLoot(0) },
-    33:  { sector: getSector(7), loot: getLoot(1) },
-    34:  { sector: getSector(8), loot: getLoot(2) },
-    35:  { sector: getSector(9), loot: getLoot(3) },
-    36:  { sector: getSector(10), loot: getLoot(0) },
-    37:  { sector: getSector(11), loot: getLoot(1) },
-    38:  { sector: getSector(12), loot: getLoot(2) },
+    22:  { sector: getSector(0), loot: getLoot(2) },
+    23:  { sector: getSector(1), loot: getLoot(3) },
+    24:  { sector: getSector(2), loot: getLoot(0) },
+    25:  { sector: getSector(3), loot: getLoot(1) },
+    26:  { sector: getSector(4), loot: getLoot(2) },
+    27:  { sector: getSector(5), loot: getLoot(3) },
+    28:  { sector: getSector(6), loot: getLoot(0) },
+    29:  { sector: getSector(7), loot: getLoot(1) },
+    30:  { sector: getSector(8), loot: getLoot(2) },
+    31:  { sector: getSector(9), loot: getLoot(3) },
+    32:  { sector: getSector(10), loot: getLoot(0) },
 
-    39:  { sector: getSector(0), loot: getLoot(3) },
-    40:  { sector: getSector(1), loot: getLoot(0) },
-    41:  { sector: getSector(2), loot: getLoot(1) },
-    42:  { sector: getSector(3), loot: getLoot(2) },
-    43:  { sector: getSector(4), loot: getLoot(3) },
-    44:  { sector: getSector(5), loot: getLoot(0) },
-    45:  { sector: getSector(6), loot: getLoot(1) },
-    46:  { sector: getSector(7), loot: getLoot(2) },
-    47:  { sector: getSector(8), loot: getLoot(3) },
-    48:  { sector: getSector(9), loot: getLoot(0) },
-    49:  { sector: getSector(10), loot: getLoot(1) },
-    50:  { sector: getSector(11), loot: getLoot(2) },
-    51:  { sector: getSector(12), loot: getLoot(3) },
+    33:  { sector: getSector(0), loot: getLoot(1) },
+    34:  { sector: getSector(1), loot: getLoot(2) },
+    35:  { sector: getSector(2), loot: getLoot(3) },
+    36:  { sector: getSector(3), loot: getLoot(0) },
+    37:  { sector: getSector(4), loot: getLoot(1) },
+    38:  { sector: getSector(5), loot: getLoot(2) },
+    39:  { sector: getSector(6), loot: getLoot(3) },
+    40:  { sector: getSector(7), loot: getLoot(0) },
+    41:  { sector: getSector(8), loot: getLoot(1) },
+    42:  { sector: getSector(9), loot: getLoot(2) },
+    43:  { sector: getSector(10), loot: getLoot(3) },
   },
   zeroHour: {
     0: { burn: 'Void' },
@@ -128,7 +122,7 @@ const dailyCycleInfo = (type) => {
   }
   switch(type) {
     case "legendLostSector": { return rotations.lostSector[cycleInfo.day.lostSector]; }
-    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 0 ? cycleInfo.day.lostSector-1 : 51]; }
+    case "masterLostSector": { return rotations.lostSector[cycleInfo.day.lostSector-1 >= 0 ? cycleInfo.day.lostSector-1 : 43]; }
   }
 };
 
