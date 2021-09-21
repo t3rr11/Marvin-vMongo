@@ -1479,9 +1479,9 @@ function BuildField(field, sortedPlayers, registeredPlayer, size) {
       return builtField;
     }
     case 'Reset': {
-      let builtField = sortedPlayers.map((e, index) => `${ Misc.AddCommas( Math.floor(Object.byString(e, field.data) / field.divisibleBy)) }`).slice(0, size);
+      let builtField = sortedPlayers.map((e, index) => `${ Misc.AddCommas((Object.byString(e, field.data))) }`).slice(0, size);
       if(registeredPlayer) {
-        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data) / field.divisibleBy)) }`);
+        builtField.push("", `${ Misc.AddCommas( Math.floor(Object.byString(registeredPlayer.User, field.data))) }`);
       }
       return builtField;
     }

@@ -10,9 +10,9 @@ var userSchema = new Schema({
   currentClass: String,
   highestPower: DefaultNumber,
   timePlayed: DefaultNumber,
-  infamy: { current: DefaultNumber, resets: DefaultNumber },
-  valor: { current: DefaultNumber, resets: DefaultNumber },
-  trialsRank: { current: DefaultNumber, resets: DefaultNumber },
+  infamy: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
+  valor: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
+  trialsRank: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
   glory: DefaultNumber,
   triumphScore: {
     score: DefaultNumber,

@@ -6,12 +6,12 @@ const Commands = [
     title: 'Top 10 Seasonal Valor Rankings',
     helpMenus: ['Rankings'],
     leaderboardURL: 'valor',
-    sorting: 'valor.current',
+    sorting: 'valor.seasonal',
     commands: ['valor'],
     fields: [
       { name: 'Name', type: 'Name', inline: true },
-      { name: 'Valor', type: 'Leaderboard', data: 'valor.current', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'valor.current', divisibleBy: 10000, inline: true }
+      { name: 'Valor', type: 'Leaderboard', data: 'valor.seasonal', inline: true },
+      { name: 'Resets', type: 'Reset', data: 'valor.resets', inline: true }
     ]
   },
 
@@ -22,12 +22,12 @@ const Commands = [
     title: 'Top 10 Seasonal Infamy Rankings',
     helpMenus: ['Rankings'],
     leaderboardURL: 'infamy',
-    sorting: 'infamy.current',
+    sorting: 'infamy.seasonal',
     commands: ['infamy'],
     fields: [
       { name: 'Name', type: 'Name', inline: true },
-      { name: 'Infamy', type: 'Leaderboard', data: 'infamy.current', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'infamy.current', divisibleBy: 10000, inline: true }
+      { name: 'Infamy', type: 'Leaderboard', data: 'infamy.seasonal', inline: true },
+      { name: 'Resets', type: 'Reset', data: 'infamy.resets', inline: true }
     ]
   },
 
@@ -38,12 +38,12 @@ const Commands = [
     title: 'Top 10 Seasonal Trials Rank Rankings',
     helpMenus: ['Rankings', 'Trials'],
     leaderboardURL: 'trialsRank',
-    sorting: 'trialsRank.current',
+    sorting: 'trialsRank.seasonal',
     commands: ['trials rank', 'trialsRank'],
     fields: [
       { name: 'Name', type: 'Name', inline: true },
-      { name: 'Trials Rank', type: 'Leaderboard', data: 'trialsRank.current', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'trialsRank.current', divisibleBy: 10000, inline: true }
+      { name: 'Trials Rank', type: 'Leaderboard', data: 'trialsRank.seasonal', inline: true },
+      { name: 'Resets', type: 'Reset', data: 'trialsRank.resets', inline: true }
     ]
   },
 
