@@ -349,8 +349,8 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       currentClass: AccountInfo.currentClass,
       highestPower: AccountInfo.highestPower,
       timePlayed: AccountInfo.timePlayed,
-      infamy: { current: Rankings.infamy, resets: Math.floor(Rankings.infamy / 10000) },
-      valor: { current: Rankings.valor, resets: Math.floor(Rankings.valor / 10000) },
+      infamy: { current: Rankings.infamy.current, resets: Rankings.infamy.resets },
+      valor: { current: Rankings.valor.current, resets: Rankings.valor.resets },
       trialsRank: { current: Rankings.trialsRank, resets: Math.floor(Rankings.trialsRank / 10000) },
       glory: Rankings.glory,
       triumphScore: Others.triumphScore,
@@ -448,8 +448,15 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
 
 function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
-  var infamy = 0; try { infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress; } catch (err) { }
-  var valor = 0; try { valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress; } catch (err) { }
+  var infamy = 0, infamyResets = 0, valor = 0, valorResets = 0;
+  try { 
+    infamy = playerData.metrics.data.metrics["250859887"].objectiveProgress.progress;
+    infamyResets = playerData.profileRecords.data.records[1535898464].objectives[0].progress;
+  } catch (err) { }
+  try {
+    valor = playerData.metrics.data.metrics["2872213304"].objectiveProgress.progress;
+    valorResets = playerData.profileRecords.data.records[2668040891].objectives[0].progress;
+  } catch (err) { }
   var glory = 0; try { glory = playerData.metrics.data.metrics["268448617"].objectiveProgress.progress; } catch (err) { }
   var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["999240767"].intervalObjectives[2].progress; } catch (err) { }
   var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["2096302465"].intervalObjectives[2].progress; } catch (err) { }
@@ -478,8 +485,14 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var seasonal_lighthouseCarries = 0; try { seasonal_lighthouseCarries = playerData.metrics.data.metrics["610393611"].objectiveProgress.progress; } catch (err) { }
 
   return {
-    "infamy": infamy,
-    "valor": valor,
+    "infamy": {
+      "current": infamy,
+      "resets": infamyResets
+    },
+    "valor": {
+      "current": valor,
+      "resets": valorResets
+    },
     "glory": glory,
     "trialsRank": trialsRank,
     "ironBanner": {
