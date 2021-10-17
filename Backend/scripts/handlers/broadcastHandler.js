@@ -43,6 +43,7 @@ function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   if(itemHash === 199171385) { count = playerData.User.raids.lastWish; } // 1000 Voices
   else if(itemHash === 753200559) { count = playerData.User.raids.dsc; } // Eyes of Tomorrow
   else if(itemHash === 2300465938) { count = playerData.User.raids.vog; } // Vex Mythoclast
+  else if(itemHash === 2298387876) { count = playerData.User.trials.overall.wins; } // In Memoriam Shell
   if(itemDef) {
     console.log(`itemName: ${ itemDef.displayProperties.name }, itemHash: ${ itemHash }, Count: ${ count }`);
     Database.addAwaitingBroadcast({

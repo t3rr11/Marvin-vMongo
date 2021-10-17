@@ -75,6 +75,10 @@ async function processBroadcast(client, broadcast) {
                       //If the broadcast count has a value other than -1 then it must be a raid broadcast so the message needs to be changed to include this.
                       broadcast.count++;
                       BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } clear! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
+                      if(broadcast.hash === 2298387876) {
+                        // If trials shell custom message
+                        BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } win! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
+                      }
                     }
                     else { BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast }`; }
                     sendItemBroadcast(client, guild, BroadcastMessage, broadcast, clan);
