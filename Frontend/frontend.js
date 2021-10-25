@@ -86,6 +86,7 @@ async function init() {
         //Send daily broadcasts for the first time
         AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
         updateDailyAnnouncements(new Date(trueReset));
+        updateXurAnnouncements(new Date(trueReset));
   
         //Reset the handler for tomorrow.
         ResetHandler();
@@ -224,6 +225,67 @@ async function updateDailyAnnouncements(ResetTime) {
 
     getVendor(vendor);
   }
+}
+
+async function updateXurAnnouncements(ResetTime) {
+  Database.getDailyMods("Xûr", async function(isError, isFound, lastVendorEntry) { 
+    const vendor = ManifestHandler.getManifest().DestinyVendorDefinition[2190858386];   
+    if(!isError && isFound) {
+
+      //Check to make sure it's past the reset date, otherwise we don't want to store a new entry
+      if(new Date() > new Date(lastVendorEntry.nextRefreshDate)) {
+        RequestHandler.GetVendor(vendor.hash, async function(isError, ItemData) {
+          if(!isError && ItemData?.Response?.sales?.data) {
+
+            //Get items and new refresh date.
+            let refreshDate = ItemData.Response.vendor.data.nextRefreshDate;
+            const vendorLocation = ItemData.Response.vendor.data.vendorLocationIndex;
+            const dailySales = ItemData.Response.sales.data;
+            const itemRaw = Object.values(dailySales).filter(e => 
+              (ManifestHandler.getManifestItemByHash(e.itemHash))?.inventory?.tierType === 6 &&
+              (ManifestHandler.getManifestItemByHash(e.itemHash))?.collectibleHash
+            );
+            const items = Object.values(itemRaw).map(e => {
+              let item = ManifestHandler.getManifestItemByHash(e.itemHash);
+              return {
+                name: item.displayProperties.name,
+                icon: item.displayProperties.icon,
+                description: item.displayProperties.description,
+                hash: item.hash,
+                collectibleHash: item.collectibleHash,
+                stats: ItemData.Response?.itemComponents?.stats?.data[e?.vendorItemIndex]?.stats,
+                itemType: item.itemType
+              }
+            });
+
+            //Only proceed if the reset times are different otherwise you're re-entering the duplicte data
+            if(ResetTime !== refreshDate) {
+              //Add new database entry.
+              Database.addDailyMods({ 
+                vendor: vendor.displayProperties.name,
+                items: items,
+                nextRefreshDate: refreshDate
+              }, function addDailyMods(isError, isFound, data) {
+                if(isError) {
+                  ErrorHandler("High", data);
+                }
+              });
+            
+              //Send xur broadcasts.
+              AnnouncementsHandler.sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation);
+            }
+            else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.displayProperties.name }. Ignored.`); }
+          }
+          else {
+            //If failed for some reason, set a timeout to retry and log error.
+            ErrorHandler("Med", `Failed to update mods for ${ vendor.displayProperties.name }, retrying in 60 seconds.`);
+            setTimeout(() => { console.log(err); }, 60000);
+          }
+        });
+      }
+
+    }
+  });
 }
 
 //Joined a server

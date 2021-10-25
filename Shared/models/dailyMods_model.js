@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var dailyModsSchema = new Schema({
   vendor: { type: String, default: "Unknown" },
   mods: { type: Array, default: [] },
+  items: { type: Array, default: [] },
   nextRefreshDate: { type: Date, default: new Date(new Date().getTime() + 86400000) },
   date: { type: Date, default: Date.now }
 });

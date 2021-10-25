@@ -118,6 +118,92 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     }
   }
 }
+async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) {
+
+  generateXurEmbed = async () => {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+
+    //Canvasing the mod images
+    const canvas = Canvas.createCanvas(500, 210);
+    const ctx = canvas.getContext('2d');
+    let friendlyLocation = "Hidden";
+    let locationText = "Xûr's location is hidden";
+
+    //Add Background Image
+    switch(vendorLocation) {
+      case 0: {
+        friendlyLocation = "Tower";
+        locationText = "Xûr can be found in the **Tower**, near **Dead Orbit**.";
+        ctx.drawImage(await Canvas.loadImage(`./images/xur_tower.png`), 0, 0, 500, 210);
+        break;
+      }
+      case 1: {
+        friendlyLocation = "EDZ";
+        locationText = "Xûr can be found on **EDZ** in the **Winding Cove**.";
+        ctx.drawImage(await Canvas.loadImage(`./images/xur_edz.png`), 0, 0, 500, 210);
+        break;
+      }
+      case 2: {
+        friendlyLocation = "Nessus";
+        locationText = "Xûr can be found in **Nessus** on a branch over in **Watcher's Grave**.";
+        ctx.drawImage(await Canvas.loadImage(`./images/xur_nessus.png`), 0, 0, 500, 210);
+        break;
+      }
+    }
+
+    //Build Item
+    buildItemDesc = (item) => {
+      if(item.itemType === 2) {
+        const intellect = item.stats['144602215']?.value;
+        const resilience = item.stats['392767087']?.value;
+        const discipline = item.stats['1735777505']?.value;
+        const recovery = item.stats['1943323491']?.value;
+        const mobility = item.stats['2996146975']?.value;
+        const strength = item.stats['4244567218']?.value;
+
+        return `**${ item.name }**\n${ mobility ? 'Mob: ' + mobility : '' }, ${ resilience ? 'Res: ' + resilience : '' }, ${ recovery ? 'Res: ' + recovery : '' }\n${ discipline ? 'Dis: ' + discipline : '' }, ${ intellect ? 'Int: ' + intellect : '' }, ${ strength ? 'Str: ' + strength : '' }\n\n`;
+      }
+      else if(item.itemType === 3) {
+        const stability = item.stats['155624089']?.value;
+        const handling = item.stats['943549884']?.value;
+        const range = item.stats['1240592695']?.value;
+        const magazine = item.stats['3871231066']?.value;
+        const impact = item.stats['4043523819']?.value;
+        const reload = item.stats['4188031367']?.value;
+        const rpm = item.stats['4284893193']?.value;
+
+        return `**${ item.name }**\n${ impact ? 'Imp: ' + impact : '' }, ${ range ? 'Ran: ' + range : '' }, ${ stability ? 'Sta: ' + stability : '' }, ${ handling ? 'Han: ' + handling : '' }\n${ reload ? 'Rel: ' + reload : '' }, ${ magazine ? 'Mag: ' + magazine : '' }, ${ rpm ? 'Rpm: ' + rpm : '' }\n\n`;
+      }
+      else {
+        return `**${ item.name }**\n\n`;
+      }
+    };
+
+    //Add Image to Embed
+    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'xurLocation.png');
+    embed.attachFiles([attachment]);
+    embed.setImage('attachment://xurLocation.png');
+
+    embed.setAuthor(`Xûr - ${ friendlyLocation }`);
+    embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ items.map(item => buildItemDesc(item)).join('') }`);
+
+    return embed;
+  }
+
+  let xurEmbed = await generateXurEmbed();
+  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send(xurEmbed);
+
+  //Send them
+  // for(let i in guilds) {
+  //   let guild = guilds[i];
+  //   if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
+  //     try {
+  //       client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(legendEmbed);
+  //     }
+  //     catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
+  //   }
+  // }
+}
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { sendModsBroadcasts, sendDailyLostSectorBroadcasts }
+module.exports = { sendModsBroadcasts, sendDailyLostSectorBroadcasts, sendXurBroadcasts }
