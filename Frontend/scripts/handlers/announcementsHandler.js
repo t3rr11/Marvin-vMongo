@@ -160,8 +160,9 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
         const recovery = item.stats['1943323491']?.value;
         const mobility = item.stats['2996146975']?.value;
         const strength = item.stats['4244567218']?.value;
+        const total = intellect + resilience + discipline + recovery + mobility + strength;
 
-        return `**${ item.name }**\n${ mobility ? 'Mob: ' + mobility : '' }, ${ resilience ? 'Res: ' + resilience : '' }, ${ recovery ? 'Res: ' + recovery : '' }\n${ discipline ? 'Dis: ' + discipline : '' }, ${ intellect ? 'Int: ' + intellect : '' }, ${ strength ? 'Str: ' + strength : '' }\n\n`;
+        return `**${ item.name }** - ${ total }\n${ mobility ? 'Mob: ' + mobility : '' }, ${ resilience ? 'Res: ' + resilience : '' }, ${ recovery ? 'Rec: ' + recovery : '' }\n${ discipline ? 'Dis: ' + discipline : '' }, ${ intellect ? 'Int: ' + intellect : '' }, ${ strength ? 'Str: ' + strength : '' }\n\n`;
       }
       else if(item.itemType === 3) {
         const stability = item.stats['155624089']?.value;
