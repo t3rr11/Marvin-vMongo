@@ -100,7 +100,8 @@ var userSchema = new Schema({
   },
   challenges: {
     s13: { type: Boolean, default: false },
-    s14: { type: Boolean, default: false }
+    s14: { type: Boolean, default: false },
+    s15: { type: Boolean, default: false }
   },
   triumphs: {
     cabals: { type: Boolean, default: false }
@@ -117,7 +118,10 @@ var userSchema = new Schema({
     invertedSpire: { type: Number, default: 0 },
     exodusCrash: { type: Number, default: 0 },
     theDisgraced: { type: Number, default: 0 },
-    scarletKeep: { type: Number, default: 0 }
+    scarletKeep: { type: Number, default: 0 },
+    theHollowedLair: { type: Number, default: 0 },
+    lakeOfShadows: { type: Number, default: 0 },
+    theCorruped: { type: Number, default: 0 }
   },
   lastActivity: {
     currentActivityHash: { type: Number, default: 0 },

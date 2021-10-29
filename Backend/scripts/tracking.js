@@ -306,7 +306,8 @@ async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData
 
       let challenges = {
         s13: { hash: 1417828034, old: oldPlayerData.User.challenges.s13, new: newTriumphData.challenges.s13 },
-        s14: { hash: 3289944359, old: oldPlayerData.User.challenges.s14, new: newTriumphData.challenges.s14 }
+        s14: { hash: 3289944359, old: oldPlayerData.User.challenges.s14, new: newTriumphData.challenges.s14 },
+        s15: { hash: 3571655900, old: oldPlayerData.User.challenges.s15, new: newTriumphData.challenges.s15 }
       }
       let triumphs = {
         cabal: { hash: 1607758397, old: oldPlayerData.User.triumphs.cabals, new: newTriumphData.triumphs.cabals }
@@ -318,9 +319,14 @@ async function CheckTriumphs(clan, season, memberData, playerData, oldPlayerData
       //     BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s13.hash, oldPlayerData, season);
       //   }
       // }
-      if(!challenges.s14.old && challenges.s14.new) {
+      // if(!challenges.s14.old && challenges.s14.new) {
+      //   for(let i in guilds) {
+      //     BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s14.hash, oldPlayerData, season);
+      //   }
+      // }
+      if(!challenges.s15.old && challenges.s15.new) {
         for(let i in guilds) {
-          BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s14.hash, oldPlayerData, season);
+          BroadcastHandler.sendTriumphBroadcast(clan, guilds[i], challenges.s15.hash, oldPlayerData, season);
         }
       }
       
@@ -640,18 +646,19 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var grandmasters = {
-    theGlassway: playerData.profileRecords.data.records[2520907454]?.objectives[0]?.progress,
-    theInsightTerminus: playerData.profileRecords.data.records[2117601105]?.objectives[0]?.progress,
-    fallenSABER: playerData.profileRecords.data.records[371577627]?.objectives[0]?.progress,
-    invertedSpire: playerData.profileRecords.data.records[1119359150]?.objectives[0]?.progress,
-    wardenOfNothing: playerData.profileRecords.data.records[2589774932]?.objectives[0]?.progress,
-    theDisgraced: playerData.profileRecords.data.records[2271505111]?.objectives[0]?.progress
+    theHollowedLair: playerData.profileRecords.data.records[1839177494]?.objectives[0]?.progress,
+    lakeOfShadows: playerData.profileRecords.data.records[2542468646]?.objectives[0]?.progress,
+    exodusCrash: playerData.profileRecords.data.records[2916711327]?.objectives[0]?.progress,
+    theCorruped: playerData.profileRecords.data.records[406948259]?.objectives[0]?.progress,
+    theDevilsLair: playerData.profileRecords.data.records[3663146391]?.objectives[0]?.progress,
+    provingGrounds: playerData.profileRecords.data.records[2483704578]?.objectives[0]?.progress
   }
 
   //Update Check triumphs and the user model as well.
   var challenges = {
     s13: false,
     s14: false,
+    s15: false,
   };
   var triumphs = {
     cabals: false,
@@ -660,6 +667,7 @@ function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   //Set challenge completion values
   try { challenges.s13 = playerData.characterRecords.data[characterIds[0]].records[1417828034].objectives[0].complete; } catch (err) { }
   try { challenges.s14 = playerData.characterRecords.data[characterIds[0]].records[3289944359].objectives[0].complete; } catch (err) { }
+  try { challenges.s15 = playerData.characterRecords.data[characterIds[0]].records[3571655900].objectives[0].complete; } catch (err) { }
 
   //Set triumph completion values
 
