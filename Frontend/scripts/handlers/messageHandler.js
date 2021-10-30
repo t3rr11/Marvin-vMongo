@@ -39,7 +39,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
     if(message.guild.id === "110373943822540800" || message.guild.id === "264445053596991498") return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('VIEW_CHANNEL')) return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('SEND_MESSAGES')) return;
-    if(!message.content.startsWith(prefix) || message.author.bot && message.author.id !== "159985870458322944") return;
+    if(!message.content.startsWith(prefix) && !message.content.startsWith('~set prefix') || message.author.bot && message.author.id !== "159985870458322944") return;
     if(message.content.startsWith("~~")) return;
     
     const args = message.content.slice(prefix.length);

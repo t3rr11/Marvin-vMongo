@@ -119,6 +119,7 @@ function UpdateActivityList() {
     ActivityList.push(`~Legend and ~Master are now re-enabled.`);
     ActivityList.push(`Want Faster Broadcasts? Consider Supporting, ~Support`);
     ActivityList.push(`Wonder what clannies are upto? Use: ~Clan Activity`);
+    ActivityList.push(`~Xur now in! For how long?.. until Bungie obsure his location again.`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
   }
