@@ -896,7 +896,7 @@ async function GetHelp(prefix, message, command) {
     case "help raids": case "raids": {
       embed.setAuthor("Raids Help Menu");
       embed.setDescription(`Here is a list of raid commands! Example: \`${prefix}LW\``);
-      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\``);
+      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\`\n\`${prefix}VoG\``);
       break;
     }
     case "help items": case "items": {
