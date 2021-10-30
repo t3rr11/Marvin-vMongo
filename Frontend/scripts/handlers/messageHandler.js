@@ -129,6 +129,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         //Vendors
         case command.startsWith("gunsmith"): { DailyMods(guild, message, "Gunsmith"); break; }
         case command.startsWith("ada"): case command.startsWith("ada-1"): case command.startsWith("ada1"): { DailyMods(guild, message, "Ada-1"); break; }
+        case command.startsWith("xur"): case command.startsWith("Xûr"): { GetXur(guild, message); break; }
 
         //Rankings
         case command.startsWith("clan wars"): { message.channel.send(`The command is used without a space: \`${ prefix }Clanwars\`. It's for stability issues sorry.`); break; }
@@ -593,7 +594,7 @@ async function ItemInfo(prefix, message, command) {
 }
 async function DailyMods(guild, message, vendor) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
   function GetDailyMods() {
     function FormatText(string) {
@@ -657,6 +658,95 @@ async function DailyMods(guild, message, vendor) {
   }
 
   GetDailyMods();
+}
+async function GetXur(guild, message) {
+  var prefix = guild?.prefix ? guild?.prefix : "~";
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - Xûr`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
+
+  function GetXursItems() {
+    Database.getDailyMods("Xûr", async function(isError, isFound, data) {    
+      if(!isError && isFound) {
+        //Canvasing the mod images
+        const canvas = Canvas.createCanvas(500, 210);
+        const ctx = canvas.getContext('2d');
+        let friendlyLocation = "Hidden";
+        let locationText = "Xûr's location is hidden";
+
+        //Add Background Image
+        switch(data.location) {
+          case 0: {
+            friendlyLocation = "Tower";
+            locationText = "Xûr can be found in the **Tower**, near **Dead Orbit**.";
+            ctx.drawImage(await Canvas.loadImage(`./images/xur_tower.png`), 0, 0, 500, 210);
+            break;
+          }
+          case 1: {
+            friendlyLocation = "EDZ";
+            locationText = "Xûr can be found on **EDZ** in the **Winding Cove**.";
+            ctx.drawImage(await Canvas.loadImage(`./images/xur_edz.png`), 0, 0, 500, 210);
+            break;
+          }
+          case 2: {
+            friendlyLocation = "Nessus";
+            locationText = "Xûr can be found in **Nessus** on a branch over in **Watcher's Grave**.";
+            ctx.drawImage(await Canvas.loadImage(`./images/xur_nessus.png`), 0, 0, 500, 210);
+            break;
+          }
+          default: {
+            friendlyLocation = "Hidden";
+            locationText = "Xûr's location is hidden.";
+            break;
+          }
+        }
+
+        //Build Item
+        buildItemDesc = (item) => {
+          if(item.itemType === 2) {
+            const intellect = item.stats['144602215']?.value;
+            const resilience = item.stats['392767087']?.value;
+            const discipline = item.stats['1735777505']?.value;
+            const recovery = item.stats['1943323491']?.value;
+            const mobility = item.stats['2996146975']?.value;
+            const strength = item.stats['4244567218']?.value;
+            const total = intellect + resilience + discipline + recovery + mobility + strength;
+
+            return `**${ item.name }** - ${ total }\n${ mobility ? 'Mob: ' + mobility : '' }, ${ resilience ? 'Res: ' + resilience : '' }, ${ recovery ? 'Rec: ' + recovery : '' }\n${ discipline ? 'Dis: ' + discipline : '' }, ${ intellect ? 'Int: ' + intellect : '' }, ${ strength ? 'Str: ' + strength : '' }\n\n`;
+          }
+          else if(item.itemType === 3) {
+            const stability = item.stats['155624089']?.value;
+            const handling = item.stats['943549884']?.value;
+            const range = item.stats['1240592695']?.value;
+            const magazine = item.stats['3871231066']?.value;
+            const impact = item.stats['4043523819']?.value;
+            const reload = item.stats['4188031367']?.value;
+            const rpm = item.stats['4284893193']?.value;
+
+            return `**${ item.name }**\n${ impact ? 'Imp: ' + impact : '' }, ${ range ? 'Ran: ' + range : '' }, ${ stability ? 'Sta: ' + stability : '' }, ${ handling ? 'Han: ' + handling : '' }\n${ reload ? 'Rel: ' + reload : '' }, ${ magazine ? 'Mag: ' + magazine : '' }, ${ rpm ? 'Rpm: ' + rpm : '' }\n\n`;
+          }
+          else {
+            return `**${ item.name }**\n\n`;
+          }
+        }
+
+        //Add Image to Embed
+        const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'xurLocation.png');
+        embed.attachFiles([attachment]);
+        embed.setImage('attachment://xurLocation.png');
+
+        embed.setAuthor(`Xûr - ${ friendlyLocation }`);
+        embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ data.items.map(item => buildItemDesc(item)).join('') }`);
+
+        message.channel.send(embed);
+      }
+      else {
+        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        errorEmbed.setDescription(`So something went wrong and this command just didn't work. Please report using \`${prefix}request\``);
+        message.channel.send(errorEmbed);
+      }
+    });
+  }
+
+  GetXursItems();
 }
 async function LostSectors(message, type) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();

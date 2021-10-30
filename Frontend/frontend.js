@@ -192,6 +192,7 @@ async function updateDailyAnnouncements(ResetTime) {
       if(!isError && ModData?.Response?.sales?.data) {
         //Get mods and new refresh date.
         let refreshDate = ModData.Response.vendor.data.nextRefreshDate;
+        const vendorLocation = ModData.Response.vendor.data?.vendorLocationIndex;
         const dailySales = ModData.Response.sales.data;
         const modsRaw = Object.values(dailySales).filter(e => (ManifestHandler.getManifestItemByHash(e.itemHash))?.itemType === 19);
         const mods = Object.values(modsRaw).map(e => {
@@ -209,7 +210,16 @@ async function updateDailyAnnouncements(ResetTime) {
         //Only proceed if the reset times are different otherwise you're re-entering the duplicte data
         if(ResetTime !== refreshDate) {
           //Add new database entry.
-          Database.addDailyMods({ vendor: vendor.name, mods: mods, nextRefreshDate: refreshDate }, function addDailyMods(isError, isFound, data) { if(isError) { ErrorHandler("High", data); } });
+          Database.addDailyMods({
+            vendor: vendor.name,
+            mods: mods,
+            location: vendorLocation,
+            nextRefreshDate: refreshDate
+          }, function addDailyMods(isError, isFound, data) {
+            if(isError) {
+              ErrorHandler("High", data);
+            }
+          });
         
           //Send mod broadcasts.
           AnnouncementsHandler.sendModsBroadcasts(client, Guilds, mods, vendor);
@@ -233,7 +243,7 @@ async function updateXurAnnouncements(ResetTime) {
     if(!isError && isFound) {
 
       //Check to make sure it's past the reset date, otherwise we don't want to store a new entry
-      if(new Date() > new Date(lastVendorEntry.nextRefreshDate)) {
+      if(new Date() > new Date(lastVendorEntry.nextRefreshDate) && new Date().getDay() === 5) {
         RequestHandler.GetVendor(vendor.hash, async function(isError, ItemData) {
           if(!isError && ItemData?.Response?.sales?.data) {
 
@@ -264,6 +274,7 @@ async function updateXurAnnouncements(ResetTime) {
               Database.addDailyMods({ 
                 vendor: vendor.displayProperties.name,
                 items: items,
+                location: vendorLocation,
                 nextRefreshDate: refreshDate
               }, function addDailyMods(isError, isFound, data) {
                 if(isError) {

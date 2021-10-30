@@ -6,7 +6,7 @@ const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../.
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 
 async function sendModsBroadcasts(client, guilds, mods, vendor) {
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://braytech.org/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
   function FormatText(string) {
     let name = string;
     if(string.split(" ").length > 3) {
@@ -121,7 +121,7 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
 async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) {
 
   generateXurEmbed = async () => {
-    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
     //Canvasing the mod images
     const canvas = Canvas.createCanvas(500, 210);
@@ -147,6 +147,11 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
         friendlyLocation = "Nessus";
         locationText = "Xûr can be found in **Nessus** on a branch over in **Watcher's Grave**.";
         ctx.drawImage(await Canvas.loadImage(`./images/xur_nessus.png`), 0, 0, 500, 210);
+        break;
+      }
+      default: {
+        friendlyLocation = "Hidden";
+        locationText = "Xûr's location is hidden.";
         break;
       }
     }
