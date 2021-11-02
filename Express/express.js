@@ -103,7 +103,7 @@ async function DatabaseFunction(req, res, options, data) {
     Database[options.func](options, data, (isError, isFound, response) => {
       if(!isError) {
         if(isFound) { res.status(200).send({ "isError": false, "message": "Success", "code": 200, data: response }); }
-        else { res.status(404).send({ "isError": false, "message": "Not Found", "code": 404, data: [] }); }
+        else { res.status(200).send({ "isError": false, "message": "Not Found", "code": 200, data: [] }); }
       }
       else {
         res.status(400).send({ "isError": true, "message": data, "code": 500 });
