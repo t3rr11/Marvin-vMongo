@@ -33,7 +33,7 @@ let startupCheck = setInterval(async function Startup() {
   }
 }, 1000);
 
-app.get("/Test", async function(req, res) { res.status(200).send("Hello World"); });
+app.get("/Test", async function(req, res) { res.status(200).send({ "isError": false, "message": "Success", "code": 200, data: "Hello world!" }); });
 app.get("/GetAllClans", async function(req, res) { await DatabaseFunction(req, res, { func: "getAllClansForExpress", amount: 3000 }); });
 app.get("/GetDailyUsers", async function(req, res) { await DatabaseFunction(req, res, { func: "getDailyUsers" }); });
 app.get("/GetGlobals", async function(req, res) { await DatabaseFunction(req, res, { func: "getGlobalItems" }); });
