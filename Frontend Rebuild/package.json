@@ -1,0 +1,21 @@
+{
+  "name": "frontend-rebuild",
+  "version": "1.0.0",
+  "description": "",
+  "main": "frontend.ts",
+  "scripts": {
+    "start": "tsc && node frontend.ts",
+    "dev": "nodemon frontend.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0"
+  }
+}

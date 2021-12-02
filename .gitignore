@@ -14,8 +14,8 @@
 #configs
 /Shared/configs
 
-#others
-/Frontend Rebuild
+#envs
+/Frontend Rebuild/.env
 
 #logs
 frontend-error.log
