@@ -59,14 +59,14 @@ async function sendModsBroadcasts(client, guilds, mods, vendor) {
     if(vendor.name === "Ada-1") {
       if(guild.announcements.adas && guild.announcements.channel !== "0") {
         embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [embed] }); }
         catch(err) { console.log(`Failed to send ada-1 mods broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
     if(vendor.name === "Gunsmith") {
       if(guild.announcements.gunsmiths && guild.announcements.channel !== "0") {
         embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embed }); }
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [embed] }); }
         catch(err) { console.log(`Failed to send gunsmith mods broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }

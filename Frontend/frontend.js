@@ -1,6 +1,6 @@
 //Required Libraraies
 const Discord = require('discord.js');
-const client = new Discord.Client();
+const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
 const fetch = require('node-fetch');
 const Database = require('../Shared/database');
 const Checks = require('../Shared/checks');
@@ -127,7 +127,12 @@ function UpdateActivityList() {
 
 async function update() {
   //Update Users
-  Users = 0; for(let g in client.guilds.cache.array()) { var guild = client.guilds.cache.array()[g]; try { if(!isNaN(guild.memberCount)) { Users = Users + guild.memberCount; } } catch (err) { } }
+  Users = 0;
+  client.guilds.cache.forEach((guild) => {
+    if(guild?.memberCount) {
+      Users = Number(Users) + Number(guild?.memberCount);
+    }
+  });
 
   //Update clans
   await new Promise(resolve => Database.getAllClans(function GetAllClans(isError, isFound, clans) {
@@ -363,7 +368,7 @@ client.on('shardReconnecting', (id) => { Log.SaveLog("Frontend", "Warning", `Sha
 client.on('shardResume', (id, replayedEvents) => { Log.SaveLog("Frontend", "Info", `Shard has been resumed: ${ id }`); });
 
 //On Message
-client.on("message", async message => {
+client.on("messageCreate", async message => {
   const args = message.content.slice("~".length);
   const lowercased = args.toString().toLowerCase();
   const command = lowercased.replace(/[\u2018\u2019]/g, "'");

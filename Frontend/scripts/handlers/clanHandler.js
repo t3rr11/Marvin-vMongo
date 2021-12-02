@@ -113,7 +113,7 @@ function AddClan(prefix, message, command) {
                     .setDescription(`In order to add a new clan to be tracked along side your main clan you will need to find that clan here: https://www.bungie.net/en/ClanV2/MyClans \n\nOnce you've found the clan you wish to add check the URL of the page, it should say \`https://www.bungie.net/en/ClanV2/Index?groupId=1234567\`. \n\nThen it's just a matter of using that groupId like this: \`${prefix}add clan 1234567\``)
                     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
                     .setTimestamp()
-                    message.channel.send({embed});
+                    message.channel.send({ embeds: [embed] });
                   }
                 }
                 else { message.reply(`Only discord administrators or the one who linked this server can add or remove clans from the server. Get them to use: \`${prefix}add clan\` for you.`); }
@@ -227,7 +227,7 @@ async function GetTrackedClans(prefix, message, command) {
         .addField("Clan ID", clanData.ids, true)
         .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
         .setTimestamp()
-        message.channel.send({embed});
+        message.channel.send({ embeds: [embed] });
       }
       else { message.reply("Could not find and clans tracked by this guild."); }
     }

@@ -3,7 +3,7 @@ module.exports = {
   cleanString, addOrdinal, GetItemState, capitalize, nextDayAndTime, upsertArray
 };
 
-function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") } catch (err) { return x } }
+function AddCommas(x) { try { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "ꓹ") } catch (err) { return x } }
 function IsJSON(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
 function GetClassName(classType) {
   if(classType === 0) { return "Titan" }

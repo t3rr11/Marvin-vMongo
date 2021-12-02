@@ -4,6 +4,7 @@
 /Backend/data
 /Backend/node_modules
 /Frontend/node_modules
+/Frontend Rebuild/node_modules
 /Express/node_modules
 /Globals/node_modules
 /Shared/node_modules
@@ -14,7 +15,7 @@
 /Shared/configs
 
 #others
-/Frontend - New
+/Frontend Rebuild
 
 #logs
 frontend-error.log

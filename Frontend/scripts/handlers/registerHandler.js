@@ -128,7 +128,7 @@ async function Register(prefix, message, command, users, registeredUser) {
         }
 
         try {
-          message.channel.send({embed});
+          message.channel.send({ embeds: [embed] });
         }
         catch(err) {
           message.channel.send(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
@@ -138,7 +138,7 @@ async function Register(prefix, message, command, users, registeredUser) {
         let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         embed.setAuthor("Too many results...");
         embed.setDescription(`This happened because there are more than 30 people with names similar to yours. To avoid breaching the scan limit I've added this catch. \n\n**Please if possible register with your Bungie given name instead which looks a little something like this. Marvin#1234**`);
-        message.channel.send({embed});
+        message.channel.send({ embeds: [embed] });
       }
       else if(searchResults.length === 0) { message.reply(`No users with that name found... Try this: \n\n1. Goto https://guardianstats.com and login there. \n2. Then if required choose a platform. \n3. If not then just click your name next to the setting wheel which will reveal your membershipId. \n4. Once you have copied that ID then just use the command like this \`${prefix}Register 1234567890\`.`); }
       else { FinishRegistration(message, command, users, registeredUser, searchResults[0]); }

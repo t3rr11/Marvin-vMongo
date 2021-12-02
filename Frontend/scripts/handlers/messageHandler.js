@@ -205,7 +205,7 @@ async function Request(prefix, client, message, command) {
     .setDescription(request)
     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
     .setTimestamp()
-    client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({embed});
+    client.guilds.cache.get('664237007261925404').channels.cache.get('664238376219836416').send({ embeds: [embed] });
     message.reply("Your request has been sent, Thank your for your valuable feedback! Feel free to join the discord if you'd like to keep up to date about the status of this request. https://marvin.gg/Discord");
   }
   else { message.reply(`Please add some context along with the request, something like: \`${prefix}request please add season rank tracking\``); }
@@ -230,13 +230,13 @@ function AddBannedUser(message, command) {
       embed.setColor(0x0099FF);
       embed.setAuthor("Failed");
       embed.setDescription(err);
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
       embed.setAuthor("User has been banned!");
       embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
   });
 }
@@ -249,13 +249,13 @@ function RemoveBannedUser(message, command) {
       embed.setColor(0x0099FF);
       embed.setAuthor("Failed");
       embed.setDescription(err !== null ? err : "User was not found");
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
       embed.setAuthor("User has been unbanned!");
       embed.setDescription(`**User:** ${ id }`);
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
   });
 }
@@ -270,13 +270,13 @@ function ChangeBannedUser(message, command) {
       embed.setColor(0x0099FF);
       embed.setAuthor("Failed");
       embed.setDescription(err);
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
       embed.setAuthor("Banned user has been updated!");
       embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
-      message.channel.send({embed});
+      message.channel.send({ embeds: [embed] });
     }
   });
 }
@@ -286,7 +286,7 @@ function ViewBans(message) {
     if(!isError) {
       if(isFound) {
         embed.setDescription(data.map((user) => { return `**User:** ${ user.discordID }, **Reason:** ${ user.reason }` }));
-        message.channel.send({embed});
+        message.channel.send({ embeds: [embed] });
       }
       else { message.channel.send("There were no banned users found."); }
     }
@@ -312,7 +312,7 @@ function GetGeolocationalData(client, message) {
   embed.addField("Region", Regions.map((region) => { return Misc.capitalize(region.name) }), true)
   embed.addField("Amount", Regions.map((region) => { return region.amount }), true)
   embed.addField("Percent", Regions.map((region) => { return `${ ((region.amount / client.guilds.cache.array().length) * 100).toFixed(2) }%` }), true)
-  message.channel.send({embed});
+  message.channel.send({ embeds: [embed] });
 }
 function GetScanSpeed(message) {
   var backend_status = JSON.parse(fs.readFileSync('../Backend/data/backend_status.json').toString());
@@ -379,13 +379,13 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
                     embed.setDescription(`Successfully set <#${ message.mentions.channels.first().id }> as the broadcasts channel!`);
                     Log.SaveLog("Frontend", "Info", `${ message.guild.id } has set a broadcasts channel: ${ message.mentions.channels.first().id }`);
                   }
-                  message.channel.send({embed});
+                  message.channel.send({ embeds: [embed] });
                 }
               );
             }
-            else { embed.setDescription(`There are no clans tracked by this server, so i cannot set a broadcasts channel yet. Use: \`${ prefix }set clan\` first.`); message.channel.send({embed}); }
+            else { embed.setDescription(`There are no clans tracked by this server, so i cannot set a broadcasts channel yet. Use: \`${ prefix }set clan\` first.`); message.channel.send({ embeds: [embed] }); }
           }
-          else { embed.setDescription(`In order to set the broadcasts channel use the command like this: \`${ prefix }set broadcasts {channelname}\`. Example: \`${ prefix }set broadcasts #general\``); message.channel.send({embed}); } 
+          else { embed.setDescription(`In order to set the broadcasts channel use the command like this: \`${ prefix }set broadcasts {channelname}\`. Example: \`${ prefix }set broadcasts #general\``); message.channel.send({ embeds: [embed] }); } 
           break;
         }
         case "remove": {
@@ -398,11 +398,11 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
                   embed.setDescription(`Successfully removed the broadcasts channel!`);
                   Log.SaveLog("Frontend", "Info", `${ message.guild.id } has removed the broadcasts channel.`);
                 }
-                message.channel.send({embed});
+                message.channel.send({ embeds: [embed] });
               }
             );
           }
-          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a broadcasts channel yet. So no need to use this command.`); message.channel.send({embed}); }
+          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a broadcasts channel yet. So no need to use this command.`); message.channel.send({ embeds: [embed] }); }
           break;
         }
         case "toggle": {
@@ -421,27 +421,27 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
                   embed.setDescription(`Successfully disabled ${ toggle } broadcasts!`);
                   Log.SaveLog("Frontend", "Info", `${ message.guild.id } has disabled ${ toggle } broadcasts.`);
                 }
-                message.channel.send({embed});
+                message.channel.send({ embeds: [embed] });
               }
             });
           }
-          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a broadcasts channel yet. So no need to use this command.`); message.channel.send({embed}); }
+          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a broadcasts channel yet. So no need to use this command.`); message.channel.send({ embeds: [embed] }); }
           break;
         }
         case "manage": {
           if(guild.broadcasts.channel === "0") { embed.setDescription(`Broadcasts are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Broadcasts #example\`.\nReplace example with whichever channel you would like to have the broadcasts be announced into.`); }
           else { embed.setDescription(`Broadcasts Channel: <#${ guild.broadcasts.channel }>\nBroadcasts Mode: **${ guild.broadcasts.mode }**\n\nItem Broadcasts: **${ guild.broadcasts.items ? "Enabled" : "Disabled" }**\nTitle Broadcasts: **${ guild.broadcasts.titles ? "Enabled" : "Disabled" }**\nClan Broadcasts: **${ guild.broadcasts.clans ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help broadcasts\``); }
-          message.channel.send({embed});
+          message.channel.send({ embeds: [embed] });
           break;
         }
         default: { GetHelp(prefix, message, "broadcasts"); break; }
       }
     }
-    else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
+    else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({ embeds: [embed] }); }
   }
   else {
     embed.setDescription(`You're missing some steps. Please setup a clan first using \`${prefix}set clan\` before trying to enable broadcasts.`);
-    message.channel.send({embed});
+    message.channel.send({ embeds: [embed] });
   }
 }
 function ManageAnnouncements(prefix, message, type, command, guild) {
@@ -461,13 +461,13 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
                     embed.setDescription(`Successfully set <#${ message.mentions.channels.first().id }> as the announcements channel!`);
                     Log.SaveLog("Frontend", "Info", `${ message.guild.id } has set a announcements channel: ${ message.mentions.channels.first().id }`);
                   }
-                  message.channel.send({embed});
+                  message.channel.send({ embeds: [embed] });
                 }
               );
             }
-            else { embed.setDescription(`There are no clans tracked by this server, so i cannot set a announcements channel yet. Use: \`${ prefix }set clan\` first.`); message.channel.send({embed}); }
+            else { embed.setDescription(`There are no clans tracked by this server, so i cannot set a announcements channel yet. Use: \`${ prefix }set clan\` first.`); message.channel.send({ embeds: [embed] }); }
           }
-          else { embed.setDescription(`In order to set the announcements channel use the command like this: \`${ prefix }set announcements {channelname}\`. Example: \`${ prefix }set announcements #general\``); message.channel.send({embed}); } 
+          else { embed.setDescription(`In order to set the announcements channel use the command like this: \`${ prefix }set announcements {channelname}\`. Example: \`${ prefix }set announcements #general\``); message.channel.send({ embeds: [embed] }); } 
           break;
         }
         case "remove": {
@@ -480,11 +480,11 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
                   embed.setDescription(`Successfully removed the announcements channel!`);
                   Log.SaveLog("Frontend", "Info", `${ message.guild.id } has removed the announcements channel.`);
                 }
-                message.channel.send({embed});
+                message.channel.send({ embeds: [embed] });
               }
             );
           }
-          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({embed}); }
+          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({ embeds: [embed] }); }
           break;
         }
         case "toggle": {
@@ -505,27 +505,27 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
                   embed.setDescription(`Successfully disabled ${ toggle } announcements!`);
                   Log.SaveLog("Frontend", "Info", `${ message.guild.id } has disabled ${ toggle } announcements.`);
                 }
-                message.channel.send({embed});
+                message.channel.send({ embeds: [embed] });
               }
             });
           }
-          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({embed}); }
+          else { embed.setDescription(`There are no clans tracked by this server, so i cannot remove a announcements channel yet. So no need to use this command.`); message.channel.send({ embeds: [embed] }); }
           break;
         }
         case "manage": {
           if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
           else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
-          message.channel.send({embed});
+          message.channel.send({ embeds: [embed] });
           break;
         }
         default: { GetHelp(prefix, message, "announcements"); break; }
       }
     }
-    else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({embed}); }
+    else { embed.setDescription(`Only discord administrators or the one who linked this server to the clan edit the clan.`); message.channel.send({ embeds: [embed] }); }
   }
   else {
     embed.setDescription(`You're missing some steps. Please setup a clan first using \`${prefix}set clan\` before trying to enable announcements.`);
-    message.channel.send({embed});
+    message.channel.send({ embeds: [embed] });
   }
 }
 async function ClanInfo(prefix, message, command, guild) {
@@ -551,11 +551,11 @@ async function ClanInfo(prefix, message, command, guild) {
         embed.addField("Clan Level", clanData[i].data.clanLevel, true);
         embed.addField("Members", `${ clanData[i].data.memberCount } / 100`, true);
         embed.addField("Online", `${ clanData[i].data.onlineMembers }`, true);
-        message.channel.send({embed});
+        message.channel.send({ embeds: [embed] });
       }
-      else { embed.setDescription(`Failed to find clan information possibly due to clan no longer existing or have not finished scanning it yet. Clan ID: (${ clanData[i].clanID })`); message.channel.send({embed}); }
+      else { embed.setDescription(`Failed to find clan information possibly due to clan no longer existing or have not finished scanning it yet. Clan ID: (${ clanData[i].clanID })`); message.channel.send({ embeds: [embed] }); }
     }
-    else { embed.setDescription(`Failed to find information on clan due to an error, please try again. Clan ID: (${ clanData[i].clanID })`); message.channel.send({embed}); }
+    else { embed.setDescription(`Failed to find information on clan due to an error, please try again. Clan ID: (${ clanData[i].clanID })`); message.channel.send({ embeds: [embed] }); }
   }
 }
 async function ItemInfo(prefix, message, command) {
@@ -843,7 +843,7 @@ async function ClanActivity(prefix, message, command, guild) {
       embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
     }
 
-    message.channel.send({embed}).catch(err => {
+    message.channel.send({ embeds: [embed] }).catch(err => {
       if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
       else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
     });
@@ -973,7 +973,7 @@ async function GetHelp(prefix, message, command) {
   }
 
   if(command !== "broadcasts" && command !== "help broadcasts") {
-    message.channel.send({embed}).catch(err => {
+    message.channel.send({ embeds: [embed] }).catch(err => {
       if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
       else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
     });
@@ -1407,7 +1407,7 @@ async function GetDrystreak(prefix, message, command) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     embed.setAuthor("Drystreaks");
     embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: \`${prefix}help drystreaks\``);
-    msg.edit({ embed });
+    msg.edit({ embeds: [embed] });
   }
 }
 async function GetBroadcastDates(prefix, message, command) {
@@ -1450,7 +1450,7 @@ async function GetBroadcastDates(prefix, message, command) {
     embed.setDescription("Could not find any broadcasts for that item in this server. Has this server had any broadcasts since Marvin has started tracking this server/clan?");
   }
 
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -1490,7 +1490,7 @@ async function GetBroadcastItems(prefix, message, command) {
   //   if(ignoredItems.length > 0) { for(let i in chunkyIgnored) { embed.addField("Ignored Broadcasts", chunkyIgnored[i].map(e => { return e.name }), true); } }
   // }
 
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -1512,14 +1512,17 @@ function BuildLeaderboard(command, message, players, registeredPlayer) {
   }
 
   embed.setAuthor(command.title);
+
   embed.setDescription(
     `${ command.description ? command.description : '' }` + '\n' +
     `${ command.leaderboardURL ? `[Click to see full leaderboard](https://marvin.gg/leaderboards/${ message.guild.id }/${ command.leaderboardURL }/)` : '' }`
   );
 
+
   for(let field of command.fields) {
-    embed.addField(field.name, BuildField(field, sortedPlayers, registeredPlayer, command.size), field.inline);
+    embed.addField(field.name, BuildField(field, sortedPlayers, registeredPlayer, command.size).toString().replaceAll(/\,/ig, "\n"), field.inline);
   }
+
 
   return embed;
 }
@@ -1592,7 +1595,7 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
       };
   
       // Attempt to send it
-      message.channel.send({ embed }).catch(err => {
+      message.channel.send({ embeds: [embed] }).catch(err => {
         if(err.code === 50035) {
           message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message.");
         }
@@ -1612,7 +1615,7 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
   else {
     // Return message letting them know that the there was no players were returned.
     embed.setDescription(`No players found, this usually happen 1 of 2 reasons. \n\nFirstly you may not have setup the bot correctly, make sure you that you've registered yourself and used \`${ prefix }set clan\` to setup the bot. \n\nIf you have done this then the reason I found no players is that I haven't scanned your clan yet. Because I serve so many clans it does take time before your inital clan setup would be complete. \n\nTry again in about 15-30 minutes if this is the case.`);
-    message.channel.send(embed);
+    message.channel.send({ embeds: [embed] });
   }
 }
 function SendTotalTitlesLeaderboard(prefix, message, command, players, privatePlayers, registeredUser, registeredPlayer, playerTitles, registeredPlayerTitles) {
@@ -1632,7 +1635,7 @@ function SendTotalTitlesLeaderboard(prefix, message, command, players, privatePl
   embed.addField("Name", leaderboard.names, true);
   embed.addField("Total", leaderboard.first, true);
 
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -1948,7 +1951,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
     default: { embed.setDescription(`That\'s not a valid clanwars command. Use \`${prefix}help clanwars\` to see clanwars commands.`); break; }
   }
   
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -2206,7 +2209,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
     }
   }
   
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -2532,7 +2535,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
     }
   }
 
-  message.channel.send({embed}).catch(err => {
+  message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
@@ -2548,7 +2551,7 @@ function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts,
     embed.setDescription(`These are not all loot runs. I cannot tell the difference between loot runs and non-loot runs. So these are just on what raid completion did they obtain the item on.\n\n✓ = Obtained, ✗ = Not Obtained`);
     embed.addField("Name", leaderboard.names, true);
     embed.addField("Completions", leaderboard.first, true);
-    message.edit({embed});
+    message.edit({ embeds: [embed] });
   }
 }
 

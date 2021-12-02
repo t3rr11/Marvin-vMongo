@@ -144,7 +144,7 @@ async function sendItemBroadcast(client, guild, message, broadcast, clan) {
       //Try send broadcast
       if(itemDef && !itemDef.broadcastEnabled) { sendBroadcast = false; }
       if(sendBroadcast) {
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
         catch(err) { console.log(`Failed to send item broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
@@ -164,7 +164,7 @@ async function sendTitleBroadcast(client, guild, message, broadcast, clan) {
       if(manifestRecord?.displayProperties?.description) { embed.addField("Obtained by:", manifestRecord.displayProperties.description); }
       embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`));
       
-      try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+      try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
       catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }
     }
   }
@@ -183,7 +183,7 @@ async function sendGildedTitleBroadcast(client, guild, message, broadcast, clan)
         embed.setDescription(message);
         embed.setThumbnail(encodeURI(`https://bungie.net${ manifestRecord.displayProperties.icon }`));
         
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
         catch(err) { console.log(`Failed to send title broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
@@ -197,7 +197,7 @@ async function sendClanBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(message)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send clan broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendDungeonBroadcast(client, guild, message, broadcast, clan) {
@@ -207,7 +207,7 @@ async function sendDungeonBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(message)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send dungeon broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendCatalystBroadcast(client, guild, message, broadcast, clan) {
@@ -217,7 +217,7 @@ async function sendCatalystBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(message)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send catalyst broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendTriumphBroadcast(client, guild, message, broadcast, clan) {
@@ -228,7 +228,7 @@ async function sendTriumphBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(`${ broadcast.displayName } has obtained the ${ broadcast.broadcast } triumph!${ manifestRecord?.displayProperties?.description ? `\n\n**How to obtain:**\n ${ manifestRecord.displayProperties.description }` : "" }`)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send triumph broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendOtherBroadcast(client, guild, message, broadcast, clan) {
@@ -238,7 +238,7 @@ async function sendOtherBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(message)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send other broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendCustomBroadcast(client, guild, message, broadcast, clan) {
@@ -248,7 +248,7 @@ async function sendCustomBroadcast(client, guild, message, broadcast, clan) {
   .setDescription(message)
   .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
   .setTimestamp();
-  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({embed}); }
+  try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] }); }
   catch(err) { console.log(`Failed to send custom broadcast to ${ guild.guildID } because of ${ err }`); }
 }
 async function sendFinishedLoadingAnnouncement(client, clan) {
@@ -264,9 +264,9 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
           .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
           .setTimestamp();
           try {
-            if(guild.broadcasts.channel === "0") { getDefaultChannel(client.guilds.cache.get(guild.guildID)).send({ embed }); }
+            if(guild.broadcasts.channel === "0") { getDefaultChannel(client.guilds.cache.get(guild.guildID)).send({ embeds: [embed] }); }
             else {
-              client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embed });
+              client.guilds.cache.get(guild.guildID).channels.cache.get(guild.broadcasts.channel).send({ embeds: [embed] });
               Log.SaveLog("Frontend", "Clans", `Informed ${ guild.guildID } that the clan ${ clan.clanID } has finished loading.`);
             }
           }
