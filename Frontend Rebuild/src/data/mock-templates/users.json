@@ -1,1 +1,452 @@
-[]
+[
+  {
+    "clanID": 2603670,
+    "currentClass": "Warlock",
+    "displayName": "Terrii @ (marvin.gg)#5043",
+    "membershipID": "4611686018471334813",
+    "joinDate": "2021-01-01T00:00:00.000Z",
+    "lastPlayed": "2021-01-01T00:00:00.000Z",
+    "lastUpdated": "2021-01-01T00:00:00.000Z",
+    "totalRaids": 0,
+    "isPrivate": false,
+    "firstLoad": false,
+    "infamy": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "valor": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "trialsRank": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "triumphScore": {
+      "score": 0,
+      "activeScore": 0,
+      "legacyScore": 0,
+      "lifetimeScore": 0
+    },
+    "ironBanner": {
+      "kills": 0,
+      "wins": 0
+    },
+    "raids": {
+      "levi": 0,
+      "eow": 0,
+      "sos": 0,
+      "prestige_levi": 0,
+      "prestige_eow": 0,
+      "prestige_sos": 0,
+      "lastWish": 0,
+      "scourge": 0,
+      "sorrows": 0,
+      "garden": 0,
+      "dsc": 0,
+      "vog": 0
+    },
+    "xp": {
+      "dailyXP": 0,
+      "weeklyXP": 0,
+      "overallXP": 0
+    },
+    "dungeons": {
+      "shatteredThrone": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "pitOfHeresy": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "prophecy": {
+        "completions": 0,
+        "flawless": 0
+      }
+    },
+    "presage": {
+      "normal": 0,
+      "master": 0
+    },
+    "trials": {
+      "overall": {
+        "wins": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "seasonal": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "weekly": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      }
+    },
+    "challenges": {
+      "s13": false,
+      "s14": false,
+      "s15": false
+    },
+    "triumphs": {
+      "cabals": false
+    },
+    "grandmasters": {
+      "theDevilsLair": 0,
+      "theArmsDealer": 0,
+      "provingGrounds": 0,
+      "wardenOfNothing": 0,
+      "fallenSABER": 0,
+      "theInsightTerminus": 0,
+      "broodhold": 0,
+      "theGlassway": 0,
+      "invertedSpire": 0,
+      "exodusCrash": 0,
+      "theDisgraced": 0,
+      "scarletKeep": 0,
+      "theHollowedLair": 0,
+      "lakeOfShadows": 0,
+      "theCorruped": 0
+    },
+    "lastActivity": {
+      "currentActivityHash": 82913930,
+      "dateActivityStarted": "2021-01-01T00:00:00.000Z"
+    },
+    "highestPower": 0,
+    "timePlayed": 0,
+    "glory": 0,
+    "seasonRank": 0,
+    "powerBonus": 0,
+    "lightLevels": [
+      {
+        "id": "2305843009303234831",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009304566372",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009305397220",
+        "class": null,
+        "light": 1330
+      }
+    ]
+  },
+  {
+    "clanID": 2603670,
+    "currentClass": "Hunter",
+    "displayName": "Testing#0001",
+    "membershipID": "4611686018400000001",
+    "joinDate": "2021-01-01T00:00:00.000Z",
+    "lastPlayed": "2021-01-01T00:00:00.000Z",
+    "lastUpdated": "2021-01-01T00:00:00.000Z",
+    "totalRaids": 0,
+    "isPrivate": false,
+    "firstLoad": false,
+    "infamy": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "valor": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "trialsRank": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "triumphScore": {
+      "score": 0,
+      "activeScore": 0,
+      "legacyScore": 0,
+      "lifetimeScore": 0
+    },
+    "ironBanner": {
+      "kills": 0,
+      "wins": 0
+    },
+    "raids": {
+      "levi": 0,
+      "eow": 0,
+      "sos": 0,
+      "prestige_levi": 0,
+      "prestige_eow": 0,
+      "prestige_sos": 0,
+      "lastWish": 0,
+      "scourge": 0,
+      "sorrows": 0,
+      "garden": 0,
+      "dsc": 0,
+      "vog": 0
+    },
+    "xp": {
+      "dailyXP": 0,
+      "weeklyXP": 0,
+      "overallXP": 0
+    },
+    "dungeons": {
+      "shatteredThrone": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "pitOfHeresy": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "prophecy": {
+        "completions": 0,
+        "flawless": 0
+      }
+    },
+    "presage": {
+      "normal": 0,
+      "master": 0
+    },
+    "trials": {
+      "overall": {
+        "wins": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "seasonal": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "weekly": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      }
+    },
+    "challenges": {
+      "s13": false,
+      "s14": false,
+      "s15": false
+    },
+    "triumphs": {
+      "cabals": false
+    },
+    "grandmasters": {
+      "theDevilsLair": 0,
+      "theArmsDealer": 0,
+      "provingGrounds": 0,
+      "wardenOfNothing": 0,
+      "fallenSABER": 0,
+      "theInsightTerminus": 0,
+      "broodhold": 0,
+      "theGlassway": 0,
+      "invertedSpire": 0,
+      "exodusCrash": 0,
+      "theDisgraced": 0,
+      "scarletKeep": 0,
+      "theHollowedLair": 0,
+      "lakeOfShadows": 0,
+      "theCorruped": 0
+    },
+    "lastActivity": {
+      "currentActivityHash": 82913930,
+      "dateActivityStarted": "2021-01-01T00:00:00.000Z"
+    },
+    "highestPower": 0,
+    "timePlayed": 0,
+    "glory": 0,
+    "seasonRank": 0,
+    "powerBonus": 0,
+    "lightLevels": [
+      {
+        "id": "2305843009303234831",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009304566372",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009305397220",
+        "class": null,
+        "light": 1330
+      }
+    ]
+  },
+  {
+    "clanID": 2603670,
+    "currentClass": "Titan",
+    "displayName": "Testing#0002",
+    "membershipID": "4611686018400000002",
+    "joinDate": "2021-01-01T00:00:00.000Z",
+    "lastPlayed": "2021-01-01T00:00:00.000Z",
+    "lastUpdated": "2021-01-01T00:00:00.000Z",
+    "totalRaids": 0,
+    "isPrivate": false,
+    "firstLoad": false,
+    "infamy": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "valor": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "trialsRank": {
+      "current": 0,
+      "resets": 0,
+      "seasonal": 0
+    },
+    "triumphScore": {
+      "score": 0,
+      "activeScore": 0,
+      "legacyScore": 0,
+      "lifetimeScore": 0
+    },
+    "ironBanner": {
+      "kills": 0,
+      "wins": 0
+    },
+    "raids": {
+      "levi": 0,
+      "eow": 0,
+      "sos": 0,
+      "prestige_levi": 0,
+      "prestige_eow": 0,
+      "prestige_sos": 0,
+      "lastWish": 0,
+      "scourge": 0,
+      "sorrows": 0,
+      "garden": 0,
+      "dsc": 0,
+      "vog": 0
+    },
+    "xp": {
+      "dailyXP": 0,
+      "weeklyXP": 0,
+      "overallXP": 0
+    },
+    "dungeons": {
+      "shatteredThrone": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "pitOfHeresy": {
+        "completions": 0,
+        "flawless": 0
+      },
+      "prophecy": {
+        "completions": 0,
+        "flawless": 0
+      }
+    },
+    "presage": {
+      "normal": 0,
+      "master": 0
+    },
+    "trials": {
+      "overall": {
+        "wins": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "seasonal": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      },
+      "weekly": {
+        "wins": 0,
+        "winStreak": 0,
+        "flawlessTickets": 0,
+        "finalBlows": 0,
+        "postFlawlessWins": 0,
+        "carries": 0
+      }
+    },
+    "challenges": {
+      "s13": false,
+      "s14": false,
+      "s15": false
+    },
+    "triumphs": {
+      "cabals": false
+    },
+    "grandmasters": {
+      "theDevilsLair": 0,
+      "theArmsDealer": 0,
+      "provingGrounds": 0,
+      "wardenOfNothing": 0,
+      "fallenSABER": 0,
+      "theInsightTerminus": 0,
+      "broodhold": 0,
+      "theGlassway": 0,
+      "invertedSpire": 0,
+      "exodusCrash": 0,
+      "theDisgraced": 0,
+      "scarletKeep": 0,
+      "theHollowedLair": 0,
+      "lakeOfShadows": 0,
+      "theCorruped": 0
+    },
+    "lastActivity": {
+      "currentActivityHash": 82913930,
+      "dateActivityStarted": "2021-01-01T00:00:00.000Z"
+    },
+    "highestPower": 0,
+    "timePlayed": 0,
+    "glory": 0,
+    "seasonRank": 0,
+    "powerBonus": 0,
+    "lightLevels": [
+      {
+        "id": "2305843009303234831",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009304566372",
+        "class": null,
+        "light": 1330
+      },
+      {
+        "id": "2305843009305397220",
+        "class": null,
+        "light": 1330
+      }
+    ]
+  }
+]
