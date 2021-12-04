@@ -5,6 +5,8 @@
 /Backend/node_modules
 /Frontend/node_modules
 /Frontend Rebuild/node_modules
+/Frontend Rebuild/src/data/PrivateKey.ppk
+/Frontend Rebuild/src/manifest
 /Express/node_modules
 /Globals/node_modules
 /Shared/node_modules

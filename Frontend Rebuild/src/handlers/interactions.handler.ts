@@ -1,9 +1,4 @@
-import DiscordJS, {
-  Client,
-  ApplicationCommandManager,
-  GuildApplicationCommandManager,
-  CommandInteraction
-} from 'discord.js';
+import DiscordJS, { Client, ApplicationCommandManager, GuildApplicationCommandManager, CommandInteraction } from 'discord.js';
 
 export const init = (client: Client) => {
   const guild = client.guilds.cache.get(process.env.TEST_GUILD_ID!);

@@ -5,7 +5,7 @@
   "main": "frontend.ts",
   "scripts": {
     "start": "tsc && node frontend.ts",
-    "dev": "nodemon frontend.ts",
+    "dev": "nodemon --ignore '*.json'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -15,7 +15,11 @@
     "typescript": "^3.3.3"
   },
   "dependencies": {
+    "@types/mongoose": "^5.11.97",
+    "@types/tunnel-ssh": "^4.1.1",
+    "bungie-api-ts": "^4.14.0",
     "discord.js": "^13.3.1",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "tunnel-ssh": "^4.1.6"
   }
 }
