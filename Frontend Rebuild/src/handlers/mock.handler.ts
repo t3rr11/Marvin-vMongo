@@ -15,16 +15,16 @@ export const getMock = (mock: mocks) => {
   return JSON.parse(fs.readFileSync(formFileURL(mock)).toString());
 }
 
-export const updateMock = async (mock: mocks, data): Promise<{ saved: boolean, data }> => {
-  let saved: boolean;
+export const updateMock = async (mock: mocks, data): Promise<{ updated: boolean, data }> => {
+  let updated: boolean;
 
   await fs.writeFile(formFileURL(mock), JSON.stringify(data), function (err) {
     if (err) {
       ErrorHandler("High", err);
-      saved = false;
+      updated = false;
     }
-    saved = true;
+    updated = true;
   });
 
-  return { saved, data };
+  return { updated, data };
 }

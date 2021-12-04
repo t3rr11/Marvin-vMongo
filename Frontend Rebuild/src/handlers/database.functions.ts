@@ -22,8 +22,8 @@ export const getManifestVersion = async (callback) => {
 export const updateManifestVersion = async (data, callback) => { 
   // Callback fields { isError, isFound, data }
   if(process.env.USE_MOCK) {
-    updateMock('Manifests', data).then(returned => {
-      if(returned.saved) { callback(false, true, returned.data); }
+    updateMock('Manifests', data).then(response => {
+      if(response.updated) { callback(false, true, response.data); }
       else { callback(false, false, null); }
     });
   }
