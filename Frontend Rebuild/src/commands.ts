@@ -9,9 +9,7 @@ export const Commands = [
     sorting: 'valor.seasonal',
     commands: ['valor'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
-      { name: 'Valor', type: 'Leaderboard', data: 'valor.seasonal', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'valor.resets', inline: true }
+      { name: 'Valor', type: 'Leaderboard', data: 'valor.seasonal', inline: true }
     ]
   },
 
