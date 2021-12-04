@@ -14,8 +14,8 @@ export interface IConnectionStatus {
 }
 
 export let ConnectionStatus: IConnectionStatus = {
-  UsingSSH: process.env.LOCAL ? true : false,
-  UsingMock: process.env.USE_MOCK ? true : false,
+  UsingSSH: JSON.parse(process.env.LOCAL),
+  UsingMock: JSON.parse(process.env.USE_MOCK),
   SSHConnected: false,
   DBConnected: false
 }

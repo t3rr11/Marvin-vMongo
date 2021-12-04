@@ -82,7 +82,6 @@ export const storeManifest = async function StoreManifest() {
 export const checkManifestUpdate = async function CheckManifestUpdate(location) {
   if(await checkManifestFilesExist()) {
     await Database.getManifestVersion(function GetOldManifestVersion(isError, isFound, version) {
-      console.log(version);
       if(!isError) {
         if(isFound) {
           if(location === "frontend") {

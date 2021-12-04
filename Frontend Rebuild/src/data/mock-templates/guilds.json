@@ -1,0 +1,34 @@
+[
+  {
+    "broadcasts" : {
+      "channel" : "",
+      "mode" : "Auto",
+      "extraItems" : [],
+      "items" : true,
+      "titles" : true,
+      "clans" : true,
+      "dungeons" : true,
+      "triumphs" : true,
+      "catalysts" : true,
+      "others" : true
+    },
+    "clans" : [ 
+      "2603670"
+    ],
+    "isTracking" : true,
+    "prefix" : "~",
+    "guildID" : "",
+    "guildName" : "Test Guild",
+    "ownerID" : "",
+    "ownerAvatar" : "",
+    "joinedOn" : "2020-01-01T00:00:00.000Z",
+    "region" : "space",
+    "announcements" : {
+        "channel" : "",
+        "updates" : true,
+        "gunsmiths" : true,
+        "lostSectors" : true,
+        "adas" : true
+    }
+  }
+]

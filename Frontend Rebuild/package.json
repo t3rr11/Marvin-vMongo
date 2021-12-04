@@ -5,8 +5,11 @@
   "main": "frontend.ts",
   "scripts": {
     "start": "tsc && node frontend.ts",
-    "dev": "nodemon --ignore '*.json'",
+    "dev": "nodemon frontend.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "nodemonConfig": {
+    "ignore": ["src/data/*"]
   },
   "author": "",
   "license": "ISC",
