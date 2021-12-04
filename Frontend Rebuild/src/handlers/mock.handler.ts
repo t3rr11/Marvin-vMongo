@@ -10,7 +10,7 @@ const templateMockURL = (mock: mocks) => {
   return `./src/data/mock-templates/${ mock.toLowerCase() }.json`;
 }
 
-export const getMock = (mock: mocks) => {
+export const getMock = async (mock: mocks) => {
   if(!fs.existsSync(formMockURL(mock))) {
     const getTemplateMock = JSON.parse(fs.readFileSync(templateMockURL(mock)).toString());
     updateMock(mock, getTemplateMock);

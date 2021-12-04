@@ -1,6 +1,6 @@
 import * as ModelsHandler from './models.handler';
+import * as MockHandler from './mock.handler';
 import dotenv from 'dotenv';
-import { getMock, updateMock } from './mock.handler';
 dotenv.config();
 
 export const addLog = (data, callback) => {
@@ -10,7 +10,7 @@ export const addLog = (data, callback) => {
 export const getManifestVersion = async (callback) => {
   // Callback fields { isError, isFound, data }
   if(process.env.USE_MOCK) {
-    callback(false, true, getMock('Manifests'));
+    callback(false, true, await MockHandler.getMock('Manifests'));
     return;
   }
   await ModelsHandler.GetDocuments('Manifests').then((documents) => {
@@ -22,7 +22,7 @@ export const getManifestVersion = async (callback) => {
 export const updateManifestVersion = async (data, callback) => { 
   // Callback fields { isError, isFound, data }
   if(process.env.USE_MOCK) {
-    updateMock('Manifests', data).then(response => {
+    MockHandler.updateMock('Manifests', data).then(response => {
       if(response.updated) { callback(false, true, response.data); }
       else { callback(false, false, null); }
     });

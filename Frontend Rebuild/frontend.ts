@@ -24,18 +24,17 @@ let DatabaseReady: boolean = false;
 
 // Startup - Connect to the database
 StartConnection().then((ConnectionStatus: IConnectionStatus) => {
-  if(ConnectionStatus.UsingMock) {
-    Guilds = MockHandler.getMock('Guilds');
-    Clans = MockHandler.getMock('Clans');
+  new Promise(async () => {
+    Guilds = ConnectionStatus.UsingMock ?
+      await MockHandler.getMock('Guilds').finally(() => { console.log('Guilds have been set'); }) :
+      await ModelsHandler.GetDocuments('Guilds').finally(() => { console.log('Guilds have been set'); });
+
+    Clans = ConnectionStatus.UsingMock ?
+      await MockHandler.getMock('Clans').finally(() => { console.log('Clans have been set'); }) :
+      await ModelsHandler.GetDocuments('Clans').finally(() => { console.log('Clans have been set'); });
+
     DatabaseReady = true;
-  }
-  else {
-    new Promise(async () => {
-      Guilds = await ModelsHandler.GetDocuments('Guilds').finally(() => { console.log('Guilds have been set'); });
-      Clans = await ModelsHandler.GetDocuments('Clans').finally(() => { console.log('Clans have been set'); });
-      DatabaseReady = true;
-    });
-  }
+  });
 });
 
 //Make sure before doing anything that we are connected to the database. Run a simple interval check that ends once it's connected.
