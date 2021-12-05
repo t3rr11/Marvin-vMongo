@@ -10,44 +10,44 @@
     "totalRaids": 0,
     "isPrivate": false,
     "firstLoad": false,
-    "infamy": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+    "infamy" : {
+			"current" : 1404,
+			"resets" : 0,
+			"seasonal" : 1404
     },
-    "valor": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+    "valor" : {
+			"current" : 3461,
+			"resets" : 3,
+			"seasonal" : 33461
     },
-    "trialsRank": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+    "trialsRank" : {
+			"current" : 6018,
+			"resets" : 0,
+			"seasonal" : 6018
     },
-    "triumphScore": {
-      "score": 0,
-      "activeScore": 0,
-      "legacyScore": 0,
-      "lifetimeScore": 0
+    "triumphScore" : {
+			"score" : 19465,
+			"activeScore" : 19465,
+			"legacyScore" : 111700,
+			"lifetimeScore" : 131165
     },
     "ironBanner": {
       "kills": 0,
       "wins": 0
     },
     "raids": {
-      "levi": 0,
-      "eow": 0,
-      "sos": 0,
-      "prestige_levi": 0,
-      "prestige_eow": 0,
-      "prestige_sos": 0,
-      "lastWish": 0,
-      "scourge": 0,
-      "sorrows": 0,
-      "garden": 0,
-      "dsc": 0,
-      "vog": 0
+			"levi" : 24,
+			"eow" : 49,
+			"sos" : 13,
+			"prestige_levi" : 70,
+			"prestige_eow" : 22,
+			"prestige_sos" : 10,
+			"lastWish" : 112,
+			"scourge" : 68,
+			"sorrows" : 25,
+			"garden" : 48,
+			"dsc" : 105,
+			"vog" : 63
     },
     "xp": {
       "dailyXP": 0,
@@ -128,7 +128,7 @@
     },
     "highestPower": 0,
     "timePlayed": 0,
-    "glory": 0,
+    "glory": 1905,
     "seasonRank": 0,
     "powerBonus": 0,
     "lightLevels": [
@@ -166,38 +166,38 @@
       "seasonal": 0
     },
     "valor": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+      "current": 15000,
+      "resets": 1,
+      "seasonal": 15000
     },
     "trialsRank": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+      "current": 15000,
+      "resets": 1,
+      "seasonal": 15000
     },
     "triumphScore": {
-      "score": 0,
-      "activeScore": 0,
-      "legacyScore": 0,
-      "lifetimeScore": 0
+      "score": 15000,
+      "activeScore": 15000,
+      "legacyScore": 16000,
+      "lifetimeScore": 31000
     },
     "ironBanner": {
       "kills": 0,
       "wins": 0
     },
     "raids": {
-      "levi": 0,
-      "eow": 0,
-      "sos": 0,
-      "prestige_levi": 0,
-      "prestige_eow": 0,
-      "prestige_sos": 0,
-      "lastWish": 0,
-      "scourge": 0,
-      "sorrows": 0,
-      "garden": 0,
-      "dsc": 0,
-      "vog": 0
+      "levi": 10,
+      "eow": 10,
+      "sos": 10,
+      "prestige_levi": 10,
+      "prestige_eow": 10,
+      "prestige_sos": 10,
+      "lastWish": 10,
+      "scourge": 10,
+      "sorrows": 10,
+      "garden": 10,
+      "dsc": 10,
+      "vog": 10
     },
     "xp": {
       "dailyXP": 0,
@@ -278,8 +278,8 @@
     },
     "highestPower": 0,
     "timePlayed": 0,
-    "glory": 0,
-    "seasonRank": 0,
+    "glory": 2000,
+    "seasonRank": 200,
     "powerBonus": 0,
     "lightLevels": [
       {
@@ -311,43 +311,43 @@
     "isPrivate": false,
     "firstLoad": false,
     "infamy": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+      "current": 18000,
+      "resets": 1,
+      "seasonal": 18000
     },
     "valor": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+      "current": 18000,
+      "resets": 1,
+      "seasonal": 18000
     },
     "trialsRank": {
-      "current": 0,
-      "resets": 0,
-      "seasonal": 0
+      "current": 18000,
+      "resets": 1,
+      "seasonal": 18000
     },
     "triumphScore": {
-      "score": 0,
-      "activeScore": 0,
-      "legacyScore": 0,
-      "lifetimeScore": 0
+      "score": 18000,
+      "activeScore": 18000,
+      "legacyScore": 5000,
+      "lifetimeScore": 23000
     },
     "ironBanner": {
       "kills": 0,
       "wins": 0
     },
     "raids": {
-      "levi": 0,
-      "eow": 0,
-      "sos": 0,
-      "prestige_levi": 0,
-      "prestige_eow": 0,
-      "prestige_sos": 0,
-      "lastWish": 0,
-      "scourge": 0,
-      "sorrows": 0,
-      "garden": 0,
-      "dsc": 0,
-      "vog": 0
+      "levi": 5,
+      "eow": 5,
+      "sos": 5,
+      "prestige_levi": 5,
+      "prestige_eow": 5,
+      "prestige_sos": 5,
+      "lastWish": 5,
+      "scourge": 5,
+      "sorrows": 5,
+      "garden": 5,
+      "dsc": 5,
+      "vog": 5
     },
     "xp": {
       "dailyXP": 0,
@@ -428,8 +428,8 @@
     },
     "highestPower": 0,
     "timePlayed": 0,
-    "glory": 0,
-    "seasonRank": 0,
+    "glory": 1500,
+    "seasonRank": 110,
     "powerBonus": 0,
     "lightLevels": [
       {

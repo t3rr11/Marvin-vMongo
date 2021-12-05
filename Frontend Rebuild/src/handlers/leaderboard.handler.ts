@@ -2,7 +2,7 @@ import DiscordJS, { CommandInteraction } from 'discord.js';
 import * as LogHandler from './log.handler';
 import * as MiscHandler from './misc.handler';
 import * as DatabaseFunctions from './database.functions';
-import { Commands } from '../commands';
+import { Interactions } from '../interactions';
 
 const byString = function(o, s) {
   s = s.replace(/\[(\w+)\]/g, '.$1');       // convert indexes to properties
@@ -20,9 +20,9 @@ const byString = function(o, s) {
 }
 
 export const buildLeaderboard = async (interaction: CommandInteraction) => {
-  const leaderboard_size = interaction.options.getNumber('size') || 10;
   let embed = new DiscordJS.MessageEmbed().setColor(0x0099FF).setFooter(process.env.DEFAULT_FOOTER, process.env.DEFAULT_LOGO_URL).setTimestamp();
-  let command = Commands.filter(c => c.commands.find(cm => interaction.commandName.startsWith(cm)))[0];
+  let command = Interactions.filter(c => c.commands.find(cm => interaction.commandName.startsWith(cm)))[0];
+  const leaderboard_size = interaction.options.getNumber('size') || command.size || 10;
 
   var getGuildMembers = () => new Promise(resolve => {
     DatabaseFunctions.getGuildMembers(process.env.TEST_GUILD_ID, (isError, isFound, data) => {
@@ -73,12 +73,15 @@ const mapDefaultFieldNames = (fields) => fields.map((field, index) => index === 
 
 const mapFieldNames = (fields, player) => {
   return fields.map((field, index) => {
-    const data = MiscHandler.AddCommas( Math.floor(byString(player, field.data)));
-    if(index === fields.length-1) {
-      return `${ data }`;
-    }
-    else {
-      return `${ data }, `;
+    switch(field.type) {
+      case 'Leaderboard': {
+        const lastRow = index === fields.length-1;
+        const field_data = Math.floor(byString(player, field.data));
+        const field_data_with_commas = MiscHandler.AddCommas(field_data);
+        const secondary_field_data = field.resetInterval ? ` (${ Math.floor(Number(field_data) / field.resetInterval) })`: '';
+
+        return `${ field_data_with_commas }${ secondary_field_data }` + `${ lastRow ? '' : ' - ' }`;
+      }
     }
   }).join('');
 }

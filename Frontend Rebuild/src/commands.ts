@@ -9,6 +9,7 @@ export const Commands = [
     sorting: 'valor.seasonal',
     commands: ['valor'],
     fields: [
+      { name: 'Resets', type: 'Reset', data: 'valor.resets', inline: true },
       { name: 'Valor', type: 'Leaderboard', data: 'valor.seasonal', inline: true }
     ]
   },
@@ -23,9 +24,8 @@ export const Commands = [
     sorting: 'infamy.seasonal',
     commands: ['infamy'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
-      { name: 'Infamy', type: 'Leaderboard', data: 'infamy.seasonal', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'infamy.resets', inline: true }
+      { name: 'Resets', type: 'Reset', data: 'infamy.resets', inline: true },
+      { name: 'Infamy', type: 'Leaderboard', data: 'infamy.seasonal', inline: true }
     ]
   },
 
@@ -39,9 +39,8 @@ export const Commands = [
     sorting: 'trialsRank.seasonal',
     commands: ['trials rank', 'trialsRank'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
-      { name: 'Trials Rank', type: 'Leaderboard', data: 'trialsRank.seasonal', inline: true },
-      { name: 'Resets', type: 'Reset', data: 'trialsRank.resets', inline: true }
+      { name: 'Resets', type: 'Reset', data: 'trialsRank.resets', inline: true },
+      { name: 'Trials Rank', type: 'Leaderboard', data: 'trialsRank.seasonal', inline: true }
     ]
   },
 
@@ -55,7 +54,6 @@ export const Commands = [
     sorting: 'glory',
     commands: ['glory'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Glory', type: 'Leaderboard', data: 'glory', inline: true }
     ]
   },
@@ -71,7 +69,6 @@ export const Commands = [
     sorting: 'ironBanner.kills',
     commands: ['iron banner'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Kills', type: 'Leaderboard', data: 'ironBanner.kills', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'ironBanner.wins', inline: true }
     ]
@@ -87,7 +84,6 @@ export const Commands = [
     sorting: ['raids.levi', 'raids.prestige_levi'],
     commands: ['levi', 'leviathan'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Norm | Pres', type: 'SplitLeaderboard', data: ['raids.levi', 'raids.prestige_levi'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['raids.levi', 'raids.prestige_levi'], inline: true }
     ]
@@ -103,7 +99,6 @@ export const Commands = [
     sorting: ['raids.eow', 'raids.prestige_eow'],
     commands: ['eow', 'eater', 'eater of worlds'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Norm | Pres', type: 'SplitLeaderboard', data: ['raids.eow', 'raids.prestige_eow'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['raids.eow', 'raids.prestige_eow'], inline: true }
     ]
@@ -119,7 +114,6 @@ export const Commands = [
     sorting: ['raids.sos', 'raids.prestige_sos'],
     commands: ['sos', 'spire', 'spire of stars'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Norm | Pres', type: 'SplitLeaderboard', data: ['raids.sos', 'raids.prestige_sos'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['raids.sos', 'raids.prestige_sos'], inline: true }
     ]
@@ -135,7 +129,6 @@ export const Commands = [
     sorting: 'raids.lastWish',
     commands: ['lw', 'last wish'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.lastWish', inline: true }
     ]
   },
@@ -150,7 +143,6 @@ export const Commands = [
     sorting: 'raids.scourge',
     commands: ['scourge', 'sotp', 'scourge of the past'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.scourge', inline: true }
     ]
   },
@@ -165,7 +157,6 @@ export const Commands = [
     sorting: 'raids.sorrows',
     commands: ['crown', 'sorrows', 'cos', 'crown of sorrows'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.sorrows', inline: true }
     ]
   },
@@ -180,7 +171,6 @@ export const Commands = [
     sorting: 'raids.garden',
     commands: ['garden', 'gos', 'garden of salvation'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.garden', inline: true }
     ]
   },
@@ -195,7 +185,6 @@ export const Commands = [
     sorting: 'raids.dsc',
     commands: ['dsc', 'deep stone crypt'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.dsc', inline: true }
     ]
   },
@@ -210,7 +199,6 @@ export const Commands = [
     sorting: 'raids.vog',
     commands: ['vog', 'vault of glass'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'Leaderboard', data: 'raids.vog', inline: true }
     ]
   },
@@ -225,7 +213,6 @@ export const Commands = [
     sorting: 'seasonRank',
     commands: ['sr', 'season rank'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Rank', type: 'Leaderboard', data: 'seasonRank', inline: true }
     ]
   },
@@ -240,7 +227,6 @@ export const Commands = [
     sorting: ['highestPower', 'powerBonus'],
     commands: ['power', 'light', 'max power', 'max light', 'highest power', 'highest light'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Power + Artifact', type: 'PowerLeaderboard', data: ['highestPower', 'powerBonus'], inline: true }
     ]
   },
@@ -255,7 +241,6 @@ export const Commands = [
     sorting: 'highestPower',
     commands: ['power -a', 'light -a', 'max power -a', 'max light -a', 'highest power -a', 'highest light -a'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Power', type: 'Leaderboard', data: 'highestPower', inline: true }
     ]
   },
@@ -271,7 +256,6 @@ export const Commands = [
     sorting: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'],
     commands: ['shattered throne', 'throne'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['dungeons.shatteredThrone.completions', 'dungeons.shatteredThrone.flawless'], inline: true }
     ]
@@ -288,7 +272,6 @@ export const Commands = [
     sorting: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'],
     commands: ['pit', 'pit of heresy'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['dungeons.pitOfHeresy.completions', 'dungeons.pitOfHeresy.flawless'], inline: true }
     ]
@@ -305,7 +288,6 @@ export const Commands = [
     sorting: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'],
     commands: ['prophecy'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['dungeons.prophecy.completions', 'dungeons.prophecy.flawless'], inline: true }
     ]
@@ -322,7 +304,6 @@ export const Commands = [
     sorting: ['presage.normal', 'presage.master'],
     commands: ['presage', 'master presage', 'presage master'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Completions', type: 'SplitLeaderboard', data: ['presage.normal', 'presage.master'], inline: true },
       { name: 'Total', type: 'SplitTotal', data: ['presage.normal', 'presage.master'], inline: true }
     ]
@@ -338,7 +319,6 @@ export const Commands = [
     sorting: 'triumphScore.activeScore',
     commands: ['triumph score', 'triumphscore', 'triumph score -active', 'triumphscore -active'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Score', type: 'Leaderboard', data: 'triumphScore.activeScore', inline: true }
     ]
   },
@@ -353,7 +333,6 @@ export const Commands = [
     sorting: 'triumphScore.legacyScore',
     commands: ['triumph score -legacy', 'triumphscore -legacy'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Score', type: 'Leaderboard', data: 'triumphScore.legacyScore', inline: true }
     ]
   },
@@ -368,7 +347,6 @@ export const Commands = [
     sorting: 'triumphScore.lifetimeScore',
     commands: ['triumph score -lifetime', 'triumphscore -lifetime'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Score', type: 'Leaderboard', data: 'triumphScore.lifetimeScore', inline: true }
     ]
   },
@@ -383,7 +361,6 @@ export const Commands = [
     sorting: 'timePlayed',
     commands: ['time', 'time played', 'total time'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Hours', type: 'TimeLeaderboard', data: 'timePlayed', inline: true }
     ]
   },
@@ -398,7 +375,6 @@ export const Commands = [
     sorting: 'totalRaids',
     commands: ['raids total', 'total raids'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Raids', type: 'Leaderboard', data: 'totalRaids', inline: true }
     ]
   },
@@ -412,7 +388,6 @@ export const Commands = [
     sorting: 'trials.weekly.wins',
     commands: ['trials wins', 'trials weekly wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.weekly.wins', inline: true }
     ]
   },
@@ -426,7 +401,6 @@ export const Commands = [
     sorting: 'trials.weekly.winStreak',
     commands: ['trials win streak', 'trials weekly win streak'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Streak', type: 'Leaderboard', data: 'trials.weekly.winStreak', inline: true }
     ]
   },
@@ -440,7 +414,6 @@ export const Commands = [
     sorting: 'trials.weekly.flawlessTickets',
     commands: ['trials flawless', 'trials weekly flawless'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.weekly.flawlessTickets', inline: true }
     ]
   },
@@ -454,7 +427,6 @@ export const Commands = [
     sorting: 'trials.weekly.finalBlows',
     commands: ['trials final blows', 'trials weekly final blows'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.weekly.finalBlows', inline: true }
     ]
   },
@@ -468,7 +440,6 @@ export const Commands = [
     sorting: 'trials.weekly.postFlawlessWins',
     commands: ['trials post wins', 'trials weekly post wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.weekly.postFlawlessWins', inline: true }
     ]
   },
@@ -482,7 +453,6 @@ export const Commands = [
     sorting: 'trials.weekly.carries',
     commands: ['trials carries', 'trials weekly carries'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Carries', type: 'Leaderboard', data: 'trials.weekly.carries', inline: true }
     ]
   },
@@ -496,7 +466,6 @@ export const Commands = [
     sorting: 'trials.seasonal.wins',
     commands: ['trials seasonal wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.seasonal.wins', inline: true }
     ]
   },
@@ -510,7 +479,6 @@ export const Commands = [
     sorting: 'trials.seasonal.winStreak',
     commands: ['trials seasonal win streak'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Streak', type: 'Leaderboard', data: 'trials.seasonal.winStreak', inline: true }
     ]
   },
@@ -524,7 +492,6 @@ export const Commands = [
     sorting: 'trials.seasonal.flawlessTickets',
     commands: ['trials seasonal flawless'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.seasonal.flawlessTickets', inline: true }
     ]
   },
@@ -538,7 +505,6 @@ export const Commands = [
     sorting: 'trials.seasonal.finalBlows',
     commands: ['trials seasonal final blows'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.seasonal.finalBlows', inline: true }
     ]
   },
@@ -552,7 +518,6 @@ export const Commands = [
     sorting: 'trials.seasonal.postFlawlessWins',
     commands: ['trials seasonal post wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.seasonal.postFlawlessWins', inline: true }
     ]
   },
@@ -566,7 +531,6 @@ export const Commands = [
     sorting: 'trials.seasonal.carries',
     commands: ['trials seasonal carries'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Carries', type: 'Leaderboard', data: 'trials.seasonal.carries', inline: true }
     ]
   },
@@ -580,7 +544,6 @@ export const Commands = [
     sorting: 'trials.overall.wins',
     commands: ['trials overall wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.overall.wins', inline: true }
     ]
   },
@@ -594,7 +557,6 @@ export const Commands = [
     sorting: 'trials.overall.flawlessTickets',
     commands: ['trials overall flawless'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.overall.flawlessTickets', inline: true }
     ]
   },
@@ -608,7 +570,6 @@ export const Commands = [
     sorting: 'trials.overall.finalBlows',
     commands: ['trials overall final blows'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Total', type: 'Leaderboard', data: 'trials.overall.finalBlows', inline: true }
     ]
   },
@@ -622,7 +583,6 @@ export const Commands = [
     sorting: 'trials.overall.postFlawlessWins',
     commands: ['trials overall post wins'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Wins', type: 'Leaderboard', data: 'trials.overall.postFlawlessWins', inline: true }
     ]
   },
@@ -636,7 +596,6 @@ export const Commands = [
     sorting: 'trials.overall.carries',
     commands: ['trials overall carries'],
     fields: [
-      { name: 'Name', type: 'Name', inline: true },
       { name: 'Carries', type: 'Leaderboard', data: 'trials.overall.carries', inline: true }
     ]
   },
