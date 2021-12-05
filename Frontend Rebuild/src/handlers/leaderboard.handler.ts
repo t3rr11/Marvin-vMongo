@@ -49,7 +49,7 @@ export const buildLeaderboard = async (interaction: CommandInteraction) => {
           `${ command.description ? command.description : '' }` + '\n' +
           `${ command.leaderboardURL ? `[Click to see full leaderboard](https://marvin.gg/leaderboards/${ process.env.TEST_GUILD_ID }/${ command.leaderboardURL }/)` : '' }` + '\n' +
           "```" + 
-            `Rank - ${ mapDefaultFieldNames(command.fields) } - Name` + `\n\n` +
+            `Rank: ${ mapDefaultFieldNames(command.fields) } - Name` + `\n\n` +
             `${ buildRows(command.fields, sortedPlayers, leaderboard_size).join('') }` +
           "```"
         );
