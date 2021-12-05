@@ -2,7 +2,7 @@ import DiscordJS, { CommandInteraction } from 'discord.js';
 import * as LogHandler from './log.handler';
 import * as MiscHandler from './misc.handler';
 import * as DatabaseFunctions from './database.functions';
-import { Interactions } from '../interactions';
+import { Rankings, Raids } from '../interactions';
 
 const byString = function(o, s) {
   s = s.replace(/\[(\w+)\]/g, '.$1');       // convert indexes to properties
@@ -19,10 +19,20 @@ const byString = function(o, s) {
   return o;
 }
 
-export const buildLeaderboard = async (interaction: CommandInteraction) => {
+export const buildLeaderboard = async (interaction: CommandInteraction, category: string) => {
   let embed = new DiscordJS.MessageEmbed().setColor(0x0099FF).setFooter(process.env.DEFAULT_FOOTER, process.env.DEFAULT_LOGO_URL).setTimestamp();
-  let command = Interactions.filter(c => c.commands.find(cm => interaction.commandName.startsWith(cm)))[0];
-  const leaderboard_size = interaction.options.getNumber('size') || command.size || 10;
+  let command;
+  
+  switch(category) {
+    case "rankings": {
+      command = Rankings.filter(c => c.commands.find(cm => interaction.commandName.startsWith(cm)))[0];
+      break;
+    }
+    case "raids": {
+      command = Raids.filter(c => c.commands.find(cm => interaction.options.getSubcommand().startsWith(cm)))[0];
+      break;
+    }
+  }
 
   var getGuildMembers = () => new Promise(resolve => {
     DatabaseFunctions.getGuildMembers(process.env.TEST_GUILD_ID, (isError, isFound, data) => {
@@ -34,6 +44,8 @@ export const buildLeaderboard = async (interaction: CommandInteraction) => {
 
   if(players.length > 0) {
     if(command) {
+      const leaderboard_size = interaction.options.getNumber('size') || command?.size || 10;
+
       try {
         let sortedPlayers = [];
 
@@ -81,6 +93,14 @@ const mapFieldNames = (fields, player) => {
         const secondary_field_data = field.resetInterval ? ` (${ Math.floor(Number(field_data) / field.resetInterval) })`: '';
 
         return `${ field_data_with_commas }${ secondary_field_data }` + `${ lastRow ? '' : ' - ' }`;
+      }
+      case 'SplitTotal': {
+        const lastRow = index === fields.length-1;
+        const field_data = [Math.floor(byString(player, field.data[0])), Math.floor(byString(player, field.data[1]))];
+        const field_data_with_commas = [MiscHandler.AddCommas(field_data[0]), MiscHandler.AddCommas(field_data[1])];
+        const total_field_data_with_commas = MiscHandler.AddCommas(Number(field_data[0]) + Number(field_data[1]));
+
+        return `${ total_field_data_with_commas } (${ field_data_with_commas[0] } | ${ field_data_with_commas[1] })` + `${ lastRow ? '' : ' - ' }`;
       }
     }
   }).join('');

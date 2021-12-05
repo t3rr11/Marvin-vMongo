@@ -32,8 +32,8 @@
 			"lifetimeScore" : 131165
     },
     "ironBanner": {
-      "kills": 0,
-      "wins": 0
+      "kills": 5000,
+      "wins": 100
     },
     "raids": {
 			"levi" : 24,
@@ -182,8 +182,8 @@
       "lifetimeScore": 31000
     },
     "ironBanner": {
-      "kills": 0,
-      "wins": 0
+      "kills": 3000,
+      "wins": 75
     },
     "raids": {
       "levi": 10,
@@ -332,8 +332,8 @@
       "lifetimeScore": 23000
     },
     "ironBanner": {
-      "kills": 0,
-      "wins": 0
+      "kills": 1500,
+      "wins": 50
     },
     "raids": {
       "levi": 5,
