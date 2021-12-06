@@ -15,13 +15,20 @@ export const handleInteraction = (interaction: CommandInteraction) => {
 
 const buildHelp = (embed: DiscordJS.MessageEmbed): DiscordJS.MessageEmbed => {
   let description = [];
-  description.push("I am Marvin. To set me up first register with me by using the `/Register example` command. Replace example with your in-game username.");
-  description.push("Once registration is complete use the `/clan setup` command and **then wait 5 minutes** whilst I scan your clan. That's it you'll be ready to go!");
-  description.push("Try out clan broadcasts this can be set up by typing `/Broadcasts channel #general` (does not have to be general).");
-  description.push("See `/help` to see what I can do!");
+  description.push("**Setup** - It's easy!");
+  description.push("- First register by using the `/register` command.\n- Then once registered `/clan setup`\n");
 
-  embed.title = "Clan help";
-  embed.description = description.join('\n\n');
+  description.push("**Want more than one clan?**");
+  description.push("Todo\n");
+
+  description.push("**Manage**");
+  description.push("Todo\n");
+
+  description.push("**Remove**");
+  description.push("Todo\n");
+
+  embed.title = "Need help do ya? - Clan Help";
+  embed.description = description.join('\n');
 
   return embed;
 }
