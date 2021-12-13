@@ -67,6 +67,10 @@ var userSchema = new Schema({
     prophecy: {
       completions: DefaultNumber,
       flawless: DefaultNumber
+    },
+    grasp: {
+      completions: DefaultNumber,
+      flawless: DefaultNumber
     }
   },
   presage: {

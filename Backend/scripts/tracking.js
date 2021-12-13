@@ -707,6 +707,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   //Prophecy
   var prophecy_completions = 0; try { prophecy_completions = playerData.metrics.data.metrics["352659556"].objectiveProgress.progress; } catch (err) { }
   var prophecy_flawless_completions = 0; try { prophecy_flawless_completions = playerData.metrics.data.metrics["1099614108"].objectiveProgress.progress; } catch (err) { }
+  
+  //Grasp of Avarice
+  var grasp_completions = 0; try { grasp_completions = playerData.metrics.data.metrics["451157118"].objectiveProgress.progress; } catch (err) { }
+  var grasp_flawless_completions = 0; try { grasp_flawless_completions = playerData.metrics.data.metrics["2269915270"].objectiveProgress.progress; } catch (err) { }
 
   return {
     "menageire": menageire,
@@ -722,7 +726,8 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
     "dungeons": {
       "shatteredThrone": { "completions": st_completions, "flawless": st_flawless_completions },
       "pitOfHeresy": { "completions": pit_completions, "flawless": pit_flawless_completions },
-      "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions }
+      "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions },
+      "grasp": { "completions": grasp_completions, "flawless": grasp_flawless_completions }
     },
     "presage": {
       "normal": presageNormal,

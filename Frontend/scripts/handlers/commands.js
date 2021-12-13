@@ -313,6 +313,23 @@ const Commands = [
     ]
   },
 
+  // Grasp of Avarice
+  { 
+    name: 'Grasp of Avarice',
+    description: 'Completions (Normal - Flawless)',
+    size: 10,
+    title: 'Top 10 Grasp of Avarice Completions',
+    helpMenus: ['Dungeons'],
+    leaderboardURL: 'grasp',
+    sorting: ['dungeons.grasp.completions', 'dungeons.grasp.flawless'],
+    commands: ['grasp'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.grasp.completions', 'dungeons.grasp.flawless'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['dungeons.grasp.completions', 'dungeons.grasp.flawless'], inline: true }
+    ]
+  },
+
   // Presage
   { 
     name: 'Presage',
