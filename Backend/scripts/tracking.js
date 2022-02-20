@@ -284,7 +284,14 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
         let itemsToLookFor = [];
   
         if(broadcastMode === "Auto") { itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))]; }
-        else if(broadcastMode === "Manual") { itemsToLookFor = extraItems; }
+        else if(broadcastMode === "Manual") {
+          itemsToLookFor = extraItems;
+
+          // Override for a clan
+          if(guilds[i]?.guildID === "268999519247663104") {
+            itemsToLookFor = [...globalItems.filter(e => !ignoredItems.includes(e)), ...extraItems.filter(e => !globalItems.includes(e))];
+          }
+        }
   
         //Find items that match in differences and send broadcast
         for(let j in differences) {

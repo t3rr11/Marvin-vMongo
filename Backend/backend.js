@@ -66,6 +66,8 @@ async function init() {
   var rt_index = 0;
   var rt_tempSpeed = 15000;
   var rt_scanSpeed = 5;
+  var lastIndexUpdate = 0;
+  var lastRTIndexUpdate = 0;
 
   new Promise(resolve => {
     Database.getTrackedClans((isError, isFound, data) => {
@@ -86,6 +88,19 @@ async function init() {
   setInterval(() => { ManifestHandler.checkManifestUpdate(); }, 1000 * 60 * 10); //10 Minute Interval
   setInterval(() => { Metrics.setMetrics(APIDisabled, index, rt_index, allClans.length, rt_allClans.length, processing.length, rt_processing.length) }, 1000); // 1 Second Interval
   setInterval(() => { Log.LogBackendStatus(index, rt_index, allClans.length, rt_allClans.length, processing.length, rt_processing.length, (new Date().getTime() - InitializationTime), ScanSpeed, !APIDisabled); }, 1000); // 1 Second Interval
+  setInterval(() => { IndexCheck(); }, 1000 * 30); //30 second interval
+
+  IndexCheck = () => {
+    // Check if last index update was more than 5 minutes ago, if so reset
+    if((new Date().getTime() - lastIndexUpdate) > (1000 * 60 * 5)) {
+      restartTracking();
+    }
+
+    // Check if last index update was more than 5 minutes ago, if so reset
+    if((new Date().getTime() - lastRTIndexUpdate) > (1000 * 60 * 5)) {
+      rt_restart();
+    }
+  };
 
   //Start Logger
   //I wanted to explain this a little, the timeout is here to do the first log which is never exactly an hour after startup.
@@ -135,6 +150,7 @@ async function init() {
         }
 
         index++;
+        lastIndexUpdate = new Date().getTime();
       }
     }
     else {
@@ -203,6 +219,7 @@ async function init() {
         }
 
         rt_index++;
+        lastRTIndexUpdate = new Date().getTime();
       }
     }
     else {

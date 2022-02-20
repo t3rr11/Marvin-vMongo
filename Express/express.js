@@ -106,13 +106,13 @@ async function DatabaseFunction(req, res, options, data) {
         else { res.status(200).send({ "isError": false, "message": "Not Found", "code": 200, data: [] }); }
       }
       else {
-        res.status(400).send({ "isError": true, "message": data, "code": 500 });
+        res.status(200).send({ "isError": true, "message": "There was an error", "code": 500, data: data });
         ErrorHandler("Med", data);
       }
     });
   }
   catch (err) {
-    res.status(500).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
+    res.status(200).send({ "isError": true, "message": err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`, "code": 500 }); 
     ErrorHandler("Med", err.toString.length > 0 ? err : `Error trying to use function: Database.${ options.func }()`);
   }
 }

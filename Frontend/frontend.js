@@ -116,10 +116,12 @@ function UpdateActivityList() {
     ActivityList.push(`Tracking ${ Clans.length } clans!`);
     ActivityList.push(`Use ~Help or ~Request for Support`);
     ActivityList.push(`You can now change your prefix by using: ~set prefix`);
-    ActivityList.push(`~Legend and ~Master are now re-enabled.`);
     ActivityList.push(`Want Faster Broadcasts? Consider Supporting, ~Support`);
     ActivityList.push(`Wonder what clannies are upto? Use: ~Clan Activity`);
     ActivityList.push(`~Xur now in! For how long?.. until Bungie obsure his location again.`);
+    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
+    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
+    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
   }
