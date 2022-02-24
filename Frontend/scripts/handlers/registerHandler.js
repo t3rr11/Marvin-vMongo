@@ -76,7 +76,7 @@ async function Register(prefix, message, command, users, registeredUser) {
       if(searchResults.length > 1 && searchResults.length < 30) {
         let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
-        embed.setAuthor("Too many results...");
+        embed.setTitle("Too many results...");
         embed.setDescription(`If I was unable to find your account it may be because it's under a different name, sometimes bungie does that.\n\nHere is a list of possibilities though. To select one please re-register with the ID associated: \`${prefix}Register 4611686018*****\` \n\n**Make sure you select the right platform if you play on more than 1 platform**`);
 
         if(searchResults.length > 10) {
@@ -100,9 +100,9 @@ async function Register(prefix, message, command, users, registeredUser) {
               });
             }
     
-            embed.addField("Username", usernames, true);
-            embed.addField("Clan", clans, true);
-            embed.addField("Bungie ID", ids, true);
+            embed.addField("Username", usernames.join("\n"), true);
+            embed.addField("Clan", clans.join("\n"), true);
+            embed.addField("Bungie ID", ids.join("\n"), true);
           }
         }
         else {
@@ -122,9 +122,9 @@ async function Register(prefix, message, command, users, registeredUser) {
             });
           }
   
-          embed.addField("Username", usernames, true);
-          embed.addField("Clan", clans, true);
-          embed.addField("Bungie ID", ids, true);
+          embed.addField("Username", usernames.join("\n"), true);
+          embed.addField("Clan", clans.join("\n"), true);
+          embed.addField("Bungie ID", ids.join("\n"), true);
         }
 
         try {
@@ -136,7 +136,7 @@ async function Register(prefix, message, command, users, registeredUser) {
       }
       else if(searchResults.length >= 30) {
         let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-        embed.setAuthor("Too many results...");
+        embed.setTitle("Too many results...");
         embed.setDescription(`This happened because there are more than 30 people with names similar to yours. To avoid breaching the scan limit I've added this catch. \n\n**Please if possible register with your Bungie given name instead which looks a little something like this. Marvin#1234**`);
         message.channel.send({ embeds: [embed] });
       }

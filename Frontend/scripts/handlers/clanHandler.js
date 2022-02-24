@@ -109,7 +109,7 @@ function AddClan(prefix, message, command) {
                   else {
                     const embed = new Discord.MessageEmbed()
                     .setColor(0x0099FF)
-                    .setAuthor("How to add another clan!")
+                    .setTitle("How to add another clan!")
                     .setDescription(`In order to add a new clan to be tracked along side your main clan you will need to find that clan here: https://www.bungie.net/en/ClanV2/MyClans \n\nOnce you've found the clan you wish to add check the URL of the page, it should say \`https://www.bungie.net/en/ClanV2/Index?groupId=1234567\`. \n\nThen it's just a matter of using that groupId like this: \`${prefix}add clan 1234567\``)
                     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
                     .setTimestamp()
@@ -221,7 +221,7 @@ async function GetTrackedClans(prefix, message, command) {
         }
         const embed = new Discord.MessageEmbed()
         .setColor(0x0099FF)
-        .setAuthor("Clans Tracked")
+        .setTitle("Clans Tracked")
         .setDescription(`To add another clan use: \`${prefix}add clan\`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: \`${prefix}remove clan 123456\``)
         .addField("Name", clanData.names, true)
         .addField("Clan ID", clanData.ids, true)

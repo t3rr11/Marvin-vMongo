@@ -316,8 +316,8 @@ client.on("guildCreate", guild => {
         if(isFound) { Log.SaveLog("Frontend", "Server", `Tracking Re-Enabled: ${ guild.name } (${ guild.id })`); }
         else {
           const embed = new Discord.MessageEmbed()
+          .setTitle("Hey there!")
           .setColor(0x0099FF)
-          .setAuthor("Hey there!")
           .setDescription("I am Marvin. To set me up first register with me by using the `~Register example` command. Replace example with your in-game username. \n\nOnce registration is complete use the `~Set clan` command and **then wait 5 minutes** whilst I scan your clan. That's it you'll be ready to go! \n\nTry out clan broadcasts this can be set up by typing `~Set Broadcasts #general` (does not have to be general). \n\nSee `~help` to see what I can do!")
           .setFooter(Config.defaultFooter, Config.defaultLogoURL)
           .setTimestamp();
@@ -347,7 +347,7 @@ client.on("interactionCreate", (interaction) => {
     const activity = ManifestHandler.getManifest().DestinyActivityDefinition[masterSector.sector.masterHash];
     console.log(activity);
     
-    embed.setAuthor("Master Lost Sector");
+    embed.setTitle("Master Lost Sector");
     embed.setDescription(JSON.stringify(masterSector));
     embed.addField("Name", activity.displayProperties.name);
     embed.setImage(`https://www.bungie.net${ activity.pgcrImage }`);

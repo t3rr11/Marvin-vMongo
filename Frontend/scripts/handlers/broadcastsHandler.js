@@ -259,7 +259,7 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
           let guild = guilds[i];
           const embed = new Discord.MessageEmbed()
           .setColor(0xFFE000)
-          .setAuthor("Clan Broadcast")
+          .setTitle("Clan Broadcast")
           .setDescription(`${ clan.clanName } has finished loading for the first time. You are free to use commands now!`)
           .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
           .setTimestamp();
@@ -279,7 +279,6 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
   });
 }
 async function enableItemBroadcast(prefix, message, command, guild) {
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item(s)...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   if(guild) {
     if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
       //Check for multiple items
@@ -330,37 +329,36 @@ async function enableItemBroadcast(prefix, message, command, guild) {
         //Let the user know successful and unsuccessful item tracks.
         if(canTrack.length > 0) {
           let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          embed.setAuthor("Success");
+          embed.setTitle("Success");
           embed.setDescription(`**Now Tracking** ${ canTrack.map(e => { return `\n${e.item.displayProperties.name}` }) } ${ canNotTrack.length > 0 ? `\n\n**Failed to track these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }\n\n Please allow me 30 seconds to make the change!`);
-          msg.edit(embed);
+          message.channel.send({ embeds: [embed] })
         }
         else {
-          let embed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          embed.setAuthor("Uhh oh...");
+          let embed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setTitle("Uhh oh...");
           embed.setDescription(`${ canNotTrack.length > 0 ? `**Failed to track these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }`);
-          msg.edit(embed);
+          message.channel.send({ embeds: [embed] })
         }
       }
       else {
-        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         errorEmbed.setDescription(`Could not find any of the the requested items. Sorry!`);
-        msg.edit(errorEmbed);
+        message.channel.send({ embeds: [errorEmbed] })
       }
     }
     else {
-      let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+      let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
       errorEmbed.setDescription("You do not have permission to use this command, only the person who first setup Marvin or any server Administrator can make changes.");
-      msg.edit(errorEmbed);
+      message.channel.send({ embeds: [errorEmbed] })
     }
   }
   else {
-    let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     errorEmbed.setDescription("Cannot track item because this guild has no registered clans yet.");
-    msg.edit(errorEmbed);
+    message.channel.send({ embeds: [errorEmbed] })
   }
 }
 async function disableItemBroadcast(prefix, message, command, guild) {
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   if(guild) {
     if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
       //Check for multiple items
@@ -411,33 +409,33 @@ async function disableItemBroadcast(prefix, message, command, guild) {
         //Let the user know successful and unsuccessful item untracks.
         if(canTrack.length > 0) {
           let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          embed.setAuthor("Success");
+          embed.setTitle("Success");
           embed.setDescription(`**No Longer Tracking** ${ canTrack.map(e => { return `\n${e.item.displayProperties.name}` }) } ${ canNotTrack.length > 0 ? `\n\n**Failed to untrack these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }\n\n Please allow me 30 seconds to make the change!`);
-          msg.edit(embed);
+          message.channel.send({ embeds: [embed] })
         }
         else {
-          let embed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-          embed.setAuthor("Uhh oh...");
+          let embed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+          embed.setTitle("Uhh oh...");
           embed.setDescription(`${ canNotTrack.length > 0 ? `**Failed to untrack these items**: ${ canNotTrack.map(e => { return `\n${e.item.displayProperties.name}` }) }\n\n**Due to these reasons**: ${ canNotTrack.map(e => { return `\n${e.reason}` } ) }` : `` }`);
-          msg.edit(embed);
+          message.channel.send({ embeds: [embed] })
         }
       }
       else {
-        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         errorEmbed.setDescription(`Could not find any of the the requested items. Sorry!`);
-        msg.edit(errorEmbed);
+        message.channel.send({ embeds: [errorEmbed] })
       }
     }
     else {
-      let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+      let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
       errorEmbed.setDescription("You do not have permission to use this command, only the person who first setup Marvin or any server Administrator can make changes.");
-      msg.edit(errorEmbed);
+      message.channel.send({ embeds: [errorEmbed] })
     }
   }
   else {
-    let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     errorEmbed.setDescription("Cannot untrack item because this guild has no registered clans yet.");
-    msg.edit(errorEmbed);
+    message.channel.send({ embeds: [errorEmbed] })
   }
 }
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }

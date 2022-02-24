@@ -6,7 +6,7 @@ const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../.
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
 
 async function sendModsBroadcasts(client, guilds, mods, vendor) {
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
   function FormatText(string) {
     let name = string;
     if(string.split(" ").length > 3) {
@@ -97,7 +97,7 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     embed.attachFiles([attachment]);
     embed.setImage('attachment://lostSector.png');
 
-    embed.setAuthor(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
+    embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
     embed.setDescription(`${ formattedDesc[0].value }\n ${ filteredDesc.map(e => `**${ e.key }**: ${ e.value }\n`).join('') }`);
 
     return embed;
@@ -111,8 +111,9 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     let guild = guilds[i];
     if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
       try {
-        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(legendEmbed);
-        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(masterEmbed);
+        // Disabled until I know the rotation again.
+        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [legendEmbed] });
+        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [masterEmbed] });
       }
       catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
     }
@@ -190,14 +191,14 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
     embed.attachFiles([attachment]);
     embed.setImage('attachment://xurLocation.png');
 
-    embed.setAuthor(`Xûr - ${ friendlyLocation }`);
+    embed.setTitle(`Xûr - ${ friendlyLocation }`);
     embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ items.map(item => buildItemDesc(item)).join('') }`);
 
     return embed;
   }
 
   let xurEmbed = await generateXurEmbed();
-  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send(xurEmbed);
+  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send({ embeds: [xurEmbed] });
 
   //Send them
   // for(let i in guilds) {

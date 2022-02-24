@@ -175,17 +175,17 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
 async function Donate(client, message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   embed.setThumbnail(DiscordConfig.defaultLogoURL);
-  embed.setAuthor("Want to help support future updates?");
+  embed.setTitle("Want to help support future updates?");
   embed.setDescription(`By becoming a Patreon for $2.50 USD/month, Your clan will be scanned by a more powerful version of Marvin.\n\nThis means leaderboards and broadcasts will update anywhere from instant to ~60 seconds rather than the usual scan times between 5-10 minutes.`);
   embed.addField("Patreon <:patreon:779549421851377665>", "https://www.patreon.com/Terrii");
   embed.addField("Ko-fi <:kofi:779548939975131157>", "https://ko-fi.com/terrii_dev");
   embed.addField("Paypal <:paypal:779549835522080768>", "https://paypal.me/guardianstats");
-  message.channel.send(embed);
+  message.channel.send({ embeds: [embed] });
 }
 async function Tools(client, message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   embed.setThumbnail(DiscordConfig.defaultLogoURL);
-  embed.setAuthor("Want more? Here is a list of other cool things!");
+  embed.setTitle("Want more? Here is a list of other cool things!");
   embed.setDescription(`Go check out these other cool things and tools.`);
   embed.addField("DIM", "https://destinyitemmanager.com");
   embed.addField("Charlemagne", "https://warmind.io");
@@ -194,14 +194,14 @@ async function Tools(client, message) {
   embed.addField("Light.gg", "https://light.gg");
   embed.addField("Reports", "https://raid.report\nhttps://trials.report\nhttps://crucible.report\nhttps://grandmaster.report\nhttps://dungeon.report");
   embed.addField("Collection of other tools", "https://cosmodrome.page/");
-  message.channel.send(embed);
+  message.channel.send({ embeds: [embed] });
 }
 async function Request(prefix, client, message, command) {
   const request = command.substr("request ".length);
   if(request.length > 1) {
     const embed = new Discord.MessageEmbed()
     .setColor(0x0099FF)
-    .setAuthor(`New Request by ${ message.author.username }#${ message.author.discriminator }, ID: ${ message.author.id }`)
+    .setTitle(`New Request by ${ message.author.username }#${ message.author.discriminator }, ID: ${ message.author.id }`)
     .setDescription(request)
     .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
     .setTimestamp()
@@ -228,13 +228,13 @@ function AddBannedUser(message, command) {
     if(isError) {
       ErrorHandler(severity, err);
       embed.setColor(0x0099FF);
-      embed.setAuthor("Failed");
+      embed.setTitle("Failed");
       embed.setDescription(err);
       message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
-      embed.setAuthor("User has been banned!");
+      embed.setTitle("User has been banned!");
       embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
       message.channel.send({ embeds: [embed] });
     }
@@ -247,13 +247,13 @@ function RemoveBannedUser(message, command) {
     if(isError) {
       ErrorHandler(severity, err);
       embed.setColor(0x0099FF);
-      embed.setAuthor("Failed");
+      embed.setTitle("Failed");
       embed.setDescription(err !== null ? err : "User was not found");
       message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
-      embed.setAuthor("User has been unbanned!");
+      embed.setTitle("User has been unbanned!");
       embed.setDescription(`**User:** ${ id }`);
       message.channel.send({ embeds: [embed] });
     }
@@ -268,20 +268,20 @@ function ChangeBannedUser(message, command) {
     if(isError) {
       ErrorHandler(severity, err);
       embed.setColor(0x0099FF);
-      embed.setAuthor("Failed");
+      embed.setTitle("Failed");
       embed.setDescription(err);
       message.channel.send({ embeds: [embed] });
     }
     else {
       embed.setColor(0x0099FF);
-      embed.setAuthor("Banned user has been updated!");
+      embed.setTitle("Banned user has been updated!");
       embed.setDescription(`**User:** ${ id }\n**Reason:** ${ reason.length > 4 ? reason : "You have been banned." }`);
       message.channel.send({ embeds: [embed] });
     }
   });
 }
 function ViewBans(message) {
-  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Here lies a list of banned users. Who no longer have access to Marvins features.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle("Here lies a list of banned users. Who no longer have access to Marvins features.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   Database.getAllBannedUsers((isError, isFound, data) => {
     if(!isError) {
       if(isFound) {
@@ -307,7 +307,7 @@ function GetGeolocationalData(client, message) {
     else { Regions[Regions.findIndex(e => e.name === guild.region)].amount++ }
   }
   Regions.sort(function(a, b) { return b.amount - a.amount; });
-  embed.setAuthor("Servers based on Region.")
+  embed.setTitle("Servers based on Region.")
   embed.setDescription(`**Total Servers: **${ client.guilds.cache.array().length }\n`)
   embed.addField("Region", Regions.map((region) => { return Misc.capitalize(region.name) }), true)
   embed.addField("Amount", Regions.map((region) => { return region.amount }), true)
@@ -363,7 +363,7 @@ function ChangePrefix(prefix, message, command, guild) {
   else { message.channel.send(`In order to change the prefix use the command like this: \`${ prefix }set prefix {value}\`. Example: \`${ prefix }set prefix ~\``); }
 }
 function ManageBroadcasts(prefix, message, type, command, guild) {
-  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setAuthor(`Broadcasts Manager`);
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setTitle(`Broadcasts Manager`);
 
   if(guild) {
     if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
@@ -445,7 +445,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
   }
 }
 function ManageAnnouncements(prefix, message, type, command, guild) {
-  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setAuthor(`Announcements Manager`);
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setTitle(`Announcements Manager`);
 
   if(guild) {
     if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
@@ -546,7 +546,7 @@ async function ClanInfo(prefix, message, command, guild) {
     if(!clanData[i].isError) {
       if(clanData[i].isFound) {
         let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-        embed.setAuthor(`${ clanData[i].data.clanName } (${ clanData[i].data.clanID })`);
+        embed.setTitle(`${ clanData[i].data.clanName } (${ clanData[i].data.clanID })`);
         embed.setDescription(`We have been tracking this clan for: ${ Misc.formatTime("big", (new Date() - clanData[i].data.joinedOn) / 1000) }.\nThe last time we scanned this clan was: ${ Misc.formatTime("small", (new Date() - clanData[i].data.lastScan) / 1000) } ago.`);
         embed.addField("Clan Level", clanData[i].data.clanLevel, true);
         embed.addField("Members", `${ clanData[i].data.memberCount } / 100`, true);
@@ -560,7 +560,7 @@ async function ClanInfo(prefix, message, command, guild) {
 }
 async function ItemInfo(prefix, message, command) {
   //Get item
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setTitle("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   let requestedItemName = command.substr("data ".length);
   let item;
   if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
@@ -573,7 +573,7 @@ async function ItemInfo(prefix, message, command) {
   if(item) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
 
-    embed.setAuthor(`${ item.displayProperties.name }`, null, `https://www.light.gg/db/items/${ item.hash }`);
+    embed.setTitle(`${ item.displayProperties.name }`, null, `https://www.light.gg/db/items/${ item.hash }`);
     if(item.flavorText) { embed.setDescription(`${ item.flavorText }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
@@ -587,14 +587,14 @@ async function ItemInfo(prefix, message, command) {
   }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setTitle("Uhh oh...");
     errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
     msg.edit(errorEmbed);
   }
 }
 async function DailyMods(guild, message, vendor) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
   function GetDailyMods() {
     function FormatText(string) {
@@ -647,12 +647,12 @@ async function DailyMods(guild, message, vendor) {
         embed.setImage('attachment://mods.png');
         embed.setDescription(`To see who needs these mods use: \n\`${ prefix }!item ${ data.mods[0].name }\`\n\`${ prefix }!item ${ data.mods[1].name }\``);
 
-        message.channel.send(embed);
+        message.channel.send({ embeds: [embed] });
       }
       else {
-        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         errorEmbed.setDescription(`So something went wrong and this command just didn't work. Please report using \`${prefix}request\``);
-        message.channel.send(errorEmbed);
+        message.channel.send({ embeds: [errorEmbed] });
       }
     });
   }
@@ -661,7 +661,7 @@ async function DailyMods(guild, message, vendor) {
 }
 async function GetXur(guild, message) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
-  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setAuthor(`Vendor - Xûr`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
+  var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - Xûr`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
   function GetXursItems() {
     Database.getDailyMods("Xûr", async function(isError, isFound, data) {    
@@ -733,15 +733,15 @@ async function GetXur(guild, message) {
         embed.attachFiles([attachment]);
         embed.setImage('attachment://xurLocation.png');
 
-        embed.setAuthor(`Xûr - ${ friendlyLocation }`);
+        embed.setTitle(`Xûr - ${ friendlyLocation }`);
         embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ data.items.map(item => buildItemDesc(item)).join('') }`);
 
-        message.channel.send(embed);
+        message.channel.send({ embeds: [embed] });
       }
       else {
-        let errorEmbed = new Discord.MessageEmbed().setAuthor("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+        let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         errorEmbed.setDescription(`So something went wrong and this command just didn't work. Please report using \`${prefix}request\``);
-        message.channel.send(errorEmbed);
+        message.channel.send({ embeds: [errorEmbed] });
       }
     });
   }
@@ -771,10 +771,10 @@ async function LostSectors(message, type) {
   embed.attachFiles([attachment]);
   embed.setImage('attachment://lostSector.png');
 
-  embed.setAuthor(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
+  embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
   embed.setDescription(`${ formattedDesc[0].value }\n ${ filteredDesc.map(e => `**${ e.key }**: ${ e.value }\n`).join('') }`);
 
-  message.channel.send(embed);
+  message.channel.send({ embeds: [embed] });
 }
 async function GrandMaster(message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -794,10 +794,10 @@ async function GrandMaster(message) {
   embed.attachFiles([attachment]);
   embed.setImage('attachment://grandMaster.png');
 
-  embed.setAuthor(`${ grandMasterActivity.displayProperties.name }`);
+  embed.setTitle(`${ grandMasterActivity.displayProperties.name }`);
   embed.setDescription(grandMasterMods);
 
-  message.channel.send(embed);
+  message.channel.send({ embeds: [embed] });
 }
 async function ClanActivity(prefix, message, command, guild) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -822,24 +822,24 @@ async function ClanActivity(prefix, message, command, guild) {
           });
           activities.second = players.map((e, index) => { return `${ Misc.formatTime("small", (new Date() - new Date(e.lastActivity.dateActivityStarted)) / 1000) } ago` });
 
-          embed.setAuthor("Servers Destiny 2 Activity");
+          embed.setTitle("Servers Destiny 2 Activity");
           embed.setDescription(`This information was last updated: ${ Misc.formatTime("small", (new Date() - new Date(players[0].lastUpdated)) / 1000) } ago\nTo get quicker scans consider \`${prefix}supporting\``);
           embed.addField("Name", activities.names, true);
           embed.addField("Activity", activities.first, true);
           embed.addField("Last Seen", activities.second, true);
         }
         else {
-          embed.setAuthor("Servers Destiny 2 Activity");
+          embed.setTitle("Servers Destiny 2 Activity");
           embed.setDescription(`Nobody has been online in the last hour, so i got nothing.`);
         }
       }
       else {
-        embed.setAuthor("Uhh oh...");
+        embed.setTitle("Uhh oh...");
         embed.setDescription(`Failed to find any users for the clans tracked by this guild. Potentially due to it not having scanned them yet? Have you waited 5 minutes?`);
       }
     }
     else {
-      embed.setAuthor("Uhh oh...");
+      embed.setTitle("Uhh oh...");
       embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
     }
 
@@ -853,14 +853,14 @@ async function VerifyManifest(prefix, message, retried) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
   ManifestHandler.verifyManifest((verification) => {
     let passedChecks = verification.filter(e => !e.passed).length > 0 ? false : true;
-    embed.setAuthor(`Manifest Validation - ${ ManifestHandler.getManifestVersion() }`);
+    embed.setTitle(`Manifest Validation - ${ ManifestHandler.getManifestVersion() }`);
     embed.setDescription(`I've checked the Manifest for errors or issues, Here is the result.`);
     embed.addField("Manifest Component", verification.map(e => e.component), true);
     embed.addField("Status", verification.map(e => e.passed ? "Passed":"Failed"), true);
     embed.addField("Outcome", passedChecks ? "Passed all checks, Manifest is working as intended." : "Failed one or more checks, Fixing manifest now, re-validating in 30 seconds.");
     
     //Send validation check repsonse
-    message.channel.send(embed);
+    message.channel.send({ embeds: [embed] });
 
     //Check if it passed all checks
     if(!passedChecks) {
@@ -882,60 +882,60 @@ async function GetHelp(prefix, message, command) {
 
   switch(command) {
     case "help rankings": case "rankings": {
-      embed.setAuthor("Rankings Help Menu");
+      embed.setTitle("Rankings Help Menu");
       embed.setDescription(`Here is a list of ranking commands! Example: \`${prefix}Iron Banner\``);
       embed.addField("Commands", `\`${prefix}Valor\`\n\`${prefix}Glory\`\n\`${prefix}Infamy\`\n\`${prefix}Trials Rank\`\n\`${prefix}Iron Banner\`\n\`${prefix}Max Power\`\n\`${prefix}Triumph Score\`\n\`${prefix}Triumph Score -legacy\`\n\`${prefix}Triumph Score -lifetime\`\n\`${prefix}Time Played\`\n\`${prefix}Season Rank\`\n\`${prefix}Empire Hunts\`\n\`${prefix}Presage\`\n\`${prefix}Master Presage\``);
       break;
     }
     case "help dungeons": case "dungeons": {
-      embed.setAuthor("Dungeons Help Menu");
+      embed.setTitle("Dungeons Help Menu");
       embed.setDescription(`Here is a list of dungeon commands! Example: \`${prefix}Pit of Heresy\``);
       embed.addField("Commands", `\`${prefix}Shattered Throne\`\n\`${prefix}Pit of Heresy\`\n\`${prefix}Prophecy\``);
       break;
     }
     case "help raids": case "raids": {
-      embed.setAuthor("Raids Help Menu");
+      embed.setTitle("Raids Help Menu");
       embed.setDescription(`Here is a list of raid commands! Example: \`${prefix}LW\``);
       embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\`\n\`${prefix}VoG\``);
       break;
     }
     case "help items": case "items": {
-      embed.setAuthor("Items Help Menu");
+      embed.setTitle("Items Help Menu");
       embed.setDescription(`The way to use the item command has recently changed. You can now use it on any profile collectible that Destiny tracks for example:\n\`${prefix}item One Thousand Voices\` or to see who is missing the item use: \n\`${prefix}!item Anarchy\`.\n\nIf you are more versed in the API feel free to use hashes. The item command accepts itemHash or collectibleHash. \`${prefix}item 123456\` \n\nIt's a little funky as things are split between profile collectibles and character collectibles. It's alot of data and i only store profile collectibles so not all armors will work unfortunately.`);
       break;
     }
     case "help titles": case "titles": {
-      embed.setAuthor("Titles Help Menu");
+      embed.setTitle("Titles Help Menu");
       embed.setDescription(`The way to use the title command has recently changed. You can now use it on any title that Destiny tracks for example:\n\`${prefix}title Rivensbane\` or to see who is missing the title use: \n\`${prefix}!title Chronicler\`.\n\nIf you are more versed in the API feel free to use hashes. The title command accepts the completion record hash for the title. \`${prefix}title 123456\``);
       break;
     }
     case "help seasonal": case "seasonal": {
-      embed.setAuthor("Seasonal Help Menu");
+      embed.setTitle("Seasonal Help Menu");
       embed.setDescription(`Here is a list of seasonal commands! Example: \`${prefix}Season Rank\``);
       embed.addField("Commands", `\`${prefix}Season Rank\`\n\`${prefix}Max Power\``);
       break;
     }
     case "help clan": case "clan": {
-      embed.setAuthor("Clans Help Menu");
+      embed.setTitle("Clans Help Menu");
       embed.setDescription(`Here is a list of clan commands! Example: \`${prefix}Set Clan\``);
       embed.addField("Commands", `\`${prefix}Tracked Clans\`\n\`${prefix}Set Clan\`\n\`${prefix}Add Clan\`\n\`${prefix}Remove Clan\``);
       break;
     }
     case "help broadcasts": case "broadcasts": { GetBroadcastItems(prefix, message, command); break; }
     case "help announcements": case "announcements": {
-      embed.setAuthor("Globals Help Menu");
+      embed.setTitle("Globals Help Menu");
       embed.setDescription(`Here is a list of announcements commands! Example: \`${prefix}Set announcements #channel\``);
       embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\`\n\`${prefix}Toggle ada announcements\`\n\`${prefix}Toggle lost sector announcements\``); 
       break;
     }
     case "help globals": case "globals": {
-      embed.setAuthor("Globals Help Menu");
+      embed.setTitle("Globals Help Menu");
       embed.setDescription(`Here is a list of global commands! Example: \`${prefix}Global Time Played\``);
       embed.addField("Commands", `\`${prefix}Global Time Played\`\n\`${prefix}Global Season Rank\`\n\`${prefix}Global Triumph Score\`\n\`${prefix}Global Valor\`\n\`${prefix}Global Infamy\`\n\`${prefix}Global Levi\`\n\`${prefix}Global EoW\`\n\`${prefix}Global SoS\`\n\`${prefix}Global Last Wish\`\n\`${prefix}Global Scourge\`\n\`${prefix}Global Sorrows\`\n\`${prefix}Global Garden\`\n\`${prefix}Global Total Raids\`\n\`${prefix}Global Power\``); 
       break;
     }
     case "help trials": case "trials": {
-      embed.setAuthor("Trials Help Menu");
+      embed.setTitle("Trials Help Menu");
       embed.setDescription(`Here is a list of trials commands! Profile commands can be altered by @ing the person you wish to view: \`${prefix}Trials Profile @Someone\``);
       embed.addField("Profile Commands", `\`${prefix}Trials Profile\`, \`${prefix}Trials Profile Weekly\`, \`${prefix}Trials Profile Seasonal\`, \`${prefix}Trials Profile Overall\``);
       embed.addField("Weekly Rankings", `\`${prefix}Trials Wins\`, \`${prefix}Trials Flawless\`, \`${prefix}Trials Final Blows\`, \`${prefix}Trials Post Wins\`, \`${prefix}Trials Carries\``);
@@ -944,7 +944,7 @@ async function GetHelp(prefix, message, command) {
       break;
     }
     case "help clanwars": case "clanwars": {
-      embed.setAuthor("Clanwars Help Menu");
+      embed.setTitle("Clanwars Help Menu");
       embed.setDescription(`Here is a list of Clanwars commands! Example: \`${prefix}Clanwars Time\``);
       embed.addField("Crucible", `\`${prefix}Clanwars Valor\`\n\`${prefix}Clanwars Glory\`\n\`${prefix}Clanwars Iron Banner Kills\`\n\`${prefix}Clanwars Iron Banner Wins\``);
       embed.addField("Raids", `\`${prefix}Clanwars Levi\`\n\`${prefix}Clanwars Eow\`\n\`${prefix}Clanwars Sos\`\n\`${prefix}Clanwars Last Wish\`\n\`${prefix}Clanwars Scourge\`\n\`${prefix}Clanwars Crown\`\n\`${prefix}Clanwars Garden\`\n\`${prefix}Clanwars Dsc\``);
@@ -952,19 +952,19 @@ async function GetHelp(prefix, message, command) {
       break;
     }
     case "help others": case "others": {
-      embed.setAuthor("Others Help Menu");
+      embed.setTitle("Others Help Menu");
       embed.setDescription(`Here is a list of other commands! Example: \`${prefix}Donate\``);
       embed.addField("Commands", `\`${prefix}Donate\`\n\`${prefix}Clan Activity\`\n\`${prefix}Profile\`\n\`${prefix}Profile -raids\`, \`${prefix}Profile -r\`\n\`${prefix}Profile -broadcasts\`, \`${prefix}Profile -b\`\n\`${prefix}Profile -grandmasters\`, \`${prefix}Profile -g\`\n\`${prefix}Triumph score -active\`\n\`${prefix}Triumph score -legacy\`\n\`${prefix}Triumph score -lifetime\`\n\`${prefix}Things\`\n\`${prefix}Tools\``);
       break;
     }
     case "help drystreaks": case "help drystreak": case "drystreaks": {
-      embed.setAuthor("Drystreaks Help Menu");
+      embed.setTitle("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
       embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\``);
       break;
     }
     default: {
-      embed.setAuthor("Hey there! I am Marvin.");
+      embed.setTitle("Hey there! I am Marvin.");
       embed.setDescription(`I have so many commands now i've had to split them up here is a list of my help commands! Example: \`${prefix}Rankings\``);
       embed.addField("Categories", `\`${prefix}Rankings\`, \`${prefix}Broadcasts\`, \`${prefix}Announcements\`, \`${prefix}Dungeons\`, \`${prefix}Raids\`, \`${prefix}Items\`, \`${prefix}Titles\`, \`${prefix}Seasonal\`, \`${prefix}Clan\`, \`${prefix}Globals\`, \`${prefix}Trials\`, \`${prefix}Clanwars\`, \`${prefix}Others\``);
       embed.addField("Request", `If you wish to request something or would like to give feedback use the request command like this: \`${prefix}request I would like to see Marvin track season ranks!\``);
@@ -1042,7 +1042,6 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
   let playerItems = [];
   let obtained = [];
   let dataType;
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
 
   //Get item
   var requestedItemName = type === "obtained" ? command.substr("item ".length) : command.substr("!item ".length);
@@ -1082,19 +1081,17 @@ async function GetObtainedItems(prefix, message, command, type, users, registere
     else { dataType = "collectible"; }
   }
 
-  if(dataType) { SendItemsLeaderboard(prefix, msg, command, type, players, obtained, item, dataType); }
+  if(dataType) { SendItemsLeaderboard(prefix, message, command, type, players, obtained, item, dataType); }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setTitle("Uhh oh...");
     errorEmbed.setDescription(`Could not find the item requested. Its more than likely a character collectible and not something i can track sorry!`);
-    msg.edit(errorEmbed);
+    message.channel.send({ embeds: [errorEmbed] });
   }
 }
 async function GetObtainedTitles(prefix, message, command, type, users, registeredUser) {
   let players = [];
   let playerTitles = [];
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
-
   //Get title
   var requestedTitleName = type === "obtained" ? command.substr("title ".length) : command.substr("!title ".length);
   var titleDefs = ManifestHandler.getManifestTitleByName(requestedTitleName);
@@ -1144,13 +1141,13 @@ async function GetObtainedTitles(prefix, message, command, type, users, register
       }
     }
 
-    SendTitlesLeaderboard(prefix, msg, command, type, players, type === "obtained" ? playersWithReqTitles : playersWithoutReqTitles, titleDefs);
+    SendTitlesLeaderboard(prefix, message, command, type, players, type === "obtained" ? playersWithReqTitles : playersWithoutReqTitles, titleDefs);
   }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    errorEmbed.setAuthor("Uhh oh...");
+    errorEmbed.setTitle("Uhh oh...");
     errorEmbed.setDescription(`Could not find the title requested. If trying to search for Flawless or Conqueror just use tha name; Flawless or Conqueror. Previously you had to add the season but this has since changed.`);
-    msg.edit(errorEmbed);
+    message.channel.send({ embeds: [errorEmbed] });
   }
 }
 async function GetProfile(prefix, message, command, type, users, registeredUser) {
@@ -1308,7 +1305,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
   else { message.channel.send(`We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: \`${prefix}help globals\``); }
 }
 async function GetDrystreak(prefix, message, command) {
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setAuthor("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setTitle("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   let players = [];
   let playerItems = [];
   let broadcasts = [];
@@ -1405,7 +1402,7 @@ async function GetDrystreak(prefix, message, command) {
   }
   else {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    embed.setAuthor("Drystreaks");
+    embed.setTitle("Drystreaks");
     embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: \`${prefix}help drystreaks\``);
     msg.edit({ embeds: [embed] });
   }
@@ -1435,7 +1432,7 @@ async function GetBroadcastDates(prefix, message, command) {
 
   if(guildBroadcasts.length > 0) {
     guildBroadcasts.sort((a, b) => { return a.date - b.date }).slice(0, 100);
-    embed.setAuthor(`Obtained Dates - ${ item.displayProperties.name }`);
+    embed.setTitle(`Obtained Dates - ${ item.displayProperties.name }`);
     embed.setDescription(`This is capped at 100, a full leaderboard will be coming soon. Shown: ${ guildBroadcasts.length } / 100`);
     if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
     embed.addField("Name", guildBroadcasts.slice(0, guildBroadcasts.length / 2).map(e => { return e.displayName }), true);
@@ -1446,7 +1443,7 @@ async function GetBroadcastDates(prefix, message, command) {
     embed.addField("\u200B", "\u200B", true);
   }
   else {
-    embed.setAuthor("Uhh oh...");
+    embed.setTitle("Uhh oh...");
     embed.setDescription("Could not find any broadcasts for that item in this server. Has this server had any broadcasts since Marvin has started tracking this server/clan?");
   }
 
@@ -1469,7 +1466,7 @@ async function GetBroadcastItems(prefix, message, command) {
   await Promise.all([await GetGuildInfo()]);
   
   //Create the help menu
-  embed.setAuthor("Broadcasts Help Menu");
+  embed.setTitle("Broadcasts Help Menu");
   embed.setDescription(`Here is a list of broadcast commands! Example: \`${prefix}Set broadcasts #channel\``);
   embed.addField("Commands", `\`${prefix}Set broadcasts #channel\`\n\`${prefix}Remove broadcasts\`\n\`${prefix}Manage broadcasts\`\n\`${prefix}Toggle item broadcasts\`\n\`${prefix}Toggle title broadcasts\`\n\`${prefix}Toggle clan broadcasts\`\n\`${prefix}Track itemname\`\n\`${prefix}Untrack itemname\``);
   
@@ -1511,7 +1508,7 @@ function BuildLeaderboard(command, message, players, registeredPlayer) {
     });
   }
 
-  embed.setAuthor(command.title);
+  embed.setTitle(command.title);
 
   embed.setDescription(
     `${ command.description ? command.description : '' }` + '\n' +
@@ -1520,7 +1517,7 @@ function BuildLeaderboard(command, message, players, registeredPlayer) {
 
 
   for(let field of command.fields) {
-    embed.addField(field.name, BuildField(field, sortedPlayers, registeredPlayer, command.size).toString().replaceAll(/\,/ig, "\n"), field.inline);
+    embed.addField(field.name, BuildField(field, sortedPlayers, registeredPlayer, command.size).join("\n"), field.inline);
   }
 
 
@@ -1590,7 +1587,7 @@ async function SendLeaderboard(prefix, message, input, players, privatePlayers, 
       // Build leaderboard embed
       try { embed = BuildLeaderboard(command, message, players, registeredPlayer) } catch(err) {
         Log.SaveLog("Frontend", "Error", err);
-        embed.setAuthor("Uhh oh...");
+        embed.setTitle("Uhh oh...");
         embed.setDescription(`So something went wrong and this command just didn't work. It dun broke. Please report using \`${prefix}request\``);
       };
   
@@ -1631,9 +1628,9 @@ function SendTotalTitlesLeaderboard(prefix, message, command, players, privatePl
     leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.Titles.titles.length) }`);
   }
   else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-  embed.setAuthor("Top 10 Total Titles");
-  embed.addField("Name", leaderboard.names, true);
-  embed.addField("Total", leaderboard.first, true);
+  embed.setTitle("Top 10 Total Titles");
+  embed.addField("Name", leaderboard.names.join("\n"), true);
+  embed.addField("Total", leaderboard.first.join("\n"), true);
 
   message.channel.send({ embeds: [embed] }).catch(err => {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
@@ -1654,38 +1651,38 @@ function SendItemsLeaderboard(prefix, message, command, type, players, playerIte
 
   if(dataType === "item") {
     if(playerItems.length > 0) {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
       if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
-      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].join("\n"), true); }
     }
     else {
       if(item.collectibleHash) {
-        embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+        embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
         embed.setDescription(`Nobody has it yet.`);
         if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
       }
       else {
-        embed.setAuthor("Can not track item.");
+        embed.setTitle("Can not track item.");
         embed.setDescription(`This item does not have an associated collectible hash to it, which means i cannot track it. Sorry!`);
       }
     }
   }
   else {
     if(playerItems.length > 0) {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
       embed.setDescription(`This list can only show 100 players. There may be more not on this list depending on how many clans are tracked. ${ playerItems.length > 100 ? `100 / ${ playerItems.length }` : ` ${ playerItems.length } / 100` }`);
       if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
-      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i], true); }
+      for(var i in chunkArray) { embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].join("\n"), true); }
     }
     else {
-      embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
+      embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ item.displayProperties.name }`);
       embed.setDescription(`Nobody has it yet.`);
       if(item.displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`); }
     }
   }
 
-  message.edit(embed);
+  message.channel.send({ embeds: [embed] });
 }
 function SendTitlesLeaderboard(prefix, message, command, type, players, playerTitles, titleDefs) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -1700,23 +1697,23 @@ function SendTitlesLeaderboard(prefix, message, command, type, players, playerTi
   }, []);
 
   if(playerTitles.length > 0) {
-    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
+    embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
     embed.setDescription(`This list can only show ${ amount } players. There may be more not on this list depending on how many clans are tracked. ${ playerTitles.length > amount ? `${ amount } / ${ playerTitles.length }` : ` ${ playerTitles.length } / ${ amount }` }`);
     if(titleDefs[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ titleDefs[0].displayProperties.icon }`); }
     for(var i in chunkArray) {
-      embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].map(e => e.displayName), true);
+      embed.addField(`${ type === "obtained" ? "Obtained" : "Missing" }`, chunkArray[i].map(e => e.displayName).join("\n"), true);
       if(type === "obtained") {
-        embed.addField("Gilded", chunkArray[i].map(e => { return e.isGilded ? ":white_check_mark: ".repeat(e.seen-1) : "\u200b" }), true);
+        embed.addField("Gilded", chunkArray[i].map(e => { return e.isGilded ? ":white_check_mark: ".repeat(e.seen-1) : "\u200b" }).join("\n"), true);
       }
     }
   }
   else {
-    embed.setAuthor(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
+    embed.setTitle(`Showing users who ${ type === "obtained" ? "have" : "are missing" }: ${ titleDefs[0].titleInfo.titlesByGender.Male }`);
     embed.setDescription(`Nobody has it yet.`);
     if(titleDefs[0].displayProperties.hasIcon) { embed.setThumbnail(`https://bungie.net${ titleDefs[0].displayProperties.icon }`); }
   }
 
-  message.edit(embed);
+  message.channel.send({ embeds: [embed] });
 }
 function SendClanWarsLeaderboard(prefix, message, command, registeredUser, registeredPlayer, clanData) {
   let leaderboard = { names: [], first: [], second: [] }
@@ -1733,7 +1730,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.valor) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Valor");
+      embed.setTitle("Top 10 Clan Wars Rankings for Valor");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -1748,7 +1745,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.glory) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Glory");
+      embed.setTitle("Top 10 Clan Wars Rankings for Glory");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -1763,7 +1760,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.ironBanner.kills) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Iron Banner Kills");
+      embed.setTitle("Top 10 Clan Wars Rankings for Iron Banner Kills");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -1778,7 +1775,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.ironBanner.wins) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Iron Banner Wins");
+      embed.setTitle("Top 10 Clan Wars Rankings for Iron Banner Wins");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -1793,7 +1790,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(Math.round(clan.timePlayed/60)) } Hrs`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Total Time Played");
+      embed.setTitle("Top 10 Clan Wars Rankings for Total Time Played");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Hours", leaderboard.first, true);
       break;
@@ -1808,7 +1805,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.levi) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Leviathan Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Leviathan Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1823,7 +1820,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.eow) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Eater of Worlds Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Eater of Worlds Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1838,7 +1835,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.sos) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Spire of Stars Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Spire of Stars Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1853,7 +1850,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.lastWish) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Last Wish Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Last Wish Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1868,7 +1865,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.scourge) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Scourge of the Past Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Scourge of the Past Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1883,7 +1880,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.sorrows) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Crown of Sorrows Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Crown of Sorrows Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1898,7 +1895,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.garden) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Garden of Salvation Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Garden of Salvation Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1913,7 +1910,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.dsc) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Deep Stone Crypt Clears");
+      embed.setTitle("Top 10 Clan Wars Rankings for Deep Stone Crypt Clears");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Clears", leaderboard.first, true);
       break;
@@ -1928,7 +1925,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.totalRaids) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Total Raid Completions");
+      embed.setTitle("Top 10 Clan Wars Rankings for Total Raid Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -1943,7 +1940,7 @@ function SendClanWarsLeaderboard(prefix, message, command, registeredUser, regis
         leaderboard.names.push("", `${ rank+1 }: ${ clan.clanName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`);
         leaderboard.first.push("", `${ Misc.AddCommas(clan.seasonRank) }`);
       }
-      embed.setAuthor("Top 10 Clan Wars Rankings for Total Season Ranks");
+      embed.setTitle("Top 10 Clan Wars Rankings for Total Season Ranks");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Ranks", leaderboard.first, true);
       break;
@@ -1965,7 +1962,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("profile -r"): case command.startsWith("profile -raids"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setTitle(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
               embed.addField("Leviathan", `${ Misc.AddCommas(registeredPlayerStats.levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.levi.rank) })*`, true);
               embed.addField("Leviathan (PRESTIGE)", `${ Misc.AddCommas(registeredPlayerStats.prestige_levi.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.prestige_levi.rank) })*`, true);
@@ -1983,13 +1980,13 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               break;
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -1999,26 +1996,26 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
             if(registeredUser !== "NoUser") {
               if(registeredPlayerBroadcasts.length > 0) {
                 registeredPlayerBroadcasts.sort((a, b) => { return b.date - a.date }).slice(0, 15);
-                embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+                embed.setTitle(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
                 embed.setDescription("This only shows broadcasts whilst Marvin was tracking your clan in this discord. (Capped at 15 newest broadcasts)");
-                embed.addField("Name", registeredPlayerBroadcasts.map(e => { return e.broadcast }), true);
-                embed.addField("Date", registeredPlayerBroadcasts.map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }), true);
+                embed.addField("Name", registeredPlayerBroadcasts.map(e => { return e.broadcast }).join("\n"), true);
+                embed.addField("Date", registeredPlayerBroadcasts.map(e => { return `${ new Date(e.date).getDate() }-${ new Date(e.date).getMonth()+1 }-${ new Date(e.date).getFullYear() }` }).join("\n"), true);
                 break;
               }
               else {
-                embed.setAuthor("Uhh oh...");
+                embed.setTitle("Uhh oh...");
                 embed.setDescription("Could not find any broadcasts for your registered account. Have you obtained any since Marvin has started tracking your clan?");
                 break;
               }
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2027,7 +2024,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
               if(registeredPlayer.User.grandmasters) {
-                embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+                embed.setTitle(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
                 embed.setDescription("Grandmaster Completions (Season of the Lost)");
                 let grandmasters = {
                   names: ["The Hollowed Lair", "Lake of Shadows", "Exodus Crash", "The Corrupted", "The Devil's Lair", "Proving Grounds"],
@@ -2042,24 +2039,24 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
                 }
                 grandmasters.names.push("", "Total");
                 grandmasters.counts.push("", grandmasters.counts.reduce((a,b) => a+b));
-                embed.addField("Strike", grandmasters.names, true);
-                embed.addField("Completions", grandmasters.counts, true);
+                embed.addField("Strike", grandmasters.names.join("\n"), true);
+                embed.addField("Completions", grandmasters.counts.join("\n"), true);
                 break;
               }
               else {
-                embed.setAuthor("Uhh oh...");
+                embed.setTitle("Uhh oh...");
                 embed.setDescription(`Found User but I have no grandmaster data for you yet, Most likely still scanning.`);
                 break;
               }
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2067,7 +2064,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         default: {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setTitle(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.setDescription(`Ranks are based on all tracked clans for this server. (Rank / ${ leaderboardLength }) players!`);
               embed.addField("Name (SR)", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) } (${ registeredPlayerStats.seasonRank.data })`, true);
               embed.addField("Time Played", `${ Misc.AddCommas(Math.round(registeredPlayerStats.timePlayed.data/60)) } Hrs *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.timePlayed.rank) })*`, true);
@@ -2085,13 +2082,13 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               break;
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2104,7 +2101,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("trials profile weekly"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setTitle(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
               embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
               embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
@@ -2114,13 +2111,13 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               break;
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2128,7 +2125,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("trials profile seasonal"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Seasonal Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setTitle(`Viewing Seasonal Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
               embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.wins)) }`, true)
               embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.seasonal.flawlessTickets)) }`, true)
@@ -2138,13 +2135,13 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               break;
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2152,7 +2149,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
         case command.startsWith("trials profile overall"): {
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
-              embed.setAuthor(`Viewing Overall Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+              embed.setTitle(`Viewing Overall Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
               embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
               embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.wins)) }`, true)
               embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.overall.flawlessTickets)) }`, true)
@@ -2162,13 +2159,13 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               break;
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2177,7 +2174,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
           if(registeredUser) {
             if(registeredUser !== "NoUser") {
               if(registeredPlayer) {
-                embed.setAuthor(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
+                embed.setTitle(`Viewing Weekly Trials Statistics for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
                 embed.addField("Name", `${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`, true)
                 embed.addField("Wins", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.wins)) }`, true)
                 embed.addField("Flawless", `${ Misc.AddCommas(Math.round(registeredPlayer.User.trials.weekly.flawlessTickets)) }`, true)
@@ -2187,19 +2184,19 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
                 break;
               }
               else {
-                embed.setAuthor("Uhh oh...");
+                embed.setTitle("Uhh oh...");
                 embed.setDescription(`The person you have @ has no player data, potentially they're not in one of Marvin's tracked clans. You can add their clan by using \`${prefix}add clan\``);
                 break;
               }
             }
             else {
-              embed.setAuthor("Uhh oh...");
+              embed.setTitle("Uhh oh...");
               embed.setDescription(`The person you have @ has not registered. Get them to register\nThey can do this by using \`${prefix}register\``);
               break;
             }
           }
           else {
-            embed.setAuthor("Uhh oh...");
+            embed.setTitle("Uhh oh...");
             embed.setDescription(`In order to view your profile i need to know who you are. I cannot know without you registering first. Use: \`${prefix}register\``);
             break;
           }
@@ -2232,7 +2229,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.second.push("", `${ ~~(registeredPlayer.User.valor.current/2000) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Seasonal Valor Rankings");
+      embed.setTitle("Top 10 Global Seasonal Valor Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Valor", leaderboard.first, true);
       embed.addField("Resets", leaderboard.second, true);
@@ -2250,7 +2247,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.second.push("", `${ ~~(registeredPlayer.User.infamy.current/2000) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Seasonal Infamy Rankings");
+      embed.setTitle("Top 10 Global Seasonal Infamy Rankings");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Infamy", leaderboard.first, true);
       embed.addField("Resets", leaderboard.second, true);
@@ -2268,7 +2265,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.levi }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Leviathan Completions");
+      embed.setTitle("Top 10 Global Leviathan Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2283,7 +2280,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.eow }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Eater of Worlds Completions");
+      embed.setTitle("Top 10 Global Eater of Worlds Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2298,7 +2295,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.sos }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Spire of Stars Completions");
+      embed.setTitle("Top 10 Global Spire of Stars Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2313,7 +2310,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_levi }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Prestige Leviathan Completions");
+      embed.setTitle("Top 10 Global Prestige Leviathan Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2328,7 +2325,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_eow }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Prestige Eater of Worlds Completions");
+      embed.setTitle("Top 10 Global Prestige Eater of Worlds Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2343,7 +2340,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ registeredPlayer.User.raids.prestige_sos }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Prestige Spire of Stars Completions");
+      embed.setTitle("Top 10 Global Prestige Spire of Stars Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2358,7 +2355,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.lastWish) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Last Wish Completions");
+      embed.setTitle("Top 10 Global Last Wish Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2373,7 +2370,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.scourge) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Scourge of the Past Completions");
+      embed.setTitle("Top 10 Global Scourge of the Past Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2388,7 +2385,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.sorrows) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Crown of Sorrows Completions");
+      embed.setTitle("Top 10 Global Crown of Sorrows Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2403,7 +2400,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.garden) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Garden of Salvation Completions");
+      embed.setTitle("Top 10 Global Garden of Salvation Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2418,7 +2415,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.raids.dsc) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Deep Stone Crypt Completions");
+      embed.setTitle("Top 10 Global Deep Stone Crypt Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2433,7 +2430,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.totalRaids) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Total Raid Completions");
+      embed.setTitle("Top 10 Global Total Raid Completions");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Completions", leaderboard.first, true);
       break;
@@ -2451,7 +2448,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
           leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower) }`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-        embed.setAuthor("Top 10 Global Highest Base Power");
+        embed.setTitle("Top 10 Global Highest Base Power");
         embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.`);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Power", leaderboard.first, true);
@@ -2466,7 +2463,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
           leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.highestPower+registeredPlayer.User.powerBonus) } (${ Misc.AddCommas(registeredPlayer.User.highestPower) } + ${ Misc.AddCommas(registeredPlayer.User.powerBonus) })`);
         }
         else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-        embed.setAuthor("Top 10 Global Highest Power");
+        embed.setTitle("Top 10 Global Highest Power");
         embed.setDescription(`As there is no actual 'highest power' stat, this leaderboard may be in-accurate at times due to it only updating the power at the time the clan was scanned.\n\n To see global highest base power use: \`${prefix}global power -a\``);
         embed.addField("Name", leaderboard.names, true);
         embed.addField("Power", leaderboard.first, true);
@@ -2483,7 +2480,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(Math.round(registeredPlayer.User.timePlayed/60)) } Hrs`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Most Time Played");
+      embed.setTitle("Top 10 Global Most Time Played");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Hours", leaderboard.first, true);
       break;
@@ -2498,7 +2495,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.seasonRank) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Season Rank");
+      embed.setTitle("Top 10 Global Season Rank");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Rank", leaderboard.first, true);
       break;
@@ -2513,7 +2510,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.triumphScore.score) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Triumph Score");
+      embed.setTitle("Top 10 Global Triumph Score");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Score", leaderboard.first, true);
       break;
@@ -2528,7 +2525,7 @@ function SendGlobalLeaderboard(prefix, message, command, registeredUser, registe
         leaderboard.first.push("", `${ Misc.AddCommas(registeredPlayer.User.dawning2020) }`);
       }
       else if(registeredUser === "NoUser") { leaderboard.names.push("", "User has not registered yet."); }
-      embed.setAuthor("Top 10 Global Dawning Spirit Collected");
+      embed.setTitle("Top 10 Global Dawning Spirit Collected");
       embed.addField("Name", leaderboard.names, true);
       embed.addField("Spirit", leaderboard.first, true);
       break;
@@ -2547,7 +2544,7 @@ function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts,
     let top = drystreaks.sort((a, b) => { return b.completions - a.completions }).slice(0, 10);
     leaderboard.names = top.map((e, index) => { return `${ e.obtained ? "✓" : "✗"} - ${ e.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }` });
     leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.completions) }` });
-    embed.setAuthor(`Top 10 Unluckiest People - ${ drystreaks[0].item }`);
+    embed.setTitle(`Top 10 Unluckiest People - ${ drystreaks[0].item }`);
     embed.setDescription(`These are not all loot runs. I cannot tell the difference between loot runs and non-loot runs. So these are just on what raid completion did they obtain the item on.\n\n✓ = Obtained, ✗ = Not Obtained`);
     embed.addField("Name", leaderboard.names, true);
     embed.addField("Completions", leaderboard.first, true);

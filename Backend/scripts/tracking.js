@@ -262,15 +262,15 @@ async function CheckTitles(clan, season, memberData, playerData, oldPlayerData, 
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
   let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
-  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
-  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
+  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e]?.titleInfo?.gildingTrackingRecordHash });
+  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e]?.titleInfo?.gildingTrackingRecordHash });
   let allSeals = seals.concat(legacySeals);
   let allGildedSeals = gildedSeals.concat(legacyGildedSeals.filter(e => e !== undefined));
   let allSealsCombined = allSeals.concat(allGildedSeals.filter(e => e !== undefined));
 
   if(oldPlayerData.Titles.titles) {
     let previousTitles = oldPlayerData.Titles.titles;
-    let newTitles = allSealsCombined.filter(e => playerData.profileRecords.data.records[e].objectives[0].complete);
+    let newTitles = allSealsCombined.filter(e => playerData.profileRecords.data.records[e]?.objectives[0]?.complete);
     var differences = newTitles.filter(titleHash => !previousTitles.includes(titleHash));
   
     //Check for title completions
@@ -598,8 +598,8 @@ function FormatTitles(clan, memberData, playerData, oldPlayerData) {
   const sealsParents = sealsNode.children.presentationNodes.map(e => { return e.presentationNodeHash });
   let seals = sealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
   let legacySeals = legacysealsParents.map(e => { return ManifestHandler.getManifest().DestinyPresentationNodeDefinition[e].completionRecordHash });
-  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
-  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e].titleInfo.gildingTrackingRecordHash });
+  let gildedSeals = seals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e]?.titleInfo?.gildingTrackingRecordHash });
+  let legacyGildedSeals = legacySeals.map(e => { return ManifestHandler.getManifest().DestinyRecordDefinition[e]?.titleInfo?.gildingTrackingRecordHash });
   let allSeals = seals.concat(legacySeals);
   let allGildedSeals = gildedSeals.concat(legacyGildedSeals.filter(e => e !== undefined));
   let allSealsCombined = allSeals.concat(allGildedSeals.filter(e => e !== undefined));
@@ -638,13 +638,14 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var season13Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["4030656982"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["2068785426"].level; season13Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season14Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2726092061"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["3977762715"].level; season14Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season15Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["4095505052"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1531004716"].level; season15Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
+  var season16Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2069932355"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1787069365"].level; season16Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
   var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
   var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
-  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["1495470829"].intervalObjectives[2].progress; } catch (err) { }
+  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["292307915"].intervalObjectives[2].progress; } catch (err) { }
 
   return {
-    "seasonRank": season15Rank,
+    "seasonRank": season16Rank,
     "xp": { "dailyXP": dailyXP, "weeklyXP": weeklyXP, "overallXP": overallXP },
     "powerBonus": powerBonus,
   }
