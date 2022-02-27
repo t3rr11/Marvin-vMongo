@@ -2,77 +2,51 @@ const Discord = require('discord.js');
 const Canvas = require('canvas');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
-const { dailyCycleInfo, mod_DailyCycleInfo, weeklyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
+const { dailyCycleInfo } = require('../../../Shared/handlers/cycleHandler');
 const ManifestHandler = require('../../../Shared/handlers/manifestHandler');
+const CanvasHandler = require('./canvasHandler');
 
 async function sendModsBroadcasts(client, guilds, mods, vendor) {
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
-  function FormatText(string) {
-    let name = string;
-    if(string.split(" ").length > 3) {
-      name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
-    }
-    return name;
-  }
-  function FormatHeight(string, defaultHeight) {
-    let height = defaultHeight;
-    if(string.split(" ").length > 3) { height = 130; }
-    return height;
-  }
-  //Canvasing the mod images
-  const canvas = Canvas.createCanvas(500, 210);
-  const ctx = canvas.getContext('2d');
 
-  const background = await Canvas.loadImage(`./images/${ vendor.name }.png`);
-  const mod1Image = await Canvas.loadImage(`https://bungie.net${ mods[0].icon }`);
-  const mod2Image = await Canvas.loadImage(`https://bungie.net${ mods[1].icon }`);
-
-  //Add Images
-  ctx.drawImage(background, 0, 0, 500, 210);
-  ctx.drawImage(mod1Image, (canvas.width / 2) - 20, 30, 64, 64);
-  ctx.drawImage(mod2Image, (canvas.width / 2) - 20, 114, 64, 64);
-
-  //Add Text Backgrounds
-  ctx.beginPath();
-  ctx.globalAlpha = 0.1;
-  ctx.rect((canvas.width / 2) - 25, 25, (canvas.width / 2) + 10, 74);
-  ctx.fill(0,0,0);
-  ctx.globalAlpha = 0.2;
-  ctx.rect((canvas.width / 2) - 25, 109, (canvas.width / 2) + 10, 74);
-  ctx.fill(0,0,0);
-  ctx.stroke();
-
-  //Add Text
-  ctx.globalAlpha = 1;
-  ctx.font = '16px sans-serif';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(FormatText(mods[0].name), (canvas.width / 2) + 54, 60);
-  ctx.fillText(FormatText(mods[1].name), (canvas.width / 2) + 54, 150);
-
-  //Add Image to Embed
-  const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
-  embed.attachFiles([attachment]);
+  var description = [];
+  description.push(`To see who needs these mods use:`);
+  for(var mod of mods) { description.push(`\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mod.name }\``); }
+  embed.setDescription(description.join("\n"));
+  
+  const canvas = await CanvasHandler.buildModCanvasBuffer(vendor, { data: { mods } });
+  const attachment = new Discord.MessageAttachment(canvas, 'mods.png');
   embed.setImage('attachment://mods.png');
 
   for(let i in guilds) {
     let guild = guilds[i];
     if(vendor.name === "Ada-1") {
       if(guild.announcements.adas && guild.announcements.channel !== "0") {
-        embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [embed] }); }
+        try {
+          client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+            embeds: [embed],
+            files: [attachment]
+          });
+        }
         catch(err) { console.log(`Failed to send ada-1 mods broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
     if(vendor.name === "Gunsmith") {
       if(guild.announcements.gunsmiths && guild.announcements.channel !== "0") {
-        embed.setDescription(`To see who needs these mods use: \n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[0].name }\`\n\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mods[1].name }\``);
-        try { client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [embed] }); }
+        try {
+          client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+            embeds: [embed],
+            files: [attachment]
+          });
+        }
         catch(err) { console.log(`Failed to send gunsmith mods broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
   }
 }
 async function sendDailyLostSectorBroadcasts(client, guilds) {
+  var legendAttachment;
+  var masterAttachment;
 
   generateLostSectorEmbed = async (type) => {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -93,8 +67,10 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ sector.pgcrImage }`), 0, 0, 640, 360);
 
     //Add Image to Embed
-    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png');
-    embed.attachFiles([attachment]);
+    switch(type) {
+      case "masterLostSector": { masterAttachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png'); break; }
+      case "legendLostSector": { legendAttachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png'); break; }
+    }
     embed.setImage('attachment://lostSector.png');
 
     embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
@@ -112,15 +88,21 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
       try {
         // Disabled until I know the rotation again.
-        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [legendEmbed] });
-        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({ embeds: [masterEmbed] });
+        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+        //   embeds: [legendEmbed],
+        //   files: [legendAttachment]
+        // });
+        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+        //   embeds: [masterEmbed],
+        //   files: [masterAttachment]
+        // });
       }
       catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
     }
   }
 }
 async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) {
-
+  let attachment;
   generateXurEmbed = async () => {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
@@ -187,10 +169,8 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
     };
 
     //Add Image to Embed
-    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'xurLocation.png');
-    embed.attachFiles([attachment]);
+    attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'xurLocation.png');
     embed.setImage('attachment://xurLocation.png');
-
     embed.setTitle(`Xûr - ${ friendlyLocation }`);
     embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ items.map(item => buildItemDesc(item)).join('') }`);
 
@@ -198,7 +178,11 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
   }
 
   let xurEmbed = await generateXurEmbed();
-  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send({ embeds: [xurEmbed] });
+  
+  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send({
+    embeds: [xurEmbed],
+    files: [attachment]
+  });
 
   //Send them
   // for(let i in guilds) {

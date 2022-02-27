@@ -15,6 +15,7 @@ const RequestHandler = require('../../../Shared/handlers/requestHandler');
 const Config = require('../../../Shared/configs/Config.json');
 const DiscordConfig = require(`../../../Shared/configs/${ Config.isLocal ? 'local' : 'live' }/DiscordConfig.json`);
 const Commands = require('./commands');
+const CanvasHandler = require('./canvasHandler');
 
 Object.byString = function(o, s) {
   s = s.replace(/\[(\w+)\]/g, '.$1');       // convert indexes to properties
@@ -560,7 +561,6 @@ async function ClanInfo(prefix, message, command, guild) {
 }
 async function ItemInfo(prefix, message, command) {
   //Get item
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setTitle("Please wait...").setDescription("Looking through the manifest for the specified item...").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
   let requestedItemName = command.substr("data ".length);
   let item;
   if(isNaN(requestedItemName)) { item = ManifestHandler.getManifestItemByName(requestedItemName); }
@@ -572,82 +572,56 @@ async function ItemInfo(prefix, message, command) {
   //See if an item was found
   if(item) {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-
     embed.setTitle(`${ item.displayProperties.name }`, null, `https://www.light.gg/db/items/${ item.hash }`);
     if(item.flavorText) { embed.setDescription(`${ item.flavorText }${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
     else { embed.setDescription(`There is no description for this item.${ item.collectibleHash ? `\n\nTo enable server broadcasts for this item use: \`${prefix}track ${ item.hash }\`` : "" }`); }
-    embed.addField(`Item Hash`, item.hash ? item.hash : "None", true);
-    embed.addField(`Collectible Hash`, item.collectibleHash ? item.collectibleHash : "None", true);
-    embed.addField(`Trackable`, item.collectibleHash ? "Yes" : "No", true);
+    
+    let hash = item.hash ? item.hash : "None";
+    let collectibleHash = item.collectibleHash ? item.collectibleHash : "None";
+    let trackable = item.collectibleHash ? "Yes" : "No";
+    
+    embed.addFields(
+      { name: 'Item Hash', value: hash.toString(), inline: true },
+      { name: 'Collectible Hash', value: collectibleHash.toString(), inline: true },
+      { name: 'Trackable', value: trackable.toString(), inline: true },
+    );
+
     embed.setThumbnail(`https://bungie.net${ item.displayProperties.icon }`);
     if(item.hash) { embed.setURL(`https://www.light.gg/db/items/${ item.hash }`); }
     if(item.screenshot) { embed.setImage(`https://bungie.net${ item.screenshot }`); }
 
-    msg.edit(embed);
+    message.channel.send({ embeds: [embed] });
   }
   else {
     let errorEmbed = new Discord.MessageEmbed().setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     errorEmbed.setTitle("Uhh oh...");
     errorEmbed.setDescription(`Could not find the item requested. Sorry!`);
-    msg.edit(errorEmbed);
+    message.channel.send({ embeds: [errorEmbed] });
   }
 }
 async function DailyMods(guild, message, vendor) {
   var prefix = guild?.prefix ? guild?.prefix : "~";
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - ${ vendor } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
-  function GetDailyMods() {
-    function FormatText(string) {
-      let name = string;
-      if(string.split(" ").length > 3) {
-        name = string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2] + "\n" + string.substr((string.split(" ")[0] + " " + string.split(" ")[1] + " " + string.split(" ")[2]).length, string.length);
-      }
-      return name;
-    }
-    function FormatHeight(string, defaultHeight) {
-      let height = defaultHeight;
-      if(string.split(" ").length > 3) { height = 130; }
-      return height;
-    }
+  async function GetDailyMods() {
     Database.getDailyMods(vendor, async function(isError, isFound, data) {    
-      if(!isError && isFound) {
-        //Canvasing the mod images
-        const canvas = Canvas.createCanvas(500, 210);
-        const ctx = canvas.getContext('2d');
-    
-        const background = await Canvas.loadImage(`./images/${ vendor }.png`);
-        const mod1Image = await Canvas.loadImage(`https://bungie.net${ data.mods[0].icon }`);
-        const mod2Image = await Canvas.loadImage(`https://bungie.net${ data.mods[1].icon }`);
-    
-        //Add Images
-        ctx.drawImage(background, 0, 0, 500, 210);
-        ctx.drawImage(mod1Image, (canvas.width / 2) - 20, 30, 64, 64);
-        ctx.drawImage(mod2Image, (canvas.width / 2) - 20, 114, 64, 64);
-
-        //Add Text Backgrounds
-        ctx.beginPath();
-        ctx.globalAlpha = 0.2;
-        ctx.rect((canvas.width / 2) - 25, 25, (canvas.width / 2) + 10, 74);
-        ctx.fill(0,0,0);
-        ctx.globalAlpha = 0.2;
-        ctx.rect((canvas.width / 2) - 25, 109, (canvas.width / 2) + 10, 74);
-        ctx.fill(0,0,0);
-        ctx.stroke();
-    
-        //Add Text
-        ctx.globalAlpha = 1;
-        ctx.font = '16px sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(FormatText(data.mods[0].name), (canvas.width / 2) + 54, 60);
-        ctx.fillText(FormatText(data.mods[1].name), (canvas.width / 2) + 54, 150);
-    
+      if(!isError && isFound) {    
         //Add Image to Embed
-        const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'mods.png');
-        embed.attachFiles([attachment]);
+        const canvas = await CanvasHandler.buildModCanvasBuffer(vendor, data);
+        const attachment = new Discord.MessageAttachment(canvas, 'mods.png');
         embed.setImage('attachment://mods.png');
-        embed.setDescription(`To see who needs these mods use: \n\`${ prefix }!item ${ data.mods[0].name }\`\n\`${ prefix }!item ${ data.mods[1].name }\``);
-
-        message.channel.send({ embeds: [embed] });
+        
+        var description = [];
+        description.push(`To see who needs these mods use:`);
+        for(var mod of data.mods) {
+          description.push(`\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mod.name }\``);
+        }
+        embed.setDescription(description.join("\n"));
+        
+        message.channel.send({
+          embeds: [embed],
+          files: [attachment]
+        });
       }
       else {
         let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -730,13 +704,14 @@ async function GetXur(guild, message) {
 
         //Add Image to Embed
         const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'xurLocation.png');
-        embed.attachFiles([attachment]);
         embed.setImage('attachment://xurLocation.png');
-
         embed.setTitle(`Xûr - ${ friendlyLocation }`);
         embed.setDescription(`${ locationText }\n\n**Items for sale**\n\n${ data.items.map(item => buildItemDesc(item)).join('') }`);
 
-        message.channel.send({ embeds: [embed] });
+        message.channel.send({
+          embeds: [embed],
+          files: [attachment]
+        });
       }
       else {
         let errorEmbed = new Discord.MessageEmbed().setTitle("Uhh oh...").setColor(0xFF3348).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -768,13 +743,15 @@ async function LostSectors(message, type) {
 
   //Add Image to Embed
   const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png');
-  embed.attachFiles([attachment]);
   embed.setImage('attachment://lostSector.png');
 
   embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
   embed.setDescription(`${ formattedDesc[0].value }\n ${ filteredDesc.map(e => `**${ e.key }**: ${ e.value }\n`).join('') }`);
 
-  message.channel.send({ embeds: [embed] });
+  message.channel.send({
+    embeds: [embed],
+    files: [attachment]
+  });
 }
 async function GrandMaster(message) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
@@ -791,13 +768,15 @@ async function GrandMaster(message) {
 
   //Add Image to Embed
   const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'grandMaster.png');
-  embed.attachFiles([attachment]);
   embed.setImage('attachment://grandMaster.png');
 
   embed.setTitle(`${ grandMasterActivity.displayProperties.name }`);
   embed.setDescription(grandMasterMods);
 
-  message.channel.send({ embeds: [embed] });
+  message.channel.send({
+    embeds: [embed],
+    files: [attachment]
+  });
 }
 async function ClanActivity(prefix, message, command, guild) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();

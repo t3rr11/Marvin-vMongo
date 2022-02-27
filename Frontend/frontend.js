@@ -119,9 +119,6 @@ function UpdateActivityList() {
     ActivityList.push(`Want Faster Broadcasts? Consider Supporting, ~Support`);
     ActivityList.push(`Wonder what clannies are upto? Use: ~Clan Activity`);
     ActivityList.push(`~Xur now in! For how long?.. until Bungie obsure his location again.`);
-    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
-    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
-    ActivityList.push(`Expect Downtime - 22/2/2022 (Witch Queen Launch)`);
     var activity = ActivityList[Math.floor(Math.random() * ActivityList.length)];
     client.user.setActivity(activity);
   }
@@ -321,7 +318,7 @@ client.on("guildCreate", guild => {
           .setDescription("I am Marvin. To set me up first register with me by using the `~Register example` command. Replace example with your in-game username. \n\nOnce registration is complete use the `~Set clan` command and **then wait 5 minutes** whilst I scan your clan. That's it you'll be ready to go! \n\nTry out clan broadcasts this can be set up by typing `~Set Broadcasts #general` (does not have to be general). \n\nSee `~help` to see what I can do!")
           .setFooter(Config.defaultFooter, Config.defaultLogoURL)
           .setTimestamp();
-          try { getDefaultChannel(guild).send({ embed }) }
+          try { getDefaultChannel(guild).send({ embeds: [embed] }) }
           catch (err) { Log.SaveLog("Frontend", "Error", `Failed to give welcome message to: ${ guild.name } (${ guild.id })`); }
         }
       }
@@ -352,7 +349,7 @@ client.on("interactionCreate", (interaction) => {
     embed.addField("Name", activity.displayProperties.name);
     embed.setImage(`https://www.bungie.net${ activity.pgcrImage }`);
 
-    interaction.channel.send(embed);
+    interaction.channel.send({ embeds: [embed] });
   }
 });
 
