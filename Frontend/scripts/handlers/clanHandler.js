@@ -81,7 +81,7 @@ function AddClan(prefix, message, command) {
           if(!isError) {
             if(isFound) {
               if(guild.clans.length > 0) {
-                if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+                if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
                   if(clanID.length > 0 && !isNaN(clanID)) {
                     RequestHandler.GetClan({ clanID }, function GetClan(id, isError, clan) {
                       if(!isError) {
@@ -139,7 +139,7 @@ function RemoveClan(prefix, message, command) {
           Database.findGuildByID(message.guild.id, async function findGuildByID(isError, isFound, guild) {
             if(!isError) {
               if(isFound) {
-                if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+                if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
                   if(guild.clans.includes(clanID)) {
                     var clans = [...guild.clans.filter(e => e.toString() !== clanID.toString())];
                     Database.updateGuildByID(message.guild.id, { clans }, function updateGuildByID(isError, severity, err) {

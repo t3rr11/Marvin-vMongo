@@ -280,7 +280,7 @@ async function sendFinishedLoadingAnnouncement(client, clan) {
 }
 async function enableItemBroadcast(prefix, message, command, guild) {
   if(guild) {
-    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+    if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
       //Check for multiple items
       const requestedItems = command.substr("track ".length).split(",");
       //Get all items
@@ -360,7 +360,7 @@ async function enableItemBroadcast(prefix, message, command, guild) {
 }
 async function disableItemBroadcast(prefix, message, command, guild) {
   if(guild) {
-    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {     
+    if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {     
       //Check for multiple items
       const requestedItems = command.substr("untrack ".length).split(",");
       //Get all items

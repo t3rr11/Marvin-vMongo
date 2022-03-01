@@ -334,7 +334,7 @@ function ChangePrefix(prefix, message, command, guild) {
   let newPrefix = command.substr("set prefix ".length);
   if(newPrefix.length > 0 && newPrefix !== " ") {
     if(guild) {
-      if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+      if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
         guild.prefix = newPrefix;
         Database.updateGuildByID(message.guild.id, { prefix: newPrefix },
           function updateGuildByID(isError, severity, err) {
@@ -348,7 +348,7 @@ function ChangePrefix(prefix, message, command, guild) {
       }
     }
     else {
-      if(message.member.hasPermission("ADMINISTRATOR")) {
+      if(message.member.permissions.has("ADMINISTRATOR")) {
         Database.addGuild({ guildID: message.guild.id, guildName: message.guild.name, ownerID: message.author.id, ownerAvatar: message.author.avatar, region: message.guild.region, prefix: newPrefix },
           function addGuild(isError, severity, err) {
             if(isError) { ErrorHandler(severity, err); message.channel.send(`There was an error trying to update the prefix. Please try again.`); }
@@ -367,7 +367,7 @@ function ManageBroadcasts(prefix, message, type, command, guild) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setTitle(`Broadcasts Manager`);
 
   if(guild) {
-    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+    if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
       switch(type) {
         case "set": {
           if(message.mentions.channels.first()) {
@@ -449,7 +449,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp().setTitle(`Announcements Manager`);
 
   if(guild) {
-    if(guild.ownerID === message.author.id || message.member.hasPermission("ADMINISTRATOR")) {
+    if(guild.ownerID === message.author.id || message.member.permissions.has("ADMINISTRATOR")) {
       switch(type) {
         case "set": {
           if(message.mentions.channels.first()) {
