@@ -5,6 +5,8 @@ const buildModCanvasBuffer = async (vendor, data) => {
   const canvas = Canvas.createCanvas(500, 210);
   const ctx = canvas.getContext('2d');
 
+  console.log(data.mods[0]);
+
   const background = await Canvas.loadImage(`./images/${ vendor }.png`);
   const mod1Image = await Canvas.loadImage(`https://bungie.net${ data.mods[0].icon }`);
   const mod2Image = await Canvas.loadImage(`https://bungie.net${ data.mods[1].icon }`);

@@ -8,18 +8,20 @@ const CanvasHandler = require('./canvasHandler');
 
 async function sendModsBroadcasts(client, guilds, mods, vendor) {
   var embed = new Discord.MessageEmbed().setColor(0x0099FF).setTitle(`Vendor - ${ vendor.name } - Daily Mods`).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
+  var data = { mods };
 
-  var description = [];
-  description.push(`To see who needs these mods use:`);
-  for(var mod of mods) { description.push(`\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mod.name }\``); }
-  embed.setDescription(description.join("\n"));
-  
-  const canvas = await CanvasHandler.buildModCanvasBuffer(vendor, { data: { mods } });
+  const canvas = await CanvasHandler.buildModCanvasBuffer(vendor.name, data);
   const attachment = new Discord.MessageAttachment(canvas, 'mods.png');
   embed.setImage('attachment://mods.png');
 
   for(let i in guilds) {
     let guild = guilds[i];
+
+    var description = [];
+    description.push(`To see who needs these mods use:`);
+    for(var mod of mods) { description.push(`\`${ guild?.prefix ? guild?.prefix : "~" }!item ${ mod.name }\``); }
+    embed.setDescription(description.join("\n"));
+
     if(vendor.name === "Ada-1") {
       if(guild.announcements.adas && guild.announcements.channel !== "0") {
         try {
@@ -31,6 +33,7 @@ async function sendModsBroadcasts(client, guilds, mods, vendor) {
         catch(err) { console.log(`Failed to send ada-1 mods broadcast to ${ guild.guildID } because of ${ err }`); }
       }
     }
+
     if(vendor.name === "Gunsmith") {
       if(guild.announcements.gunsmiths && guild.announcements.channel !== "0") {
         try {
@@ -79,8 +82,8 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     return embed;
   }
 
-  let legendEmbed = await generateLostSectorEmbed("legendLostSector");
-  let masterEmbed = await generateLostSectorEmbed("masterLostSector");
+  // let legendEmbed = await generateLostSectorEmbed("legendLostSector");
+  // let masterEmbed = await generateLostSectorEmbed("masterLostSector");
 
   //Send them
   for(let i in guilds) {

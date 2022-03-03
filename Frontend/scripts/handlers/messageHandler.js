@@ -1284,7 +1284,7 @@ async function GetGlobal(prefix, message, command, users, registeredUser) {
   else { message.channel.send(`We're unsure what global command that is or we do not have global tracking for that. See the global commands by using: \`${prefix}help globals\``); }
 }
 async function GetDrystreak(prefix, message, command) {
-  let msg = await message.channel.send(new Discord.MessageEmbed().setColor(0x0099FF).setTitle("Processing...").setDescription("This command takes a little to process. It will update in a few seconds.").setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp());
+  message.channel.send("This command takes a little to process. It will come in a few seconds.");
   let players = [];
   let playerItems = [];
   let broadcasts = [];
@@ -1377,13 +1377,13 @@ async function GetDrystreak(prefix, message, command) {
       }
     }
 
-    SendDrystreakLeaderboard(prefix, msg, command, players, broadcasts, drystreaks);
+    SendDrystreakLeaderboard(prefix, message, command, players, broadcasts, drystreaks);
   }
   else {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     embed.setTitle("Drystreaks");
     embed.setDescription(`The item you tried to search for was not tracked for drystreaks. There are only a few items that have drystreaks as these are manually added. See them here: \`${prefix}help drystreaks\``);
-    msg.edit({ embeds: [embed] });
+    message.channel.send({ embeds: [embed] });
   }
 }
 async function GetBroadcastDates(prefix, message, command) {
@@ -2525,9 +2525,9 @@ function SendDrystreakLeaderboard(prefix, message, command, players, broadcasts,
     leaderboard.first = top.map((e, index) => { return `${ Misc.AddCommas(e.completions) }` });
     embed.setTitle(`Top 10 Unluckiest People - ${ drystreaks[0].item }`);
     embed.setDescription(`These are not all loot runs. I cannot tell the difference between loot runs and non-loot runs. So these are just on what raid completion did they obtain the item on.\n\n✓ = Obtained, ✗ = Not Obtained`);
-    embed.addField("Name", leaderboard.names, true);
-    embed.addField("Completions", leaderboard.first, true);
-    message.edit({ embeds: [embed] });
+    embed.addField("Name", leaderboard.names.join("\n"), true);
+    embed.addField("Completions", leaderboard.first.join("\n"), true);
+    message.channel.send({ embeds: [embed] });
   }
 }
 
