@@ -875,7 +875,7 @@ async function GetHelp(prefix, message, command) {
     case "help raids": case "raids": {
       embed.setTitle("Raids Help Menu");
       embed.setDescription(`Here is a list of raid commands! Example: \`${prefix}LW\``);
-      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\`\n\`${prefix}VoG\``);
+      embed.addField("Commands", `\`${prefix}Levi\`\n\`${prefix}EoW\`\n\`${prefix}SoS\`\n\`${prefix}LW\`\n\`${prefix}SoTP\`\n\`${prefix}CoS\`\n\`${prefix}GoS\`\n\`${prefix}DSC\`\n\`${prefix}VoG\`\n\`${prefix}Vow\``);
       break;
     }
     case "help items": case "items": {
@@ -939,7 +939,7 @@ async function GetHelp(prefix, message, command) {
     case "help drystreaks": case "help drystreak": case "drystreaks": {
       embed.setTitle("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
-      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\`\n\`${prefix}Drystreak Collective Obligation\``);
       break;
     }
     default: {
@@ -1180,6 +1180,7 @@ async function GetProfile(prefix, message, command, type, users, registeredUser)
             garden: { "data": data.User.raids.garden, "rank": players.sort(function(a, b) { return b.raids.garden - a.raids.garden; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
             dsc: { "data": data.User.raids.dsc, "rank": players.sort(function(a, b) { return b.raids.dsc - a.raids.dsc; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
             vog: { "data": data.User.raids.vog, "rank": players.sort(function(a, b) { return b.raids.vog - a.raids.vog; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
+            vow: { "data": data.User.raids.vow, "rank": players.sort(function(a, b) { return b.raids.vow - a.raids.vow; }).findIndex(e => e.membershipID === data.User.membershipID) +1 },     
             totalRaids: { "data": data.User.totalRaids, "rank": players.sort(function(a, b) { return b.totalRaids - a.totalRaids; }).findIndex(e => e.membershipID === data.User.membershipID) +1 }                    
           }
         }
@@ -1301,6 +1302,8 @@ async function GetDrystreak(prefix, message, command) {
     case "EYES OF TOMORROW": case "753200559": { collectibleHash = 753200559; isFound = true; break; }
     case "VEX MYTHOCLAST": case "2300465938": { collectibleHash = 2300465938; isFound = true; break; }
     case "VEX MYTHOCAST": case "2300465938": { collectibleHash = 2300465938; isFound = true; break; }
+    case "COLLECTIVE": case "2817568609": { collectibleHash = 2817568609; isFound = true; break; }
+    case "COLLECTIVE OBLIGATION": case "2817568609": { collectibleHash = 2817568609; isFound = true; break; }
     default: { break; }
   }
 
@@ -1338,7 +1341,7 @@ async function GetDrystreak(prefix, message, command) {
     for(var i in playerItems) {
       let user = players.find(e => e.membershipID === playerItems[i].membershipID);
       if(user) {
-        let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash)).state;
+        let itemState = (playerItems[i].items.find(e => e.hash == collectibleHash))?.state;
         let item = ManifestHandler.getManifestItemByCollectibleHash(collectibleHash);
         let completions = 0;
         if(collectibleHash === 199171385) { completions = user.raids.lastWish }
@@ -1348,7 +1351,8 @@ async function GetDrystreak(prefix, message, command) {
         else if(collectibleHash === 1866399776) { completions = (user.raids.sos + user.raids.prestige_sos) }
         else if(collectibleHash === 753200559) { completions = user.raids.dsc }
         else if(collectibleHash === 2300465938) { completions = user.raids.vog }
-        if(Misc.GetItemState(itemState).notAcquired) {
+        else if(collectibleHash === 2817568609) { completions = user.raids.vow }
+        if(Misc.GetItemState(itemState)?.notAcquired) {
           drystreaks.push({
             "displayName": user.displayName,
             "membershipID": user.membershipID,
@@ -1955,6 +1959,7 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
               embed.addField("Garden of Salvation", `${ Misc.AddCommas(registeredPlayerStats.garden.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.garden.rank) })*`, true);
               embed.addField("Deep Stone Crypt", `${ Misc.AddCommas(registeredPlayerStats.dsc.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.dsc.rank) })*`, true);
               embed.addField("Vault of Glass", `${ Misc.AddCommas(registeredPlayerStats.vog.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.vog.rank) })*`, true);
+              embed.addField("Vow of the Disciple", `${ Misc.AddCommas(registeredPlayerStats.vow.data) } *(Rank: ${ Misc.addOrdinal(registeredPlayerStats.vow.rank) })*`, true);
               embed.addField("See more at", `https://guardianstats.com/profile/${ registeredUser.membershipID }`);
               break;
             }

@@ -556,21 +556,13 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
   var gardenCompletions = 0; try { gardenCompletions = playerData.metrics.data.metrics["1168279855"].objectiveProgress.progress; } catch (err) { }
   var dscCompletions = 0; try { dscCompletions = playerData.metrics.data.metrics["954805812"].objectiveProgress.progress; } catch (err) { }
   var vogCompletions = 0; try { vogCompletions = playerData.metrics.data.metrics["2506886274"].objectiveProgress.progress; } catch (err) { }
+  var vowCompletions = 0; try { vowCompletions = playerData.metrics.data.metrics["3585185883"].objectiveProgress.progress; } catch (err) { }
 
   //For some reason leviCompetions also count prestige completions, they need to be removed;
   leviCompletions = leviCompletions - leviPresCompletions;
 
   //Calulate total raids
-  var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions + dscCompletions + vogCompletions;
-
-  // if(oldPlayerData?.User?.membershipID === "4611686018475621200") {
-  //   if(oldPlayerData.User.raids.dsc < dscCompletions) {
-  //     var recentItems = playerData.profileCollectibles.data.recentCollectibleHashes;
-  //     if(!recentItems.includes(753200559)) {
-  //       BroadcastHandler.sendCustomBroadcast(null, null, null, oldPlayerData, null);
-  //     }
-  //   }
-  // }
+  var totalRaids = leviCompletions + leviPresCompletions + eowCompletions + eowPresCompletions + sosCompletions + sosPresCompletions + lastWishCompletions + scourgeCompletions + sorrowsCompletions + gardenCompletions + dscCompletions + vogCompletions + vowCompletions;
 
   return {
     "raids": {
@@ -585,7 +577,8 @@ function FormatRaids(clan, memberData, playerData, oldPlayerData) {
       "sorrows": sorrowsCompletions,
       "garden": gardenCompletions,
       "dsc": dscCompletions,
-      "vog": vogCompletions
+      "vog": vogCompletions,
+      "vow": vowCompletions
     },
     "totalRaids": totalRaids
   }

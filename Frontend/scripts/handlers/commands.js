@@ -217,6 +217,21 @@ const Commands = [
     ]
   },
 
+  // Vow of the Disciple
+  { 
+    name: 'Vow of the Disciple',
+    size: 10,
+    title: 'Top 10 Vow of the Disciple Completions',
+    helpMenus: ['Raids'],
+    leaderboardURL: 'vow',
+    sorting: 'raids.vow',
+    commands: ['vow', 'Vow of the Disciple'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'Leaderboard', data: 'raids.vow', inline: true }
+    ]
+  },
+
   // Season rank
   { 
     name: 'Season Rank',
