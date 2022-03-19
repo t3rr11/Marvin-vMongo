@@ -85,6 +85,7 @@ async function init() {
   
         //Send daily broadcasts for the first time
         AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+        AnnouncementsHandler.sendDailyWellspringBroadcasts(client, Guilds);
         updateDailyAnnouncements(new Date(trueReset));
         updateXurAnnouncements(new Date(trueReset));
   
@@ -340,7 +341,7 @@ client.on("guildDelete", guild => {
 client.on("interactionCreate", (interaction) => {
   if (interaction.name === "test") {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    const masterSector = dailyCycleInfo("legendLostSector");
+    const masterSector = dailyCycleInfo("lostsector");
     const activity = ManifestHandler.getManifest().DestinyActivityDefinition[masterSector.sector.masterHash];
     console.log(activity);
     
@@ -373,6 +374,7 @@ client.on("messageCreate", async message => {
   const command = lowercased.replace(/[\u2018\u2019]/g, "'");
   if(message.author.id === "194972321168097280" && command.startsWith("force announcements")) {
     AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+    AnnouncementsHandler.sendDailyWellspringBroadcasts(client, Guilds);
     updateDailyAnnouncements(new Date().getTime());
   }
   else {

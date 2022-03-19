@@ -119,6 +119,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("toggle ada1 announcements"): case command.startsWith("toggle ada-1 announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle lost sector announcements"): case command.startsWith("toggle lostsector announcements"): 
         case command.startsWith("toggle lost sectors announcements"): case command.startsWith("toggle lostsectors announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle wellspring announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
@@ -158,8 +159,10 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("donate"): case command.startsWith("sponsor"): case command.startsWith("support"): { Donate(client, message); break; }
         case command.startsWith("checkapi"): { if(APIDisabled) { message.reply("API is offline."); } else { message.reply("API is online."); } break; }
         case command.startsWith("geo"): case command.startsWith("regions"): { GetGeolocationalData(client, message); break; }
-        case command.startsWith("legend"): { LostSectors(message, "legendLostSector"); break; }
-        case command.startsWith("master"): { LostSectors(message, "masterLostSector"); break; }
+        case command.startsWith("legend"): { LostSectors(message, "legend"); break; }
+        case command.startsWith("master") || command.startsWith("lost sector master") || command.startsWith("ls master"): { LostSectors(message, "master"); break; }
+        case command.startsWith("lost sector") || command.startsWith("ls"): { LostSectors(message, "legend"); break; }
+        case command.startsWith("wellspring"): { Wellspring(message); break; }
         //case command.startsWith("grandmaster"): { GrandMaster(message); break; }
 
         //Check if leaderboard
@@ -494,6 +497,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
             if(toggle === "lost sectors" || toggle === "lostsectors" || toggle === "lost sector" || toggle === "lostsector") { toggle = "lostSector" }
             else if(toggle === "ada" || toggle === "adas" || toggle === "ada1" || toggle === "ada-1") { toggle = "ada" }
             else if(toggle === "gunsmiths" || toggle === "gunsmith") { toggle = "gunsmith" }
+            else if(toggle === "wellsprings" || toggle === "wellspring") { toggle = "wellspring" }
             guild.announcements[`${ toggle }s`] = !guild.announcements[`${ toggle }s`];
             Database.updateGuildByID(message.guild.id, { announcements: guild.announcements }, function updateGuildByID(isError, severity, err) {
               if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle announcements. Please try again.`); }
@@ -515,7 +519,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
         }
         case "manage": {
           if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
-          else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
+          else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\nWellspring Announcements: **${ guild.announcements.wellsprings ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
           message.channel.send({ embeds: [embed] });
           break;
         }
@@ -725,9 +729,8 @@ async function GetXur(guild, message) {
 }
 async function LostSectors(message, type) {
   let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-  const lostSector = dailyCycleInfo(type);
-  let sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
-  if(type === "masterLostSector") { sector.displayProperties.name = sector.displayProperties.name.replace("Legend", "Master") }
+  const lostSector = dailyCycleInfo("lostsector");
+  let sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "master" ? "masterHash" : "legendHash"]];
   
   //process description from lost sector
   let description = sector.displayProperties.description.match(/[^\r\n]+/g);
@@ -747,6 +750,30 @@ async function LostSectors(message, type) {
 
   embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
   embed.setDescription(`${ formattedDesc[0].value }\n ${ filteredDesc.map(e => `**${ e.key }**: ${ e.value }\n`).join('') }`);
+
+  message.channel.send({
+    embeds: [embed],
+    files: [attachment]
+  });
+}
+async function Wellspring(message) {
+  let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+  const wellspring = dailyCycleInfo("wellspring");
+  let activity = ManifestHandler.getManifest().DestinyActivityDefinition[wellspring.activity];
+
+  //Canvasing the mod images
+  const canvas = Canvas.createCanvas(640, 360);
+  const ctx = canvas.getContext('2d');
+
+  //Add Background Image
+  ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ activity.pgcrImage }`), 0, 0, 640, 360);
+
+  //Add Image to Embed
+  const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'wellspring.png');
+  embed.setImage('attachment://wellspring.png');
+
+  embed.setTitle(`${ wellspring.boss } (${ wellspring.loot })`);
+  embed.setDescription(`${ activity.displayProperties.description }`);
 
   message.channel.send({
     embeds: [embed],

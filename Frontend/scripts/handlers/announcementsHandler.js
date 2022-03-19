@@ -48,14 +48,12 @@ async function sendModsBroadcasts(client, guilds, mods, vendor) {
   }
 }
 async function sendDailyLostSectorBroadcasts(client, guilds) {
-  var legendAttachment;
-  var masterAttachment;
+  var attachment;
 
-  generateLostSectorEmbed = async (type) => {
+  generateLostSectorEmbed = async () => {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
-    const lostSector = dailyCycleInfo(type);
-    let sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector[type === "masterLostSector" ? "masterHash" : "legendHash"]];
-    if(type === "masterLostSector") { sector.displayProperties.name = sector.displayProperties.name.replace("Legend", "Master") }
+    const lostSector = dailyCycleInfo("lostsector");
+    let sector = ManifestHandler.getManifest().DestinyActivityDefinition[lostSector.sector.legendHash];
 
     //process description from lost sector
     let description = sector.displayProperties.description.match(/[^\r\n]+/g);
@@ -70,10 +68,7 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ sector.pgcrImage }`), 0, 0, 640, 360);
 
     //Add Image to Embed
-    switch(type) {
-      case "masterLostSector": { masterAttachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png'); break; }
-      case "legendLostSector": { legendAttachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png'); break; }
-    }
+    attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'lostSector.png');
     embed.setImage('attachment://lostSector.png');
 
     embed.setTitle(`${ sector.displayProperties.name } - ${ lostSector.sector.planet } (${ lostSector.loot.type })`);
@@ -82,28 +77,64 @@ async function sendDailyLostSectorBroadcasts(client, guilds) {
     return embed;
   }
 
-  // let legendEmbed = await generateLostSectorEmbed("legendLostSector");
-  // let masterEmbed = await generateLostSectorEmbed("masterLostSector");
+  let generatedEmbed = await generateLostSectorEmbed();
 
   //Send them
   for(let i in guilds) {
     let guild = guilds[i];
     if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
       try {
-        // Disabled until I know the rotation again.
-        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
-        //   embeds: [legendEmbed],
-        //   files: [legendAttachment]
-        // });
-        // client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
-        //   embeds: [masterEmbed],
-        //   files: [masterAttachment]
-        // });
+        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+          embeds: [generatedEmbed],
+          files: [attachment]
+        });
       }
       catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
     }
   }
 }
+async function sendDailyWellspringBroadcasts(client, guilds) {
+  var attachment;
+
+  generateWellspringEmbed = async () => {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
+    const wellspring = dailyCycleInfo("wellspring");
+    let activity = ManifestHandler.getManifest().DestinyActivityDefinition[wellspring.activity];
+
+    //Canvasing the mod images
+    const canvas = Canvas.createCanvas(640, 360);
+    const ctx = canvas.getContext('2d');
+
+    //Add Background Image
+    ctx.drawImage(await Canvas.loadImage(`https://bungie.net${ activity.pgcrImage }`), 0, 0, 640, 360);
+
+    //Add Image to Embed
+    attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'wellspring.png');
+    embed.setImage('attachment://wellspring.png');
+
+    embed.setTitle(`${ wellspring.boss } (${ wellspring.loot })`);
+    embed.setDescription(`${ activity.displayProperties.description }`);
+
+    return embed;
+  }
+
+  let generatedEmbed = await generateWellspringEmbed();
+
+  //Send them
+  for(let i in guilds) {
+    let guild = guilds[i];
+    if(guild.announcements.wellspring && guild.announcements.channel !== "0") {
+      try {
+        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+          embeds: [generatedEmbed],
+          files: [attachment]
+        });
+      }
+      catch(err) { console.log(`Failed to send daily wellspring broadcasts to ${ guild.guildID } because of ${ err }`); }
+    }
+  }
+}
+
 async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) {
   let attachment;
   generateXurEmbed = async () => {
