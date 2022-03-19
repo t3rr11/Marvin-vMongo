@@ -123,7 +123,7 @@ async function sendDailyWellspringBroadcasts(client, guilds) {
   //Send them
   for(let i in guilds) {
     let guild = guilds[i];
-    if(guild.announcements.wellspring && guild.announcements.channel !== "0") {
+    if(guild.announcements.wellsprings && guild.announcements.channel !== "0") {
       try {
         client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
           embeds: [generatedEmbed],
@@ -231,4 +231,4 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
 }
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 
-module.exports = { sendModsBroadcasts, sendDailyLostSectorBroadcasts, sendXurBroadcasts }
+module.exports = { sendModsBroadcasts, sendDailyLostSectorBroadcasts, sendDailyWellspringBroadcasts, sendXurBroadcasts }

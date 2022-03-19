@@ -373,9 +373,9 @@ client.on("messageCreate", async message => {
   const lowercased = args.toString().toLowerCase();
   const command = lowercased.replace(/[\u2018\u2019]/g, "'");
   if(message.author.id === "194972321168097280" && command.startsWith("force announcements")) {
-    AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
+    // AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
     AnnouncementsHandler.sendDailyWellspringBroadcasts(client, Guilds);
-    updateDailyAnnouncements(new Date().getTime());
+    // updateDailyAnnouncements(new Date().getTime());
   }
   else {
     MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
