@@ -40,7 +40,8 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
     if(message.guild.id === "110373943822540800" || message.guild.id === "264445053596991498") return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('VIEW_CHANNEL')) return;
     if(!message.guild.me.permissionsIn(message.channel.id).has('SEND_MESSAGES')) return;
-    if(!message.content.startsWith(prefix) && !message.content.startsWith('~set prefix') || message.author.bot && message.author.id !== "159985870458322944") return;
+    if(!message.content.startsWith(prefix) && !message.content.startsWith("~prefix") && !message.content.startsWith("~set prefix")) return;
+    if(message.author.bot && message.author.id !== "159985870458322944") return;
     if(message.content.startsWith("~~")) return;
     
     const args = message.content.slice(prefix.length);
@@ -103,6 +104,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("add clan"): { ClanHandler.AddClan(prefix, message, command); break; }
         case command.startsWith("remove clan"): { ClanHandler.RemoveClan(prefix, message, command); break; }
         case command.startsWith("tracked clans"): case command.startsWith("clans tracked"): case command.startsWith("clans"): { ClanHandler.GetTrackedClans(prefix, message, command); break; }
+        case command.startsWith("prefix"): { message.channel.send(`The prefix for this server is \`${prefix}\`${ prefix !== "~" ? `use \`${prefix}set prefix ~\` to reset it back to default.`: '' }`); break; }
         case command.startsWith("set prefix"): { ChangePrefix(prefix, message, command, guild); break; }
         case command.startsWith("set broadcasts"): { ManageBroadcasts(prefix, message, "set", command, guild); break; }
         case command.startsWith("remove broadcasts"): { ManageBroadcasts(prefix, message, "remove", command, guild); break; }
