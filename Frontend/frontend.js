@@ -243,13 +243,13 @@ async function updateDailyAnnouncements(ResetTime) {
   }
 }
 
-async function updateXurAnnouncements(ResetTime) {
+async function updateXurAnnouncements(ResetTime, isForced) {
   Database.getDailyMods("Xûr", async function(isError, isFound, lastVendorEntry) { 
     const vendor = ManifestHandler.getManifest().DestinyVendorDefinition[2190858386];   
     if(!isError && isFound) {
 
       //Check to make sure it's past the reset date, otherwise we don't want to store a new entry
-      if(new Date() > new Date(lastVendorEntry.nextRefreshDate) && new Date().getDay() === 5) {
+      if((new Date() > new Date(lastVendorEntry.nextRefreshDate) && new Date().getDay() === 5) || isForced) {
         RequestHandler.GetVendor(vendor.hash, async function(isError, ItemData) {
           if(!isError && ItemData?.Response?.sales?.data) {
 
@@ -374,8 +374,9 @@ client.on("messageCreate", async message => {
   const command = lowercased.replace(/[\u2018\u2019]/g, "'");
   if(message.author.id === "194972321168097280" && command.startsWith("force announcements")) {
     // AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, Guilds);
-    AnnouncementsHandler.sendDailyWellspringBroadcasts(client, Guilds);
+    // AnnouncementsHandler.sendDailyWellspringBroadcasts(client, Guilds);
     // updateDailyAnnouncements(new Date().getTime());
+    // updateXurAnnouncements(new Date().getTime(), true);
   }
   else {
     MessageHandler(client, message, Guilds, RegisteredUsers, APIDisabled, function() { commandsInput++ });
