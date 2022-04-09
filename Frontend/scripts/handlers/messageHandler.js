@@ -117,11 +117,12 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("manage announcements"): { ManageAnnouncements(prefix, message, "manage", command, guild); break; }
         case command.startsWith("toggle update announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle gunsmith announcements"): case command.startsWith("toggle gunsmiths announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
-        case command.startsWith("toggle ada announcements"): case command.startsWith("toggle adas announcements"):
+        case command.startsWith("toggle ada announcements"): case command.startsWith("toggle adas announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle ada1 announcements"): case command.startsWith("toggle ada-1 announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
-        case command.startsWith("toggle lost sector announcements"): case command.startsWith("toggle lostsector announcements"): 
+        case command.startsWith("toggle lost sector announcements"): case command.startsWith("toggle lostsector announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("toggle lost sectors announcements"): case command.startsWith("toggle lostsectors announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
-        case command.startsWith("toggle wellspring announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle wellspring announcements"): case command.startsWith("toggle wellsprings announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
+        case command.startsWith("toggle xur announcements"): case command.startsWith("toggle xurs announcements"): { ManageAnnouncements(prefix, message, "toggle", command, guild); break; }
         case command.startsWith("data "): { ItemInfo(prefix, message, command); break; }
         case command.startsWith("track "): { BroadcastHandler.enableItemBroadcast(prefix, message, command, guild); break; }
         case command.startsWith("untrack "): { BroadcastHandler.disableItemBroadcast(prefix, message, command, guild); break; }
@@ -522,7 +523,7 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
         }
         case "manage": {
           if(guild.announcements.channel === "0") { embed.setDescription(`Announcements are currently disabled for this guild. If you would like to enable them please use: \`${prefix}Set Announcements #example\`.\nReplace example with whichever channel you would like to have the announcements be announced into.`); }
-          else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\nWellspring Announcements: **${ guild.announcements.wellsprings ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
+          else { embed.setDescription(`Announcements Channel: <#${ guild.announcements.channel }>\n\nUpdate Announcements: **${ guild.announcements.updates ? "Enabled" : "Disabled" }**\nGunsmiths Mod Announcements: **${ guild.announcements.gunsmiths ? "Enabled" : "Disabled" }**\nAda-1 Mod Announcements: **${ guild.announcements.adas ? "Enabled" : "Disabled" }**\nLost Sector Announcements: **${ guild.announcements.lostSectors ? "Enabled" : "Disabled" }**\nWellspring Announcements: **${ guild.announcements.wellsprings ? "Enabled" : "Disabled" }**\nXurs Announcements: **${ guild.announcements.xurs ? "Enabled" : "Disabled" }**\n\nTo edit these options please see: \n\`${prefix}help announcements\``); }
           message.channel.send({ embeds: [embed] });
           break;
         }
@@ -934,7 +935,7 @@ async function GetHelp(prefix, message, command) {
     case "help announcements": case "announcements": {
       embed.setTitle("Globals Help Menu");
       embed.setDescription(`Here is a list of announcements commands! Example: \`${prefix}Set announcements #channel\``);
-      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\`\n\`${prefix}Toggle ada announcements\`\n\`${prefix}Toggle lost sector announcements\``); 
+      embed.addField("Commands", `\`${prefix}Set announcements #channel\`\n\`${prefix}Remove announcements\`\n\`${prefix}Manage announcements\`\n\`${prefix}Toggle update announcements\`\n\`${prefix}Toggle gunsmith announcements\`\n\`${prefix}Toggle ada announcements\`\n\`${prefix}Toggle lost sector announcements\`\n\`${prefix}Toggle wellspring announcements\`\n\`${prefix}Toggle xur announcements\``); 
       break;
     }
     case "help globals": case "globals": {
