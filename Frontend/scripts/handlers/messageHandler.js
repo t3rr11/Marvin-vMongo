@@ -498,8 +498,9 @@ function ManageAnnouncements(prefix, message, type, command, guild) {
             let toggle = command.split('toggle ').pop().split(' announcements')[0];
             if(toggle === "lost sectors" || toggle === "lostsectors" || toggle === "lost sector" || toggle === "lostsector") { toggle = "lostSector" }
             else if(toggle === "ada" || toggle === "adas" || toggle === "ada1" || toggle === "ada-1") { toggle = "ada" }
-            else if(toggle === "gunsmiths" || toggle === "gunsmith") { toggle = "gunsmith" }
-            else if(toggle === "wellsprings" || toggle === "wellspring") { toggle = "wellspring" }
+            else if(toggle === "gunsmith" || toggle === "gunsmiths") { toggle = "gunsmith" }
+            else if(toggle === "wellspring" || toggle === "wellsprings") { toggle = "wellspring" }
+            else if(toggle === "xur" || toggle === "xurs") { toggle = "xur" }
             guild.announcements[`${ toggle }s`] = !guild.announcements[`${ toggle }s`];
             Database.updateGuildByID(message.guild.id, { announcements: guild.announcements }, function updateGuildByID(isError, severity, err) {
               if(isError) { ErrorHandler(severity, err); embed.setDescription(`There was an error trying to toggle announcements. Please try again.`); }

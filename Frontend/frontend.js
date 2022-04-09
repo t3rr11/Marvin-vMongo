@@ -288,7 +288,7 @@ async function updateXurAnnouncements(ResetTime) {
                 }
               });
             
-              //Send xur broadcasts.
+              // Send xur broadcasts.
               AnnouncementsHandler.sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation);
             }
             else { ErrorHandler("Med", `Tried to enter duplicate mod data for ${ vendor.displayProperties.name }. Ignored.`); }

@@ -134,9 +134,9 @@ async function sendDailyWellspringBroadcasts(client, guilds) {
     }
   }
 }
-
-async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) {
+async function sendXurBroadcasts(client, guilds, items, vendor, vendorLocation) {
   let attachment;
+  
   generateXurEmbed = async () => {
     let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter("Data provided by Braytech", "https://bray.tech/static/images/icons/icon-96.png").setTimestamp();
 
@@ -212,22 +212,20 @@ async function sendXurBroadcasts(client, Guilds, items, vendor, vendorLocation) 
   }
 
   let xurEmbed = await generateXurEmbed();
-  
-  client.guilds.cache.get("664237007261925404").channels.cache.get("846850131998277642").send({
-    embeds: [xurEmbed],
-    files: [attachment]
-  });
 
-  //Send them
-  // for(let i in guilds) {
-  //   let guild = guilds[i];
-  //   if(guild.announcements.lostSectors && guild.announcements.channel !== "0") {
-  //     try {
-  //       client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send(legendEmbed);
-  //     }
-  //     catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
-  //   }
-  // }
+  // Send them
+  for(let i in guilds) {
+    let guild = guilds[i];
+    if(guild.announcements.xurs && guild.announcements.channel !== "0") {
+      try {
+        client.guilds.cache.get(guild.guildID).channels.cache.get(guild.announcements.channel).send({
+          embeds: [xurEmbed],
+          files: [attachment]
+        });
+      }
+      catch(err) { console.log(`Failed to send daily lost sector broadcasts to ${ guild.guildID } because of ${ err }`); }
+    }
+  }
 }
 function getDefaultChannel(guild) { return guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES')); }
 

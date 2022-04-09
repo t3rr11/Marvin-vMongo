@@ -29,7 +29,8 @@ var guildSchema = new Schema({
     gunsmiths: { type: Boolean, default: true },
     adas: { type: Boolean, default: true },
     lostSectors: { type: Boolean, default: true },
-    wellsprings: { type: Boolean, default: true }
+    wellsprings: { type: Boolean, default: true },
+    xurs: { type: Boolean, default: true }
   }
 });
 
