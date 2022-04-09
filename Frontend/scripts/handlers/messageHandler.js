@@ -2038,16 +2038,16 @@ function SendProfile(prefix, message, command, registeredUser, registeredPlayer,
             if(registeredUser !== "NoUser") {
               if(registeredPlayer.User.grandmasters) {
                 embed.setTitle(`Viewing Profile for ${ registeredPlayer.User.displayName.replace(/\*|\^|\~|\_|\`/g, function(x) { return "\\" + x }) }`)
-                embed.setDescription("Grandmaster Completions (Season of the Lost)");
+                embed.setDescription("Grandmaster Completions (Season of the Risen)");
                 let grandmasters = {
-                  names: ["The Hollowed Lair", "Lake of Shadows", "Exodus Crash", "The Corrupted", "The Devil's Lair", "Proving Grounds"],
+                  names: ["The Arms Dealer", "The Scarlet Keep", "The Glassway", "Fallen S.A.B.E.R", "The Lightblade", "Birthplace of the Vile"],
                   counts: [
-                    registeredPlayer.User.grandmasters.theHollowedLair,
-                    registeredPlayer.User.grandmasters.lakeOfShadows,
-                    registeredPlayer.User.grandmasters.exodusCrash,
-                    registeredPlayer.User.grandmasters.theCorruped,
-                    registeredPlayer.User.grandmasters.theDevilsLair,
-                    registeredPlayer.User.grandmasters.provingGrounds,
+                    registeredPlayer.User.grandmasters.theArmsDealer,
+                    registeredPlayer.User.grandmasters.scarletKeep,
+                    registeredPlayer.User.grandmasters.theGlassway,
+                    registeredPlayer.User.grandmasters.fallenSABER,
+                    registeredPlayer.User.grandmasters.theLightblade,
+                    registeredPlayer.User.grandmasters.birthplaceOfTheVile,
                   ]
                 }
                 grandmasters.names.push("", "Total");

@@ -126,7 +126,9 @@ var userSchema = new Schema({
     scarletKeep: { type: Number, default: 0 },
     theHollowedLair: { type: Number, default: 0 },
     lakeOfShadows: { type: Number, default: 0 },
-    theCorruped: { type: Number, default: 0 }
+    theCorruped: { type: Number, default: 0 },
+    theLightblade: { type: Number, default: 0 },
+    birthplaceOfTheVile: { type: Number, default: 0 }
   },
   lastActivity: {
     currentActivityHash: { type: Number, default: 0 },
