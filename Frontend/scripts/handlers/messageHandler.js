@@ -552,9 +552,9 @@ async function ClanInfo(prefix, message, command, guild) {
     );
   }
   for(let i in clanData) {
+    let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
     if(!clanData[i].isError) {
       if(clanData[i].isFound) {
-        let embed = new Discord.MessageEmbed().setColor(0x0099FF).setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL).setTimestamp();
         embed.setTitle(`${ clanData[i].data.clanName } (${ clanData[i].data.clanID })`);
         embed.setDescription(`We have been tracking this clan for: ${ Misc.formatTime("big", (new Date() - clanData[i].data.joinedOn) / 1000) }.\nThe last time we scanned this clan was: ${ Misc.formatTime("small", (new Date() - clanData[i].data.lastScan) / 1000) } ago.`);
         embed.addField("Clan Level", clanData[i].data.clanLevel, true);
