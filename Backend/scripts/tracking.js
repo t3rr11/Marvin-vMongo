@@ -632,13 +632,14 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
   var season14Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2726092061"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["3977762715"].level; season14Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season15Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["4095505052"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1531004716"].level; season15Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var season16Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["2069932355"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["1787069365"].level; season16Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
+  var season17Rank = "0"; try { var seasonRankBefore = playerData.characterProgressions.data[characterIds[0]].progressions["26079066"].level; var seasonRankAfter = playerData.characterProgressions.data[characterIds[0]].progressions["482365574"].level; season17Rank = seasonRankBefore + seasonRankAfter; } catch (err) { }
   var dailyXP = "0"; try { dailyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].dailyProgress; } catch (err) { }
   var weeklyXP = "0"; try { weeklyXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].weeklyProgress; } catch (err) { }
   var overallXP = "0"; try { overallXP = playerData.characterProgressions.data[characterIds[0]].progressions["1183600353"].currentProgress; } catch (err) { }
-  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["292307915"].intervalObjectives[2].progress; } catch (err) { }
+  var powerBonus = "0"; try { powerBonus = playerData.profileRecords.data.records["3639193500"].intervalObjectives[2].progress; } catch (err) { }
 
   return {
-    "seasonRank": season16Rank,
+    "seasonRank": season17Rank,
     "xp": { "dailyXP": dailyXP, "weeklyXP": weeklyXP, "overallXP": overallXP },
     "powerBonus": powerBonus,
   }
