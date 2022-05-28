@@ -720,6 +720,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var grasp_completions = 0; try { grasp_completions = playerData.metrics.data.metrics["451157118"].objectiveProgress.progress; } catch (err) { }
   var grasp_flawless_completions = 0; try { grasp_flawless_completions = playerData.metrics.data.metrics["2269915270"].objectiveProgress.progress; } catch (err) { }
 
+  //Duality
+  var duality_completions = 0; try { duality_completions = playerData.metrics.data.metrics["3862075762"].objectiveProgress.progress; } catch (err) { }
+  var duality_flawless_completions = 0; try { duality_flawless_completions = playerData.metrics.data.metrics["1034442994"].objectiveProgress.progress; } catch (err) { }
+
   return {
     "menageire": menageire,
     "runes": runes,
@@ -735,7 +739,8 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
       "shatteredThrone": { "completions": st_completions, "flawless": st_flawless_completions },
       "pitOfHeresy": { "completions": pit_completions, "flawless": pit_flawless_completions },
       "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions },
-      "grasp": { "completions": grasp_completions, "flawless": grasp_flawless_completions }
+      "grasp": { "completions": grasp_completions, "flawless": grasp_flawless_completions },
+      "duality": { "completions": duality_completions, "flawless": duality_flawless_completions }
     },
     "presage": {
       "normal": presageNormal,

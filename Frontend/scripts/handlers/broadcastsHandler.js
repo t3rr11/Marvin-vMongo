@@ -71,16 +71,18 @@ async function processBroadcast(client, broadcast) {
               if(isFound) {
                 if(guild.broadcasts.channel !== "0") {
                   if(broadcastType === "item") {
+                    let globalItemDef = GlobalItemsHandler.getGlobalItems().find(e => e?.hash === broadcast?.hash);
+
                     if(typeof broadcast.count != "undefined" && broadcast.count > -1) {
                       //If the broadcast count has a value other than -1 then it must be a raid broadcast so the message needs to be changed to include this.
                       broadcast.count++;
-                      BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } clear! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
+                      BroadcastMessage = `${ broadcast.displayName } has obtained ${ globalItemDef?.name ? globalItemDef.name : broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } clear! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
                       if(broadcast.hash === 2298387876) {
                         // If trials shell custom message
-                        BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } win! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
+                        BroadcastMessage = `${ broadcast.displayName } has obtained ${ globalItemDef?.name ? globalItemDef.name : broadcast.broadcast } on their ${ Misc.addOrdinal(broadcast.count) } win! ${ broadcast.count === 1 ? "That lucky bastard." : "" }`;
                       }
                     }
-                    else { BroadcastMessage = `${ broadcast.displayName } has obtained ${ broadcast.broadcast }`; }
+                    else { BroadcastMessage = `${ broadcast.displayName } has obtained ${ globalItemDef?.name ? globalItemDef.name : broadcast.broadcast }`; }
                     sendItemBroadcast(client, guild, BroadcastMessage, broadcast, clan);
                   }
                   else if(broadcastType === "title") {
@@ -127,13 +129,16 @@ async function sendItemBroadcast(client, guild, message, broadcast, clan) {
   //Check to see if item broadcasts are enabled.
   if(guild.broadcasts.items) {
 
-    var itemDef = GlobalItemsHandler.getGlobalItems().find(e => e.hash === broadcast.hash);
+    var itemDef = GlobalItemsHandler.getGlobalItems().find(e => e.hash.toString() === broadcast.hash.toString());
     var manifestItem = ManifestHandler.getManifest().DestinyCollectibleDefinition[broadcast.hash];
 
     if(manifestItem) {
       //Change the embed based on the type of item
       if(itemDef && itemDef.advanced_type === "emblem") {
         embed.setImage(encodeURI(`https://bungie.net${ manifestItem.secondaryIcon }`));
+      }
+      else if(itemDef && itemDef.imageUrl && manifestItem.displayProperties.icon === '/img/misc/missing_icon_d2.png') {
+        embed.setThumbnail(encodeURI(itemDef.imageUrl));
       }
       else {
         embed.setThumbnail(encodeURI(`https://bungie.net${ manifestItem.displayProperties.icon }`));

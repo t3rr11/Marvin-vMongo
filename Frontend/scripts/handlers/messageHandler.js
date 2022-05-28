@@ -67,7 +67,7 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case message.author.id === "194972321168097280" && command.startsWith("view mbans"): { ViewBans(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("scanspeed"): { GetScanSpeed(message); break; }
         case message.author.id === "194972321168097280" && command.startsWith("set scanspeed"): { SetScanSpeed(message, command); break; }
-        case message.author.id === "194972321168097280" && command.startsWith("broadcast test"): { BroadcastHandler.sendItemBroadcast(client, guild, "Test", { hash: 1258579677 }, { clanName: "Test" }); break; }
+        case message.author.id === "194972321168097280" && command.startsWith("broadcast test"): { BroadcastHandler.sendItemBroadcast(client, guild, "Test", { hash: 467760883 }, { clanName: "Test" }); break; }
         case message.author.id === "194972321168097280" && command.startsWith("force manifest update"): { ManifestHandler.updateManifest(false); message.channel.send("Manifest Update Forced"); break; }
         case message.author.id === "194972321168097280" && command.startsWith("test sector"): { AnnouncementsHandler.sendDailyLostSectorBroadcasts(client, guilds); break; }
         case message.author.id === "194972321168097280" && command === "force rescan": {

@@ -72,6 +72,10 @@ var userSchema = new Schema({
     grasp: {
       completions: DefaultNumber,
       flawless: DefaultNumber
+    },
+    duality: {
+      completions: DefaultNumber,
+      flawless: DefaultNumber
     }
   },
   presage: {
