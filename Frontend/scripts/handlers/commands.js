@@ -345,6 +345,23 @@ const Commands = [
     ]
   },
 
+  // Duality
+  { 
+    name: 'Duality',
+    description: 'Completions (Normal - Flawless)',
+    size: 10,
+    title: 'Top 10 Duality Completions',
+    helpMenus: ['Dungeons'],
+    leaderboardURL: 'duality',
+    sorting: ['dungeons.duality.completions', 'dungeons.duality.flawless'],
+    commands: ['duality'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Completions', type: 'SplitLeaderboard', data: ['dungeons.duality.completions', 'dungeons.duality.flawless'], inline: true },
+      { name: 'Total', type: 'SplitTotal', data: ['dungeons.duality.completions', 'dungeons.duality.flawless'], inline: true }
+    ]
+  },
+
   // Presage
   { 
     name: 'Presage',

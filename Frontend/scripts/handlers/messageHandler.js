@@ -900,7 +900,7 @@ async function GetHelp(prefix, message, command) {
     case "help dungeons": case "dungeons": {
       embed.setTitle("Dungeons Help Menu");
       embed.setDescription(`Here is a list of dungeon commands! Example: \`${prefix}Pit of Heresy\``);
-      embed.addField("Commands", `\`${prefix}Shattered Throne\`\n\`${prefix}Pit of Heresy\`\n\`${prefix}Prophecy\``);
+      embed.addField("Commands", `\`${prefix}Shattered Throne\`\n\`${prefix}Pit of Heresy\`\n\`${prefix}Prophecy\`\n\`${prefix}Grasp\`\n\`${prefix}Duality\``);
       break;
     }
     case "help raids": case "raids": {
