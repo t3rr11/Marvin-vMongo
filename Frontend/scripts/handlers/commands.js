@@ -692,6 +692,20 @@ const Commands = [
     ]
   },
 
+  // Containments
+  { 
+    name: 'Containments',
+    size: 10,
+    title: 'Top 10 Containment Rankings',
+    helpMenus: ['Rankings'],
+    sorting: 'containments.tiers',
+    commands: ['containment', 'containments'],
+    fields: [
+      { name: 'Name', type: 'Name', inline: true },
+      { name: 'Tiers', type: 'Leaderboard', data: 'containments.tiers', inline: true },
+      { name: 'Bosses', type: 'Leaderboard', data: 'containments.bosses', inline: true }
+    ]
+  },
 ];
 
 module.exports = Commands

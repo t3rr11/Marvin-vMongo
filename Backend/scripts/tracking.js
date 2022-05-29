@@ -392,6 +392,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       empireHunts: Triumphs.empireHunts,
       xp: Seasonal.xp,
       dungeons: Others.dungeons,
+      containments: Others.containments,
       presage: Others.presage,
       trials: Rankings.trials,
       lastActivity: AccountInfo.lastActivity,
@@ -724,6 +725,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
   var duality_completions = 0; try { duality_completions = playerData.metrics.data.metrics["3862075762"].objectiveProgress.progress; } catch (err) { }
   var duality_flawless_completions = 0; try { duality_flawless_completions = playerData.metrics.data.metrics["1034442994"].objectiveProgress.progress; } catch (err) { }
 
+  //Containments
+  var containment_tiers_completed = 0; try { containment_tiers_completed = playerData.metrics.data.metrics["1864866268"].objectiveProgress.progress; } catch (err) { }
+  var containment_bosses_killed = 0; try { containment_bosses_killed = playerData.metrics.data.metrics["3151143989"].objectiveProgress.progress; } catch (err) { }
+
   return {
     "menageire": menageire,
     "runes": runes,
@@ -741,6 +746,10 @@ function FormatOthers(clan, memberData, playerData, oldPlayerData) {
       "prophecy": { "completions": prophecy_completions, "flawless": prophecy_flawless_completions },
       "grasp": { "completions": grasp_completions, "flawless": grasp_flawless_completions },
       "duality": { "completions": duality_completions, "flawless": duality_flawless_completions }
+    },
+    "containments": {
+      "tiers": containment_tiers_completed,
+      "bosses": containment_bosses_killed
     },
     "presage": {
       "normal": presageNormal,

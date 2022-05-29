@@ -78,6 +78,10 @@ var userSchema = new Schema({
       flawless: DefaultNumber
     }
   },
+  containments: {
+    tiers: DefaultNumber,
+    bosses: DefaultNumber
+  },
   presage: {
     normal: DefaultNumber,
     master: DefaultNumber
