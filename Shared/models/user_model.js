@@ -144,6 +144,7 @@ var userSchema = new Schema({
   },
   joinDate: Date,
   lastPlayed: Date,
+  lastPlayedCharacterId: String,
   lastUpdated: { type: Date, default: Date.now },
   isPrivate: { type: Boolean, default: false },
   firstLoad: { type: Boolean, default: true }

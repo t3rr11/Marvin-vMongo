@@ -45,6 +45,7 @@ const GetProfile = async (member, components, callback) => {
   const { isError, Data } = await BungieReq(`/Platform/Destiny2/${member.destinyUserInfo.membershipType}/Profile/${member.destinyUserInfo.membershipId}/?components=${components}`);
   callback(member, isError, Data);
 }
+const GetProfileWithoutCallback = async (membershipType, membershipId, components) => BungieReq(`/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=${components}`);
 const GetActivityHistory = async (membershipType, membershipId, characterId, count, mode, page = 0) => BungieReq(`/Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/Activities/?count=${count}&mode=${mode}&page=${page}`);
 const GetHistoricStatsForAccount = async (membershipType, membershipId) => BungieReq(`/Platform/Destiny2/${membershipType}/Account/${membershipId}/Stats/?groups=101`);
 const GetPGCR = async (instanceId) => BungieReq(`/Platform/Destiny2/Stats/PostGameCarnageReport/${instanceId}/`);
@@ -86,7 +87,7 @@ const GetVendor = async (hash, callback) => { const { isError, Data } = await No
 const GetCookies = async (callback) => { const { isError, Data } = await BungieReq(`/Platform/Destiny2/3/Profile/4611686018484014881/?components=202`); callback(isError, Data); }
 
 module.exports = {
-  GetProfile, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, GetMembershipsForCurrentUser,
+  GetProfile, GetProfileWithoutCallback, GetActivityHistory, GetHistoricStatsForAccount, GetPGCR, GetManifestVersion, GetManifest, SearchUsers, GetMembershipsForCurrentUser,
   GetTWABs, GetClanFromMbmID, GetClan, GetClanMembers, GetSettings, GetClanWars, GetMembershipsById, SearchDestinyPlayer, SearchPrefixDestinyPlayer,
   GetGlobalTimePlayedLeaderboard, GetGlobalSeasonRankLeaderboard, GetGlobalTriumphScoreLeaderboard, GetGlobalValorLeaderboard, GetGlobalInfamyLeaderboard, GetGlobalLeviLeaderboard,
   GetGlobalEoWLeaderboard, GetGlobalSoSLeaderboard, GetGlobalLeviPrestigeLeaderboard, GetGlobalEoWPrestigeLeaderboard, GetGlobalSoSPrestigeLeaderboard,

@@ -203,33 +203,36 @@ async function GetTrackedClans(prefix, message, command) {
   Database.findGuildByID(message.guild.id, async function findGuildByID(isError, isFound, guild) {
     if(!isError) {
       if(isFound) {
-        var clanData = { "names": [], "ids":[] }
-        for(var i in guild.clans) {
-          await new Promise(resolve => Database.findClanByID(guild.clans[i], function(isError, isFound, clan) {
-            if(!isError) {
-              if(isFound) {
-                clanData.names.push(clan.clanName);
-                clanData.ids.push(clan.clanID);
+        if(guild?.clans?.length > 0) {
+          var clanData = { "names": [], "ids":[] }
+          for(var i in guild.clans) {
+            await new Promise(resolve => Database.findClanByID(guild.clans[i], function(isError, isFound, clan) {
+              if(!isError) {
+                if(isFound) {
+                  clanData.names.push(clan.clanName);
+                  clanData.ids.push(clan.clanID);
+                }
+                else {
+                  clanData.names.push(`Unknown. Still loading data...`);
+                  clanData.ids.push(guild.clans[i]);
+                }
               }
-              else {
-                clanData.names.push(`Unknown. Still loading data...`);
-                clanData.ids.push(guild.clans[i]);
-              }
-            }
-            resolve(true);
-          }));
+              resolve(true);
+            }));
+          }
+          const embed = new Discord.MessageEmbed()
+          .setColor(0x0099FF)
+          .setTitle("Clans Tracked")
+          .setDescription(`To add another clan use: \`${prefix}add clan\`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: \`${prefix}remove clan 123456\``)
+          .addField("Name", clanData.names, true)
+          .addField("Clan ID", clanData.ids, true)
+          .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
+          .setTimestamp()
+          message.channel.send({ embeds: [embed] });
         }
-        const embed = new Discord.MessageEmbed()
-        .setColor(0x0099FF)
-        .setTitle("Clans Tracked")
-        .setDescription(`To add another clan use: \`${prefix}add clan\`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: \`${prefix}remove clan 123456\``)
-        .addField("Name", clanData.names, true)
-        .addField("Clan ID", clanData.ids, true)
-        .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
-        .setTimestamp()
-        message.channel.send({ embeds: [embed] });
+        else { message.reply(`Could not find and clans tracked by this guild. To add one use \`${prefix}set clan\``); }
       }
-      else { message.reply("Could not find and clans tracked by this guild."); }
+      else { message.reply(`Could not find and clans tracked by this guild. To add one use \`${prefix}set clan\``); }
     }
     else { ErrorHandler("Med", guild); message.reply("Could not find and clans tracked by this guild."); }
   });

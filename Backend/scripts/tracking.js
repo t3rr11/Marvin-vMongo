@@ -398,6 +398,7 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       lastActivity: AccountInfo.lastActivity,
       joinDate: memberData.joinDate,
       lastPlayed: AccountInfo.lastPlayed,
+      lastPlayedCharacterId: AccountInfo.lastPlayedCharacterId,
       lastUpdated: new Date(),
       isPrivate: false,
       firstLoad: false
@@ -436,7 +437,7 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     //Get users accurate light levels per character
     lightLevels.push({
       "id": characterIds[i],
-      "class": Misc.GetClassName(characterIds[i].classType),
+      "class": Misc.GetClassName(characters[characterIds[i]].classType),
       "light": characters[characterIds[i]].light
     });
 
@@ -466,6 +467,7 @@ function FormatAccountInfo(clan, memberData, playerData, oldPlayerData) {
     "highestPower": highestPower,
     "timePlayed": timePlayed,
     "lastPlayed": lastPlayed,
+    "lastPlayedCharacterId": lastPlayedCharacter.characterId,
     "currentClass": lastPlayedCharacter ? Misc.GetClassName(lastPlayedCharacter.classType) : "Unknown",
     "dlcOwned": dlcOwned,
     "lastActivity": lastActivity

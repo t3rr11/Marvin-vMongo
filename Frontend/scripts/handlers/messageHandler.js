@@ -147,6 +147,9 @@ function MessageHandler(client, message, guilds, users, APIDisabled, callback) {
         case command.startsWith("profile"): { GetProfile(prefix, message, command, "profile", users, registeredUser); break; }
         case command.startsWith("drystreak "): { GetDrystreak(prefix, message, command); break; }
         case command.startsWith("when "): { GetBroadcastDates(prefix, message, command); break; }
+        case command.startsWith("last raid"): { GetLastActivity(prefix, message, registeredUser, 4); break; }
+        case command.startsWith("last pvp"): { GetLastActivity(prefix, message, registeredUser, 5); break; }
+        case command.startsWith("last dungeon"): { GetLastActivity(prefix, message, registeredUser, 82); break; }
         case command.startsWith("titles total"): case command.startsWith("total titles"): {
           GetTitleLeaderboard(prefix, message, command, users, registeredUser);
           break;
@@ -1505,6 +1508,47 @@ async function GetBroadcastItems(prefix, message, command) {
     if(err.code === 50035) { message.channel.send("Discord has a limit of 1024 characters, for this reason i cannot send this message."); }
     else { Log.SaveLog("Frontend", "Error", err); message.channel.send("There was an error, this has been logged."); }
   });
+}
+async function GetLastActivity(prefix, message, registeredUser, mode) {
+  if(registeredUser) {
+    try {
+      const memberProfile = await RequestHandler.GetProfileWithoutCallback(registeredUser.platform, registeredUser.membershipID, "100, 200, 201");
+
+      if(memberProfile.isError || !memberProfile.Data?.Response?.profile) {
+        Log.SaveLog("Frontend", "Error", 'Error retrieving PGCR - Profile; ' + JSON.stringify(memberProfile.Data));
+        message.reply('Error retrieving your last activity. Try again later!');
+        return;
+      }
+  
+      let characterIds = memberProfile.Data.Response.profile.data.characterIds;
+      let characters = memberProfile.Data.Response.characters.data;
+      let lastPlayedCharacter = characters[characterIds[0]];
+  
+      for(let i in characterIds) {
+        if(new Date(characters[characterIds[i]].dateLastPlayed).getTime() > new Date(lastPlayedCharacter.dateLastPlayed).getTime()) {
+          lastPlayedCharacter = characters[characterIds[i]];
+        }
+      }
+  
+      const lastActivity = await RequestHandler.GetActivityHistory('-1', registeredUser.membershipID, lastPlayedCharacter.characterId, 1, mode, 0);
+    
+      if(lastActivity.isError || !lastActivity.Data?.Response?.activities?.[0]?.activityDetails?.instanceId) {
+        Log.SaveLog("Frontend", "Error", 'Error retrieving PGCR - Activity; ' + JSON.stringify(lastActivity.Data));
+        message.reply('Error retrieving your last activity. Try again later!');
+        return;
+      }
+    
+      message.reply(`Last Raid Post Game Report (PGCR) - https://bray.tech/report/${ lastActivity.Data?.Response?.activities?.[0]?.activityDetails?.instanceId }`);
+    }
+    catch (err) {
+      Log.SaveLog("Frontend", "Error", 'Error retrieving PGCR - Error; ' + err);
+      message.reply('Error retrieving your last activity. Try again later!');
+    }
+  }
+  else {
+    Log.SaveLog("Frontend", "Error", 'User not registered');
+    message.reply(`Please register first so that i know who you are before I lookup your recent activity. Use: \`${prefix}Register\``);
+  }
 }
 
 function BuildLeaderboard(command, message, players, registeredPlayer) {
