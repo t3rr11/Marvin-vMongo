@@ -5,9 +5,9 @@ const msPerDay = 86400000;
 const cycleInfo = {
   epoch: {
     zeroHour: new Date(`May 7 2019 ${ resetTime }`).getTime(),
-    lostSector: new Date(`March 18 2022 ${ resetTime }`).getTime(),
+    lostSector: new Date(`May 24 2022 ${ resetTime }`).getTime(),
     grandMaster: new Date(`December 22 2020 ${ resetTime }`).getTime(),
-    wellSpring: new Date(`March 18 2022 ${ resetTime }`).getTime(),
+    wellSpring: new Date(`June 6 2022 ${ resetTime }`).getTime(),
   },
   cycle: {
     zeroHour: 3,
@@ -31,26 +31,28 @@ const getLoot = (type) => {
 
 const getSector = (type) => {
   switch(type) {
-    case 0: { return { name: "Aphelion's Rest", masterHash: 1898610131, legendHash: 1898610132, planet: "The Dreaming City" } }
-    case 1: { return { name: "Bay of Drowned Wishes", masterHash: 660710120, legendHash: 660710127, planet: "The Dreaming City" } }
-    case 2: { return { name: "Chamber of Starlight", masterHash: 4206916276, legendHash: 4206916275, planet: "The Dreaming City" } }
-    case 3: { return { name: "K1 Revelations", masterHash: 3911969238, legendHash: 3911969233, planet: "Moon" } }
-    case 4: { return { name: "K1 Crew Quarters", masterHash: 184186578, legendHash: 184186581, planet: "Moon" } }
-    case 5: { return { name: "K1 Logistics", masterHash: 567131519, legendHash: 567131512, planet: "Moon" } }
-    case 6: { return { name: "Metamorphosis", masterHash: 3678847134, legendHash: 3678847129, planet: "Throne World" } }
-    case 7: { return { name: "Sepulcher", masterHash: 480864721, legendHash: 480864726, planet: "Throne World" } }
-    case 8: { return { name: "Extraction", masterHash: 145221020, legendHash: 145221019, planet: "Throne World" } }
-    case 9: { return { name: "Veles Labyrinth", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
-    case 10: { return { name: "Exodus Garden 2A", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
+    case 0: { return { name: "K1 Crew Quarters", masterHash: 184186578, legendHash: 184186581, planet: "Moon" } }
+    case 1: { return { name: "K1 Logistics", masterHash: 567131519, legendHash: 567131512, planet: "Moon" } }
+    case 2: { return { name: "K1 Revelations", masterHash: 3911969238, legendHash: 3911969233, planet: "Moon" } }
+    case 3: { return { name: "K1 Communion", masterHash: 2829206720, legendHash: 2829206727, planet: "Moon" } }
+    case 4: { return { name: "The Conflux", masterHash: 1163502296, legendHash: 1163502303, planet: "Nessus" } }
+    case 5: { return { name: "Metamorphosis", masterHash: 3678847134, legendHash: 3678847129, planet: "Throne World" } }
+    case 6: { return { name: "Sepulcher", masterHash: 480864721, legendHash: 480864726, planet: "Throne World" } }
+    case 7: { return { name: "Extraction", masterHash: 145221020, legendHash: 145221019, planet: "Throne World" } }
+    case 8: { return { name: "Excavation Site XII", masterHash: 548616653, legendHash: 548616650, planet: "EDZ" } }
+    case 9: { return { name: "Skydock IV", masterHash: 55186256, legendHash: 55186263, planet: "EDZ" } }
+    case 10: { return { name: "The Quarry", masterHash: 3253890600, legendHash: 3253890607, planet: "EDZ" } }
 
+    // case 0: { return { name: "Aphelion's Rest", masterHash: 1898610131, legendHash: 1898610132, planet: "The Dreaming City" } }
+    // case 1: { return { name: "Bay of Drowned Wishes", masterHash: 660710120, legendHash: 660710127, planet: "The Dreaming City" } }
+    // case 2: { return { name: "Chamber of Starlight", masterHash: 4206916276, legendHash: 4206916275, planet: "The Dreaming City" } }
+    // case 9: { return { name: "Veles Labyrinth", masterHash: 3094493727, legendHash: 3094493720, planet: "Cosmodrome" } }
+    // case 10: { return { name: "Exodus Garden 2A", masterHash: 2936791995, legendHash: 2936791996, planet: "Cosmodrome" } }
     // case 3: { return { name: "The Empty Tank", masterHash: 2019961993, legendHash: 2019961998, planet: "Tangled Shore" } }
-    // case 5: { return { name: "K1 Communion", masterHash: 2829206720, legendHash: 2829206727, planet: "Moon" } }
     // case 8: { return { name: "Consealed Void", masterHash: 912873274, legendHash: 912873277, planet: "Europa" } }
     // case 9: { return { name: "Bunker E15", masterHash: 1648125538, legendHash: 1648125541, planet: "Europa" } }
     // case 10: { return { name: "Perdition", masterHash: 1070981425, legendHash: 1070981430, planet: "Europa" } }
-    // case 6: { return { name: "The Quarry", masterHash: 3253890600, legendHash: 3253890607, planet: "EDZ" } }
     // case 7: { return { name: "Scavengers Den", masterHash: 1905792146, legendHash: 1905792149, planet: "EDZ" } }
-    // case 8: { return { name: "Excavation Site XII", masterHash: 548616653, legendHash: 548616650, planet: "EDZ" } }
   }
 }
 
