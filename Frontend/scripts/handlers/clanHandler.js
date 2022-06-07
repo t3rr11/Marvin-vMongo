@@ -224,8 +224,8 @@ async function GetTrackedClans(prefix, message, command) {
           .setColor(0x0099FF)
           .setTitle("Clans Tracked")
           .setDescription(`To add another clan use: \`${prefix}add clan\`\n\nTo remove a tracked clan, use the clan id associated with the clan.\nExample: \`${prefix}remove clan 123456\``)
-          .addField("Name", clanData.names, true)
-          .addField("Clan ID", clanData.ids, true)
+          .addField("Name", clanData.names.join('\n'), true)
+          .addField("Clan ID", clanData.ids.join('\n'), true)
           .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
           .setTimestamp()
           message.channel.send({ embeds: [embed] });

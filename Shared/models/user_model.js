@@ -13,6 +13,7 @@ var userSchema = new Schema({
   infamy: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
   valor: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
   trialsRank: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
+  ironBanner: { current: DefaultNumber, resets: DefaultNumber, seasonal: DefaultNumber },
   glory: DefaultNumber,
   triumphScore: {
     score: DefaultNumber,
@@ -23,10 +24,6 @@ var userSchema = new Schema({
   seasonRank: DefaultNumber,
   powerBonus: DefaultNumber,
   lightLevels: { type: Array, default: [] },
-  ironBanner: {
-    kills: DefaultNumber,
-    wins: DefaultNumber
-  },
   raids: {
     levi: DefaultNumber,
     eow: DefaultNumber,

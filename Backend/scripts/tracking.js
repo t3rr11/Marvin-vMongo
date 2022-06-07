@@ -372,6 +372,11 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
         resets: Rankings.valor.currentResetCount,
         seasonal: Rankings.valor.currentProgress + (Rankings.valor.currentResetCount * 10000)
       },
+      ironBanner: {
+        current: Rankings.ironBanner?.currentProgress || 0,
+        resets: Rankings.ironBanner?.currentResetCount || 0,
+        seasonal: (Rankings.ironBanner?.currentProgress || 0) + ((Rankings.ironBanner?.currentResetCount || 0) * 10000)
+      },
       trialsRank: {
         current: Rankings.trialsRank,
         resets: Math.floor(Rankings.trialsRank / 10000),
@@ -386,7 +391,6 @@ async function UpdatePlayer(clan, memberData, playerData, oldPlayerData) {
       grandmasters: Triumphs.grandmasters,
       triumphs: Triumphs.triumphs,
       lightLevels: AccountInfo.lightLevels,
-      ironBanner: Rankings.ironBanner,
       raids: Raids.raids,
       totalRaids: Raids.totalRaids,
       empireHunts: Triumphs.empireHunts,
@@ -478,13 +482,12 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var infamy = { currentProgress: 0, currentResetCount: 0 };
   var valor = { currentProgress: 0, currentResetCount: 0 };
+  var ironBanner = { currentProgress: 0, currentResetCount: 0 };
   try { valor = playerData.characterProgressions.data[characterIds[0]].progressions["2083746873"]; } catch (err) { console.log(err); }
   try { infamy = playerData.characterProgressions.data[characterIds[0]].progressions["3008065600"]; } catch (err) { }
+  try { ironBanner = playerData.characterProgressions.data[characterIds[0]].progressions["599071390"]; } catch (err) { }
   var glory = 0; try { glory = playerData.metrics.data.metrics["268448617"].objectiveProgress.progress; } catch (err) { }
-  var ibKills = 0; try { ibKills = playerData.profileRecords.data.records["999240767"].intervalObjectives[2].progress; } catch (err) { }
-  var ibWins = 0; try { ibWins = playerData.profileRecords.data.records["2096302465"].intervalObjectives[2].progress; } catch (err) { }
   var trialsRank = "0"; try { trialsRank = playerData.characterProgressions.data[characterIds[0]].progressions["2755675426"].currentProgress; } catch (err) { }
-
 
   //Trials
   var overall_trialsWins = 0; try { overall_trialsWins = playerData.metrics.data.metrics["1365664208"].objectiveProgress.progress; } catch (err) { }
@@ -512,10 +515,7 @@ function FormatRankings(clan, memberData, playerData, oldPlayerData) {
     "valor": valor,
     "glory": glory,
     "trialsRank": trialsRank,
-    "ironBanner": {
-      "kills": ibKills,
-      "wins": ibWins,
-    },
+    "ironBanner": ironBanner,
     "trials": {
       "overall": {
         "wins": overall_trialsWins,
@@ -608,19 +608,8 @@ function FormatTitles(clan, memberData, playerData, oldPlayerData) {
       }
     }
   }
-
-  if(oldPlayerData) {
-    if(oldPlayerData.Titles) {
-      if(titles.length >= oldPlayerData.Titles.titles.length) { return titles; }
-      else {
-        console.log(`Tried to insert less titles than previous entered`);
-        console.log(`Old Titles: ${ oldPlayerData.Titles.titles.length }`);
-        console.log(`New Titles: ${ titles.length }`);
-        return oldPlayerData.Titles.titles;
-      }
-    } else { return titles; }
-  } else { return titles; }
   
+  return titles;
 }
 
 function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {

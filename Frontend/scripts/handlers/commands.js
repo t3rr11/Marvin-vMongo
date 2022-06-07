@@ -65,17 +65,16 @@ const Commands = [
   // Iron banner
   { 
     name: 'Iron Banner',
-    description: 'Seasonal Iron Banner stats are not available, so overall stats it is.',
     size: 10,
-    title: 'Top 10 Overall Iron Banner Rankings',
+    title: 'Top 10 Seasonal Iron Banner Rankings',
     helpMenus: ['Rankings'],
     leaderboardURL: 'ironBanner',
-    sorting: 'ironBanner.kills',
-    commands: ['iron banner'],
+    sorting: 'ironBanner.seasonal',
+    commands: ['iron banner', 'ib', 'ironbanner'],
     fields: [
       { name: 'Name', type: 'Name', inline: true },
-      { name: 'Kills', type: 'Leaderboard', data: 'ironBanner.kills', inline: true },
-      { name: 'Wins', type: 'Leaderboard', data: 'ironBanner.wins', inline: true }
+      { name: 'Rank', type: 'Leaderboard', data: 'ironBanner.seasonal', inline: true },
+      { name: 'Resets', type: 'Reset', data: 'ironBanner.resets', inline: true }
     ]
   },
 
