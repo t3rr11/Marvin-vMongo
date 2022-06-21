@@ -317,7 +317,7 @@ client.on("guildCreate", guild => {
           .setTitle("Hey there!")
           .setColor(0x0099FF)
           .setDescription("I am Marvin. To set me up first register with me by using the `~Register example` command. Replace example with your in-game username. \n\nOnce registration is complete use the `~Set clan` command and **then wait 5 minutes** whilst I scan your clan. That's it you'll be ready to go! \n\nTry out clan broadcasts this can be set up by typing `~Set Broadcasts #general` (does not have to be general). \n\nSee `~help` to see what I can do!")
-          .setFooter({ name: Config.defaultFooter, iconURL: Config.defaultLogoURL })
+          .setFooter(DiscordConfig.defaultFooter, DiscordConfig.defaultLogoURL)
           .setTimestamp();
           try { getDefaultChannel(guild).send({ embeds: [embed] }) }
           catch (err) { Log.SaveLog("Frontend", "Error", `Failed to give welcome message to: ${ guild.name } (${ guild.id })`); }
