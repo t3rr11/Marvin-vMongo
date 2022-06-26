@@ -973,7 +973,7 @@ async function GetHelp(prefix, message, command) {
     case "help drystreaks": case "help drystreak": case "drystreaks": {
       embed.setTitle("Drystreaks Help Menu");
       embed.setDescription(`Here is a list of drystreak commands! Example: \`${prefix}Drystreak Anarchy\``);
-      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\`\n\`${prefix}Drystreak Collective Obligation\``);
+      embed.addField("Commands", `\`${prefix}Drystreak One Thousand Voices\`\n\`${prefix}Drystreak Anarchy\`\n\`${prefix}Drystreak Always on Time\`\n\`${prefix}Drystreak Tarrabah\`\n\`${prefix}Drystreak Luxurious Toast\`\n\`${prefix}Drystreak Eyes of Tomorrow\`\n\`${prefix}Drystreak Vex Mythoclast\`\n\`${prefix}Drystreak Collective Obligation\`\n\`${prefix}Drystreak Heartshadow\``);
       break;
     }
     default: {
@@ -1338,6 +1338,7 @@ async function GetDrystreak(prefix, message, command) {
     case "VEX MYTHOCAST": case "2300465938": { collectibleHash = 2300465938; isFound = true; break; }
     case "COLLECTIVE": case "2817568609": { collectibleHash = 2817568609; isFound = true; break; }
     case "COLLECTIVE OBLIGATION": case "2817568609": { collectibleHash = 2817568609; isFound = true; break; }
+    case "HEARTSHADOW": case "467760883": { collectibleHash = 467760883; isFound = true; break; }
     default: { break; }
   }
 
@@ -1386,6 +1387,7 @@ async function GetDrystreak(prefix, message, command) {
         else if(collectibleHash === 753200559) { completions = user.raids.dsc }
         else if(collectibleHash === 2300465938) { completions = user.raids.vog }
         else if(collectibleHash === 2817568609) { completions = user.raids.vow }
+        else if(collectibleHash === 467760883) { completions = user.dungeons.duality.completions }
         if(Misc.GetItemState(itemState)?.notAcquired) {
           drystreaks.push({
             "displayName": user.displayName,

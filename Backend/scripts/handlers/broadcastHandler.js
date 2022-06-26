@@ -44,6 +44,7 @@ function sendItemBroadcast(clan, guild, itemHash, playerData, season) {
   else if(itemHash === 753200559) { count = playerData.User.raids.dsc; } // Eyes of Tomorrow
   else if(itemHash === 2300465938) { count = playerData.User.raids.vog; } // Vex Mythoclast
   else if(itemHash === 2817568609) { count = playerData.User.raids.vow; } // Collective Obligation
+  else if(itemHash === 467760883) { count = playerData.User.dungeons.duality.completions; } // Heartshadow
   else if(itemHash === 2298387876) { count = playerData.User.trials.overall.wins; } // In Memoriam Shell
   if(itemDef) {
     console.log(`itemName: ${ itemDef.displayProperties.name }, itemHash: ${ itemHash }, Count: ${ count }`);
