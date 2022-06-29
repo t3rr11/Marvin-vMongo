@@ -1532,6 +1532,7 @@ async function GetLastActivity(prefix, message, registeredUser, mode) {
         }
       }
   
+      const modeName = mode === 4 ? 'Raid' : mode === 5 ? 'PvP' : mode === 82 ? 'Dungeon' : 'Unknown';
       const lastActivity = await RequestHandler.GetActivityHistory('-1', registeredUser.membershipID, lastPlayedCharacter.characterId, 1, mode, 0);
     
       if(lastActivity.isError || !lastActivity.Data?.Response?.activities?.[0]?.activityDetails?.instanceId) {
@@ -1540,7 +1541,7 @@ async function GetLastActivity(prefix, message, registeredUser, mode) {
         return;
       }
     
-      message.reply(`Last Raid Post Game Report (PGCR) - https://bray.tech/report/${ lastActivity.Data?.Response?.activities?.[0]?.activityDetails?.instanceId }`);
+      message.reply(`Last ${ modeName } Post Game Report (PGCR) - https://bray.tech/report/${ lastActivity.Data?.Response?.activities?.[0]?.activityDetails?.instanceId }`);
     }
     catch (err) {
       Log.SaveLog("Frontend", "Error", 'Error retrieving PGCR - Error; ' + err);
