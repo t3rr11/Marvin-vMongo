@@ -640,18 +640,21 @@ function FormatSeasonal(clan, memberData, playerData, oldPlayerData) {
 function FormatTriumphs(clan, memberData, playerData, oldPlayerData) {
   var characterIds = playerData.profile.data.characterIds;
   var grandmasters = {
-    // theHollowedLair: playerData.profileRecords.data.records[1839177494]?.objectives[0]?.progress,
-    // lakeOfShadows: playerData.profileRecords.data.records[2542468646]?.objectives[0]?.progress,
-    // exodusCrash: playerData.profileRecords.data.records[2916711327]?.objectives[0]?.progress,
-    // theCorruped: playerData.profileRecords.data.records[406948259]?.objectives[0]?.progress,
-    // theDevilsLair: playerData.profileRecords.data.records[3663146391]?.objectives[0]?.progress,
-    // provingGrounds: playerData.profileRecords.data.records[2483704578]?.objectives[0]?.progress,
-    theArmsDealer: playerData.profileRecords.data.records[3176422761]?.objectives[0]?.progress,
-    scarletKeep: playerData.profileRecords.data.records[1081080653]?.objectives[0]?.progress,
-    theGlassway: playerData.profileRecords.data.records[2520907454]?.objectives[0]?.progress,
-    fallenSABER: playerData.profileRecords.data.records[371577627]?.objectives[0]?.progress,
-    theLightblade: playerData.profileRecords.data.records[2742680542]?.objectives[0]?.progress,
-    birthplaceOfTheVile: playerData.profileRecords.data.records[3604959241]?.objectives[0]?.progress,
+    provingGrounds: playerData.profileRecords.data.records[2483704578]?.objectives[0]?.progress || 0,
+    insightTerminus: playerData.profileRecords.data.records[2117601105]?.objectives[0]?.progress || 0,
+    wardenOfNothing: playerData.profileRecords.data.records[2589774932]?.objectives[0]?.progress || 0,
+    theCorruped: playerData.profileRecords.data.records[406948259]?.objectives[0]?.progress || 0,
+    theInvertedSpire: playerData.profileRecords.data.records[1119359150]?.objectives[0]?.progress || 0,
+    theArmsDealer: playerData.profileRecords.data.records[3176422761]?.objectives[0]?.progress || 0,
+    theHollowedLair: playerData.profileRecords.data.records[1839177494]?.objectives[0]?.progress || 0,
+    lakeOfShadows: playerData.profileRecords.data.records[2542468646]?.objectives[0]?.progress || 0,
+    exodusCrash: playerData.profileRecords.data.records[2916711327]?.objectives[0]?.progress || 0,
+    theDevilsLair: playerData.profileRecords.data.records[3663146391]?.objectives[0]?.progress || 0,
+    scarletKeep: playerData.profileRecords.data.records[1081080653]?.objectives[0]?.progress || 0,
+    theGlassway: playerData.profileRecords.data.records[2520907454]?.objectives[0]?.progress || 0,
+    fallenSABER: playerData.profileRecords.data.records[371577627]?.objectives[0]?.progress || 0,
+    theLightblade: playerData.profileRecords.data.records[2742680542]?.objectives[0]?.progress || 0,
+    birthplaceOfTheVile: playerData.profileRecords.data.records[3604959241]?.objectives[0]?.progress || 0
   }
 
   //Update Check triumphs and the user model as well.
